@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-02-09 17:14:50 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-02-13 23:03:36 by NAKAMURA Takahide> -->
 
-  <project name="AKIRA" default="runall" basedir=".">
+  <project name="GTracer" default="run" basedir=".">
 
 
     <!-- environment -->
@@ -11,10 +11,6 @@
     <property name="jar"       value="${JAVA_HOME}/bin/jar" />
     <property name="jarsigner" value="${JAVA_HOME}/bin/jarsigner" />
 
-    <property name="javadoc.dir" value="javadoc" />
-    <property name="doctarget" value="converter:data:tools:viewer" />
-
-
 
 
     <!-- set classpath -->
@@ -22,17 +18,18 @@
       <pathelement path="." />
     </path>
 
-    <!-- make conv-->
     <target name="make">
       <javac includeAntRuntime="true" encoding="UTF-8" srcdir="." deprecation="on" debug="${dbg}" source="1.5" target="1.5">
         <include name="GTracer.java" />
-        <include name="src/*.java" />
+        <include name="filter/*.java" />
+        <classpath refid="libpath_ref" />
       </javac>
     </target>
 
     <!-- run conv-->
     <target name="run" depends="make" description="run">
       <java classname="GTracer" classpath="." fork="yes" maxmemory="1024m"  >
+        <classpath refid="libpath_ref" />
       </java>
     </target>
 
@@ -40,14 +37,6 @@
     <!-- Clean -->
     <target name="clean" >
       <delete>
-        <fileset dir="." >
-          <include name="*.zip" />
-          <include name="*.pov" />
-          <include name="*.png" />
-          <include name="*.Akira" />
-          <include name="*.jar" />
-          <include name="AKIRA*.tgz" />
-        </fileset>
         <fileset dir="." includes="**/*.class" />
       </delete>
     </target>
