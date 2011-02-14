@@ -48,21 +48,53 @@ public class GTracer extends JFrame implements ActionListener{
 
 
   public void actionPerformed(ActionEvent ae){
-    if(ae.getSource() == doTraceButton){
+    if(ae.getSource() == traceButton){
       tracedImg=tracer.startTrace(originalImg);
+    }else if(ae.getSource() == saveButton){
+      String currentDir=System.getProperty("user.dir");
+      JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
+      jfc.setDialogTitle("save image");
+
+      String str = null;
+      int s = jfc.showSaveDialog( null );
+      if( s == JFileChooser.APPROVE_OPTION ){
+        File file = jfc.getSelectedFile();
+        str = new String( file.getAbsolutePath() );
+      }
+
+      //save
+      if(str!=null){
+        File imgfile = new File(str+".png");
+        try{
+          ImageIO.write(tracedImg, "png", imgfile);
+        }catch(Exception e){
+        }
+      }
     }
     myCanv.repaint();
   }
 
+  //get extension
+  private static String getSuffix(String fileName) {
+    if(fileName == null)return null;
+    int point = fileName.lastIndexOf(".");
+    if (point != -1)return fileName.substring(point + 1);
+    return fileName;
+  }
 
-  private JButton doTraceButton;
+
+  private JButton traceButton;
+  private JButton saveButton;
   private MyCanvas myCanv;
   private JPanel makePanel(){
 
     //button
-    doTraceButton=new JButton("trace");
-    doTraceButton.addActionListener( this );
-    doTraceButton.setFocusable(false);
+    traceButton=new JButton("trace");
+    traceButton.addActionListener( this );
+    traceButton.setFocusable(false);
+    saveButton=new JButton("save");
+    saveButton.addActionListener( this );
+    saveButton.setFocusable(false);
 
     //canvas
     myCanv=new MyCanvas();
@@ -73,17 +105,20 @@ public class GTracer extends JFrame implements ActionListener{
     //set layout
     SpringLayout layout = new SpringLayout();
     jp.setLayout( layout );
-    layout.putConstraint( SpringLayout.SOUTH, doTraceButton, -5,SpringLayout.SOUTH, jp );
-    layout.putConstraint( SpringLayout.WEST, doTraceButton, 5,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.SOUTH, traceButton, -5,SpringLayout.SOUTH, jp );
+    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.SOUTH, saveButton, 0,SpringLayout.SOUTH, traceButton );
+    layout.putConstraint( SpringLayout.WEST, saveButton, 5,SpringLayout.EAST, traceButton);
 
-    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, doTraceButton );
+    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, traceButton);
     layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
 
     //add to jpanel
     jp.add(myCanv);
-    jp.add(doTraceButton);
+    jp.add(traceButton);
+    jp.add(saveButton);
     return jp;
   }
 

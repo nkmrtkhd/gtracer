@@ -19,6 +19,7 @@ public class Tracer{
                                                orgBimg.getType());
     Graphics2D g2 = copyBimg.createGraphics();
     g2.drawImage(orgBimg, 0, 0, null);
+
     //convert to gray scale
     for (int y = 0; y < orgBimg.getHeight();y++){
       for (int x = 0; x < orgBimg.getWidth();x++){
