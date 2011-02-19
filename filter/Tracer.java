@@ -6,32 +6,62 @@ import java.io.*;
 import java.awt.image.*;
 import javax.imageio.*;
 
+import filter.*;
+
 
 public class Tracer{
-  //constructor
-  public Tracer(){
-  }
 
-  public BufferedImage startTrace(BufferedImage orgBimg){
+  int height;
+  int width;
+  short[][] lengthMap;
+  BufferedImage copyBimg;
+  //constructor
+  public Tracer(BufferedImage orgBimg){
     //copy original to copyBimg
-    BufferedImage copyBimg = new BufferedImage(orgBimg.getWidth(),
-                                               orgBimg.getHeight(),
-                                               orgBimg.getType());
+    copyBimg = new BufferedImage(orgBimg.getWidth(),
+                                 orgBimg.getHeight(),
+                                 orgBimg.getType());
+
     Graphics2D g2 = copyBimg.createGraphics();
     g2.drawImage(orgBimg, 0, 0, null);
 
+    height=orgBimg.getHeight();
+    width=orgBimg.getWidth();
+    lengthMap=null;
+    lengthMap=new short[width][height];
+
     //convert to gray scale
-    for (int y = 0; y < orgBimg.getHeight();y++){
-      for (int x = 0; x < orgBimg.getWidth();x++){
+    for (int x = 0; x < width;x++){
+      for (int y = 0; y < height;y++){
         int rgb = orgBimg.getRGB(x, y);
-        int a = (rgb>> 24) & 0xff;
+        //r,g,b,a, has 0~255
+        int a = (rgb >> 24) & 0xff;
         int r = (rgb >> 16) & 0xff;
         int g = (rgb >> 8) & 0xff;
         int b = rgb & 0xff;
         int m = (2*r + 4*g + b) / 7;
+        if(m<250){
+          if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
+        }
+      }
+    }
+  }
+
+  public BufferedImage doFilter(int filterType){
+    if(filterType==0)LengthMap.setChessBoard(lengthMap,width,height);
+    if(filterType==1)LengthMap.setCityBlock(lengthMap,width,height);
+    if(filterType==3)Boner.delete(lengthMap,width,height);
+
+    for (int x = 0; x < width;x++){
+      for (int y = 0; y < height;y++){
+        int m=255;//white
+        if(lengthMap[x][y]>0)m=0;//black
+        if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;
+        int a=255;
         copyBimg.setRGB(x, y, new Color(m, m, m, a).getRGB());
       }
     }
+
 
     return copyBimg;
   }

@@ -43,13 +43,17 @@ public class GTracer extends JFrame implements ActionListener{
     setVisible(true);
 
     //tracer
-    tracer=new Tracer();
+    tracer=new Tracer(originalImg);
   }
 
 
   public void actionPerformed(ActionEvent ae){
-    if(ae.getSource() == traceButton){
-      tracedImg=tracer.startTrace(originalImg);
+    if(ae.getSource() == chessButton){
+      tracedImg=tracer.doFilter(1);
+    }else if(ae.getSource() == cityButton){
+      tracedImg=tracer.doFilter(2);
+    }else if(ae.getSource() == boneButton){
+      tracedImg=tracer.doFilter(3);
     }else if(ae.getSource() == saveButton){
       String currentDir=System.getProperty("user.dir");
       JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
@@ -83,15 +87,24 @@ public class GTracer extends JFrame implements ActionListener{
   }
 
 
-  private JButton traceButton;
+  private JButton chessButton;
+  private JButton cityButton;
+  private JButton boneButton;
   private JButton saveButton;
   private MyCanvas myCanv;
   private JPanel makePanel(){
 
     //button
-    traceButton=new JButton("trace");
-    traceButton.addActionListener( this );
-    traceButton.setFocusable(false);
+    chessButton=new JButton("chess");
+    chessButton.addActionListener( this );
+    chessButton.setFocusable(false);
+    cityButton=new JButton("city");
+    cityButton.addActionListener( this );
+    cityButton.setFocusable(false);
+    boneButton=new JButton("bone");
+    boneButton.addActionListener( this );
+    boneButton.setFocusable(false);
+
     saveButton=new JButton("save");
     saveButton.addActionListener( this );
     saveButton.setFocusable(false);
@@ -105,19 +118,28 @@ public class GTracer extends JFrame implements ActionListener{
     //set layout
     SpringLayout layout = new SpringLayout();
     jp.setLayout( layout );
-    layout.putConstraint( SpringLayout.SOUTH, traceButton, -5,SpringLayout.SOUTH, jp );
-    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.SOUTH, saveButton, 0,SpringLayout.SOUTH, traceButton );
-    layout.putConstraint( SpringLayout.WEST, saveButton, 5,SpringLayout.EAST, traceButton);
+    layout.putConstraint( SpringLayout.SOUTH, chessButton, -5,SpringLayout.SOUTH, jp );
+    layout.putConstraint( SpringLayout.WEST, chessButton, 5,SpringLayout.WEST, jp );
 
-    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, traceButton);
+    layout.putConstraint( SpringLayout.SOUTH, cityButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.WEST, cityButton, 5,SpringLayout.EAST, chessButton);
+
+    layout.putConstraint( SpringLayout.SOUTH, boneButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.WEST, boneButton, 5,SpringLayout.EAST, cityButton);
+
+    layout.putConstraint( SpringLayout.SOUTH, saveButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.EAST, saveButton, -5,SpringLayout.EAST, jp);
+
+    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, chessButton);
     layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
 
     //add to jpanel
     jp.add(myCanv);
-    jp.add(traceButton);
+    jp.add(chessButton);
+    jp.add(cityButton);
+    jp.add(boneButton);
     jp.add(saveButton);
     return jp;
   }
@@ -126,7 +148,6 @@ public class GTracer extends JFrame implements ActionListener{
   private class MyCanvas extends Canvas{
     public void paint(Graphics g){
       g.drawImage(originalImg,0,20,this);
-
       if(tracedImg!=null)g.drawImage(tracedImg,410,20,this);
     }
 
