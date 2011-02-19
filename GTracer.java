@@ -54,6 +54,8 @@ public class GTracer extends JFrame implements ActionListener{
       tracedImg=tracer.doFilter(2);
     }else if(ae.getSource() == boneButton){
       tracedImg=tracer.doFilter(3);
+    }else if(ae.getSource() == resetButton){
+      tracer.load();
     }else if(ae.getSource() == saveButton){
       String currentDir=System.getProperty("user.dir");
       JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
@@ -90,6 +92,7 @@ public class GTracer extends JFrame implements ActionListener{
   private JButton chessButton;
   private JButton cityButton;
   private JButton boneButton;
+  private JButton resetButton;
   private JButton saveButton;
   private MyCanvas myCanv;
   private JPanel makePanel(){
@@ -104,6 +107,10 @@ public class GTracer extends JFrame implements ActionListener{
     boneButton=new JButton("bone");
     boneButton.addActionListener( this );
     boneButton.setFocusable(false);
+
+    resetButton=new JButton("reset");
+    resetButton.addActionListener( this );
+    resetButton.setFocusable(false);
 
     saveButton=new JButton("save");
     saveButton.addActionListener( this );
@@ -130,16 +137,21 @@ public class GTracer extends JFrame implements ActionListener{
     layout.putConstraint( SpringLayout.SOUTH, saveButton, -5,SpringLayout.SOUTH, jp);
     layout.putConstraint( SpringLayout.EAST, saveButton, -5,SpringLayout.EAST, jp);
 
+    layout.putConstraint( SpringLayout.SOUTH, resetButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.EAST, resetButton, 5,SpringLayout.WEST, saveButton);
+
     layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, chessButton);
     layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
+
 
     //add to jpanel
     jp.add(myCanv);
     jp.add(chessButton);
     jp.add(cityButton);
     jp.add(boneButton);
+    jp.add(resetButton);
     jp.add(saveButton);
     return jp;
   }

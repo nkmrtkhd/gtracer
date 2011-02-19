@@ -15,8 +15,15 @@ public class Tracer{
   int width;
   short[][] lengthMap;
   BufferedImage copyBimg;
+  BufferedImage orgBimg;
+
   //constructor
   public Tracer(BufferedImage orgBimg){
+    this.orgBimg=orgBimg;
+    load();
+  }
+
+  public void load(){
     //copy original to copyBimg
     copyBimg = new BufferedImage(orgBimg.getWidth(),
                                  orgBimg.getHeight(),
@@ -43,14 +50,22 @@ public class Tracer{
         //unknown method
         //int m = (2*r + 4*g + b) / 7;
 
+        //NTSC arithmetic average
+        //Y = 0.298912*R + 0.586611*G + 0.114478*B
+        //予め1024倍して整数化して，最後に1024で割る(右へ10bitシフト)
+        int m=306*r+600*g+117*b;
+        m=m>>10;
+
         //middle value method
-        int max=r;
-        if(max<g)max=g;
-        if(max<b)max=b;
-        int min=r;
-        if(min>g)min=g;
-        if(min>b)min=b;
-        int m = (max+min)/2;
+        /*
+         * int max=r;
+         * if(max<g)max=g;
+         * if(max<b)max=b;
+         * int min=r;
+         * if(min>g)min=g;
+         * if(min>b)min=b;
+         * int m = (max+min)/2;
+         */
 
         if(m<250){
           if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
