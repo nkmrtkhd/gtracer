@@ -39,7 +39,19 @@ public class Tracer{
         int r = (rgb >> 16) & 0xff;
         int g = (rgb >> 8) & 0xff;
         int b = rgb & 0xff;
-        int m = (2*r + 4*g + b) / 7;
+
+        //unknown method
+        //int m = (2*r + 4*g + b) / 7;
+
+        //middle value method
+        int max=r;
+        if(max<g)max=g;
+        if(max<b)max=b;
+        int min=r;
+        if(min>g)min=g;
+        if(min>b)min=b;
+        int m = (max+min)/2;
+
         if(m<250){
           if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
         }
@@ -56,7 +68,7 @@ public class Tracer{
       for (int y = 0; y < height;y++){
         int m=255;//white
         if(lengthMap[x][y]>0)m=0;//black
-        if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;
+        if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;//border is black
         int a=255;
         copyBimg.setRGB(x, y, new Color(m, m, m, a).getRGB());
       }
