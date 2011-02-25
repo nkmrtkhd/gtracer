@@ -10,7 +10,7 @@ import javax.swing.event.*;
 import filter.*;
 
 
-public class GTracer extends JFrame implements ActionListener{
+public class GTracer extends JFrame implements ActionListener,MouseListener,ChangeListener{
 
   //main function
   public static void main(String[] args) {
@@ -42,10 +42,47 @@ public class GTracer extends JFrame implements ActionListener{
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setVisible(true);
 
+
     //tracer
     tracer=new Tracer(originalImg);
   }
 
+  //mouse
+  public void mouseMoved(MouseEvent e) {
+  }
+  public void mouseDragged(MouseEvent e) {
+  }
+  public void mouseClicked(MouseEvent e){
+  }
+  public void mouseEntered(MouseEvent e){
+  }
+  public void mouseExited(MouseEvent e){
+  }
+  public void mousePressed(MouseEvent e){
+    System.out.println(String.format("%d %d ",e.getX(),e.getY()));
+  }
+  public void mouseReleased(MouseEvent e){
+  }
+
+  public void stateChanged(ChangeEvent ce){
+    if(ce.getSource()==xminSlider){
+      int t = xminSlider.getValue();
+      xstart=0.01f*t;
+    }else if(ce.getSource()==xmaxSlider){
+      int t = xmaxSlider.getValue();
+      xend=0.01f*t;
+    }else if(ce.getSource()==yminSlider){
+      int t = yminSlider.getValue();
+      ystart=0.01f*t;
+    }else if(ce.getSource()==ymaxSlider){
+      int t = ymaxSlider.getValue();
+      yend=0.01f*t;
+    }
+
+    tracer.load(xstart,xend,ystart,yend);
+    tracedImg=tracer.doFilter(0);
+    myCanv.repaint();
+  }
 
   public void actionPerformed(ActionEvent ae){
     if(ae.getSource() == chessButton){
@@ -55,7 +92,7 @@ public class GTracer extends JFrame implements ActionListener{
     }else if(ae.getSource() == boneButton){
       tracedImg=tracer.doFilter(3);
     }else if(ae.getSource() == resetButton){
-      tracer.load();
+      tracer.load(xstart,xend,ystart,yend);
     }else if(ae.getSource() == saveButton){
       String currentDir=System.getProperty("user.dir");
       JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
@@ -88,13 +125,18 @@ public class GTracer extends JFrame implements ActionListener{
     return fileName;
   }
 
-
+  private float xstart=0f;
+  private float xend=1f;
+  private float ystart=0f;
+  private float yend=1f;
   private JButton chessButton;
   private JButton cityButton;
   private JButton boneButton;
   private JButton resetButton;
   private JButton saveButton;
   private MyCanvas myCanv;
+  private JSlider xminSlider, xmaxSlider;
+  private JSlider yminSlider, ymaxSlider;
   private JPanel makePanel(){
 
     //button
@@ -119,6 +161,20 @@ public class GTracer extends JFrame implements ActionListener{
     //canvas
     myCanv=new MyCanvas();
     myCanv.setBackground(Color.white);
+    myCanv.addMouseListener(this);
+    //slider
+    xminSlider = new JSlider( 0, 100, 0 );
+    xminSlider.setFocusable(false);
+    xminSlider.addChangeListener( this );
+    xmaxSlider = new JSlider( 0, 100, 100 );
+    xmaxSlider.setFocusable(false);
+    xmaxSlider.addChangeListener( this );
+    yminSlider = new JSlider( 0, 100, 0);
+    yminSlider.setFocusable(false);
+    yminSlider.addChangeListener( this );
+    ymaxSlider = new JSlider( 0, 100, 100);
+    ymaxSlider.setFocusable(false);
+    ymaxSlider.addChangeListener( this );
 
     //panel
     JPanel jp=new JPanel();
@@ -140,7 +196,18 @@ public class GTracer extends JFrame implements ActionListener{
     layout.putConstraint( SpringLayout.SOUTH, resetButton, -5,SpringLayout.SOUTH, jp);
     layout.putConstraint( SpringLayout.EAST, resetButton, 5,SpringLayout.WEST, saveButton);
 
-    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, chessButton);
+    layout.putConstraint( SpringLayout.SOUTH, xminSlider, 5,SpringLayout.NORTH, chessButton);
+    layout.putConstraint( SpringLayout.WEST, xminSlider, 0,SpringLayout.WEST, chessButton);
+    layout.putConstraint( SpringLayout.SOUTH, xmaxSlider, 0,SpringLayout.SOUTH,xminSlider);
+    layout.putConstraint( SpringLayout.WEST, xmaxSlider, 0,SpringLayout.EAST, xminSlider);
+    layout.putConstraint( SpringLayout.SOUTH, yminSlider, 0,SpringLayout.SOUTH,xmaxSlider);
+    layout.putConstraint( SpringLayout.WEST, yminSlider, 20,SpringLayout.EAST, xmaxSlider);
+    layout.putConstraint( SpringLayout.SOUTH, ymaxSlider, 0,SpringLayout.SOUTH,yminSlider);
+    layout.putConstraint( SpringLayout.WEST, ymaxSlider, 0,SpringLayout.EAST, yminSlider);
+
+
+
+    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, xminSlider);
     layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
@@ -148,6 +215,10 @@ public class GTracer extends JFrame implements ActionListener{
 
     //add to jpanel
     jp.add(myCanv);
+    jp.add(xminSlider);
+    jp.add(xmaxSlider);
+    jp.add(yminSlider);
+    jp.add(ymaxSlider);
     jp.add(chessButton);
     jp.add(cityButton);
     jp.add(boneButton);
@@ -162,6 +233,5 @@ public class GTracer extends JFrame implements ActionListener{
       g.drawImage(originalImg,0,20,this);
       if(tracedImg!=null)g.drawImage(tracedImg,410,20,this);
     }
-
   }
 }

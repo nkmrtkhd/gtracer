@@ -20,23 +20,28 @@ public class Tracer{
   //constructor
   public Tracer(BufferedImage orgBimg){
     this.orgBimg=orgBimg;
-    load();
+    load(0f,1f,0f,1f);
   }
 
-  public void load(){
+  public void load(float sxstart,float sxend,float systart,float syend){
+
+    width=orgBimg.getWidth();
+    height=orgBimg.getHeight();
+
     //copy original to copyBimg
-    copyBimg = new BufferedImage(orgBimg.getWidth(),
-                                 orgBimg.getHeight(),
+    copyBimg = new BufferedImage(width,height,
                                  orgBimg.getType());
 
     Graphics2D g2 = copyBimg.createGraphics();
     g2.drawImage(orgBimg, 0, 0, null);
 
-    height=orgBimg.getHeight();
-    width=orgBimg.getWidth();
     lengthMap=null;
     lengthMap=new short[width][height];
 
+    int xs=(int)(sxstart*width);
+    int xe=(int)(sxend*width);
+    int ys=(int)(systart*height);
+    int ye=(int)(syend*height);
     //convert to gray scale
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
@@ -70,13 +75,14 @@ public class Tracer{
         if(m<250){
           if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
         }
+        if(x<xs || xe<x || y<ys ||ye<y)lengthMap[x][y]=0;
       }
     }
   }
 
   public BufferedImage doFilter(int filterType){
-    if(filterType==0)LengthMap.setChessBoard(lengthMap,width,height);
-    if(filterType==1)LengthMap.setCityBlock(lengthMap,width,height);
+    if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
+    if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
     if(filterType==3)Boner.delete(lengthMap,width,height);
 
     for (int x = 0; x < width;x++){
