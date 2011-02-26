@@ -20,17 +20,15 @@ public class Tracer{
   //constructor
   public Tracer(BufferedImage originalImg){
     this.originalImg=originalImg;
-    load(0f,1f,0f,1f);
+    setLengthMap(0f,1f,0f,1f);
 
-    tracedImg=null;
+    //create buffer
     tracedImg = new BufferedImage(originalImg.getWidth(),originalImg.getHeight(),
                                   originalImg.getType());
-    Graphics2D g2 = tracedImg.createGraphics();
-    g2.drawImage(originalImg, 0, 0, null);
 
   }
 
-  public void load(float sxstart,float sxend,float systart,float syend){
+  public void setLengthMap(float sxstart,float sxend,float systart,float syend){
 
     width=originalImg.getWidth();
     height=originalImg.getHeight();
@@ -78,6 +76,30 @@ public class Tracer{
         if(x<xs || xe<x || y<ys ||ye<y)lengthMap[x][y]=0;
       }
     }
+  }
+  public double[] point(double dx, double dy){
+
+    int n=10;
+    int x=(int)(dx*width);
+    int y=(int)(dy*height);
+    double[] point=new double[2];
+    loop:for(int xx=x-n;xx<=x+n;xx++){
+      if(xx<0)continue;
+      if(xx>width-1)continue;
+      for(int yy=y-n;yy<=y+n;yy++){
+        if(yy<0)continue;
+        if(yy>height-1)continue;
+        int d=lengthMap[xx][yy];
+        if(d>0){
+          point[0]=xx/(double)width;
+          point[1]=yy/(double)height;
+          System.out.println(String.format("%f %f %d %d %f %f",dx,dy,xx,yy,point[0],point[1]));
+          break loop;
+        }
+      }
+    }
+    return point;
+
   }
 
   public BufferedImage doFilter(int filterType ){

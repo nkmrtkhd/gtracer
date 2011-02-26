@@ -8,6 +8,7 @@ import javax.imageio.*;
 
 
 public class LengthMap{
+  /** 周辺８ブロックのうち，極大値の場合だけ残す */
   static void delete(short[][] lengthMap, int width, int height){
     System.out.println("boner");
     //ignore 1pixcel on border
@@ -30,6 +31,7 @@ public class LengthMap{
 
   }
 
+  /** set length map according to chess board distance*/
   static void setChessBoard(short[][] lengthMap, int width, int height){
     System.out.println("chess board length filter");
     //ignore 1pixcel on border
@@ -71,14 +73,8 @@ public class LengthMap{
     }
 
   }
-  private static int getMin(int[] k){
-    int a=k[0];
-    for(int i=1;i<k.length;i++){
-      if(k[i]<a)a=k[i];
-    }
-    return a;
-  }
 
+  /** set length map according to city block distance*/
   static void setCityBlock(short[][] lengthMap, int width, int height){
     System.out.println("city block length filter");
     //ignore 1pixcel on border
@@ -116,5 +112,15 @@ public class LengthMap{
     }
 
   }
+
+  /** search min in k*/
+  private static int getMin(int[] k){
+    int a=k[0];
+    for(int i=1;i<k.length;i++){
+      if(k[i]<a)a=k[i];
+    }
+    return a;
+  }
+
 
 }

@@ -60,8 +60,16 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   }
   public void mouseExited(MouseEvent e){
   }
+  double[] p=new double[2];
   public void mousePressed(MouseEvent e){
-    System.out.println(String.format("%d %d ",e.getX(),e.getY()));
+    Dimension size = myCanv.getSize();
+    double x=e.getX()/(double)size.width;
+    double y=e.getY()/(double)size.height;
+
+    p[0]=x;p[1]=y;//test
+    //p=tracer.point(x,y);//convert
+
+    myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
   }
@@ -86,7 +94,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       yend=0.01f*t;
     }
     updateLabel();
-    tracer.load(xstart,xend,ystart,yend);
+    tracer.setLengthMap(xstart,xend,ystart,yend);
     tracedImg=tracer.doFilter(0);
     myCanv.repaint();
   }
@@ -102,7 +110,11 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       tracedImg=null;
       tracedImg=tracer.doFilter(3);
     }else if(ae.getSource() == resetButton){
-      tracer.load(xstart,xend,ystart,yend);
+      xstart=0f;
+      xend=1f;
+      ystart=0f;
+      yend=1f;
+      tracer.setLengthMap(xstart,xend,ystart,yend);
       tracedImg=null;
     }else if(ae.getSource() == saveButton){
       String currentDir=System.getProperty("user.dir");
@@ -159,7 +171,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     cityButton=new JButton("city");
     cityButton.addActionListener( this );
     cityButton.setFocusable(false);
-    boneButton=new JButton("bone");
+    boneButton=new JButton("thinning");
     boneButton.addActionListener( this );
     boneButton.setFocusable(false);
 
@@ -263,10 +275,16 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   ///private class
   private class MyCanvas extends Canvas{
     public void paint(Graphics g){
-      if(tracedImg==null)
+      if(tracedImg==null){
         g.drawImage(originalImg,10,10,this);
-      else
+      }else{
         g.drawImage(tracedImg,10,10,this);
+        int r=10;
+        Dimension size = myCanv.getSize();
+        int x=(int)(p[0]*size.width)-r/2;
+        int y=(int)(p[1]*size.height)-r/2;
+        g.drawOval(x,y,r,r);
+      }
     }
   }
 }
