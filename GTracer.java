@@ -60,14 +60,14 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   }
   public void mouseExited(MouseEvent e){
   }
-  double[] p=new double[2];
+  int[] p=new int[2];
   public void mousePressed(MouseEvent e){
-    Dimension size = myCanv.getSize();
-    double x=e.getX()/(double)size.width;
-    double y=e.getY()/(double)size.height;
+    //Dimension size = myCanv.getSize();
+    int x=e.getX();
+    int y=e.getY();
 
     p[0]=x;p[1]=y;//test
-    //p=tracer.point(x,y);//convert
+    p=tracer.point(x,y);//convert
 
     myCanv.repaint();
   }
@@ -186,7 +186,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     //canvas
     myCanv=new MyCanvas();
     myCanv.setPreferredSize(new Dimension(600, 600));
-    myCanv.setBackground(Color.white);
+    myCanv.setBackground(new Color(200,200,200));
     myCanv.addMouseListener(this);
     //slider
     xminLabel=new JLabel("x min");
@@ -276,13 +276,13 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private class MyCanvas extends Canvas{
     public void paint(Graphics g){
       if(tracedImg==null){
-        g.drawImage(originalImg,10,10,this);
+        g.drawImage(originalImg,0,0,this);
       }else{
-        g.drawImage(tracedImg,10,10,this);
+        g.drawImage(tracedImg,0,0,this);
         int r=10;
         Dimension size = myCanv.getSize();
-        int x=(int)(p[0]*size.width)-r/2;
-        int y=(int)(p[1]*size.height)-r/2;
+        int x=p[0]-r/2;
+        int y=p[1]-r/2;
         g.drawOval(x,y,r,r);
       }
     }

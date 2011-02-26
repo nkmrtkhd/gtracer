@@ -77,12 +77,10 @@ public class Tracer{
       }
     }
   }
-  public double[] point(double dx, double dy){
+  public int[] point(int x, int y){
 
-    int n=10;
-    int x=(int)(dx*width);
-    int y=(int)(dy*height);
-    double[] point=new double[2];
+    int n=20;
+    int[] point={x,y};
     loop:for(int xx=x-n;xx<=x+n;xx++){
       if(xx<0)continue;
       if(xx>width-1)continue;
@@ -91,15 +89,13 @@ public class Tracer{
         if(yy>height-1)continue;
         int d=lengthMap[xx][yy];
         if(d>0){
-          point[0]=xx/(double)width;
-          point[1]=yy/(double)height;
-          System.out.println(String.format("%f %f %d %d %f %f",dx,dy,xx,yy,point[0],point[1]));
+          point[0]=xx;
+          point[1]=yy;
           break loop;
         }
       }
     }
     return point;
-
   }
 
   public BufferedImage doFilter(int filterType ){
