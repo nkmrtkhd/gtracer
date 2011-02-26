@@ -14,26 +14,26 @@ public class Tracer{
   int height;
   int width;
   short[][] lengthMap;
-  BufferedImage copyBimg;
-  BufferedImage orgBimg;
+  BufferedImage originalImg;
+  BufferedImage tracedImg;
 
   //constructor
-  public Tracer(BufferedImage orgBimg){
-    this.orgBimg=orgBimg;
+  public Tracer(BufferedImage originalImg){
+    this.originalImg=originalImg;
     load(0f,1f,0f,1f);
+
+    tracedImg=null;
+    tracedImg = new BufferedImage(originalImg.getWidth(),originalImg.getHeight(),
+                                  originalImg.getType());
+    Graphics2D g2 = tracedImg.createGraphics();
+    g2.drawImage(originalImg, 0, 0, null);
+
   }
 
   public void load(float sxstart,float sxend,float systart,float syend){
 
-    width=orgBimg.getWidth();
-    height=orgBimg.getHeight();
-
-    //copy original to copyBimg
-    copyBimg = new BufferedImage(width,height,
-                                 orgBimg.getType());
-
-    Graphics2D g2 = copyBimg.createGraphics();
-    g2.drawImage(orgBimg, 0, 0, null);
+    width=originalImg.getWidth();
+    height=originalImg.getHeight();
 
     lengthMap=null;
     lengthMap=new short[width][height];
@@ -45,7 +45,7 @@ public class Tracer{
     //convert to gray scale
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
-        int rgb = orgBimg.getRGB(x, y);
+        int rgb = originalImg.getRGB(x, y);
         //r,g,b,a, has 0~255
         int a = (rgb >> 24) & 0xff;
         int r = (rgb >> 16) & 0xff;
@@ -80,10 +80,10 @@ public class Tracer{
     }
   }
 
-  public BufferedImage doFilter(int filterType){
+  public BufferedImage doFilter(int filterType ){
     if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
     if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
-    if(filterType==3)Boner.delete(lengthMap,width,height);
+    if(filterType==3)LengthMap.delete(lengthMap,width,height);
 
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
@@ -91,12 +91,11 @@ public class Tracer{
         if(lengthMap[x][y]>0)m=0;//black
         if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;//border is black
         int a=255;
-        copyBimg.setRGB(x, y, new Color(m, m, m, a).getRGB());
+        tracedImg.setRGB(x, y, new Color(m, m, m, a).getRGB());
       }
     }
 
-
-    return copyBimg;
+    return tracedImg;
   }
 
 }
