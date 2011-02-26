@@ -1,3 +1,4 @@
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -60,15 +61,18 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   }
   public void mouseExited(MouseEvent e){
   }
-  int[] p=new int[2];
+
+  ArrayList<Integer> pQueue= new ArrayList<Integer>();
+  ArrayList<Integer> tracedPos= new ArrayList<Integer>();
+
   public void mousePressed(MouseEvent e){
     //Dimension size = myCanv.getSize();
     int x=e.getX();
     int y=e.getY();
 
-    p[0]=x;p[1]=y;//test
-    p=tracer.point(x,y);//convert
-
+    int[] p=tracer.getPoint(x,y);//convert
+    pQueue.add(p[0]);
+    pQueue.add(p[1]);
     myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
@@ -109,11 +113,29 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     }else if(ae.getSource() == boneButton){
       tracedImg=null;
       tracedImg=tracer.doFilter(3);
+    }else if(ae.getSource() == traceButton){
+      if(pQueue.size()>=4){
+        tracedPos=tracer.trace(pQueue);
+      }
+    }else if(ae.getSource() == writeButton){
+      String currentDir=System.getProperty("user.dir");
+      JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
+      jfc.setDialogTitle("save image");
+
+      String str = null;
+      int s = jfc.showSaveDialog( null );
+      if( s == JFileChooser.APPROVE_OPTION ){
+        File file = jfc.getSelectedFile();
+        str = new String( file.getAbsolutePath() );
+      }
+      writeFile(str);
     }else if(ae.getSource() == resetButton){
       xstart=0f;
       xend=1f;
       ystart=0f;
       yend=1f;
+      pQueue.clear();
+      tracedPos.clear();
       tracer.setLengthMap(xstart,xend,ystart,yend);
       tracedImg=null;
     }else if(ae.getSource() == saveButton){
@@ -148,6 +170,28 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     return fileName;
   }
 
+  public void writeFile(String filename){
+    try {
+      FileWriter fw = new FileWriter(filename);
+      BufferedWriter bw = new BufferedWriter( fw );
+      PrintWriter pw = new PrintWriter( bw );
+
+      int height=originalImg.getHeight();
+      for(int i=0;i<tracedPos.size()/2;i++){
+        int x=tracedPos.get(2*i);
+        int y=height-tracedPos.get(2*i+1);
+        pw.println( String.format("%d %d", x,y) );
+      }
+
+      pw.close();
+      bw.close();
+      fw.close();
+      //System.out.println("saved slice position");
+    }
+    catch ( IOException ioe ){
+    }
+  }
+
   private float xstart=0f;
   private float xend=1f;
   private float ystart=0f;
@@ -155,6 +199,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private JButton chessButton;
   private JButton cityButton;
   private JButton boneButton;
+  private JButton traceButton;
+  private JButton writeButton;
   private JButton resetButton;
   private JButton saveButton;
   private MyCanvas myCanv;
@@ -174,6 +220,15 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     boneButton=new JButton("thinning");
     boneButton.addActionListener( this );
     boneButton.setFocusable(false);
+
+
+    traceButton=new JButton("trace");
+    traceButton.addActionListener( this );
+    traceButton.setFocusable(false);
+
+    writeButton=new JButton("write file");
+    writeButton.addActionListener( this );
+    writeButton.setFocusable(false);
 
     resetButton=new JButton("reset");
     resetButton.addActionListener( this );
@@ -218,9 +273,13 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     layout.putConstraint( SpringLayout.WEST, cityButton, 5,SpringLayout.EAST, chessButton);
     layout.putConstraint( SpringLayout.SOUTH, boneButton, -5,SpringLayout.SOUTH, jp);
     layout.putConstraint( SpringLayout.WEST, boneButton, 5,SpringLayout.EAST, cityButton);
+    layout.putConstraint( SpringLayout.SOUTH, traceButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.EAST, boneButton);
+    layout.putConstraint( SpringLayout.SOUTH, writeButton, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.WEST, writeButton, 5,SpringLayout.EAST, traceButton);
 
     layout.putConstraint( SpringLayout.SOUTH, resetButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 50,SpringLayout.EAST, boneButton);
+    layout.putConstraint( SpringLayout.WEST, resetButton, 50,SpringLayout.EAST, traceButton);
     layout.putConstraint( SpringLayout.SOUTH, saveButton, -5,SpringLayout.SOUTH, jp);
     layout.putConstraint( SpringLayout.WEST, saveButton, 5,SpringLayout.EAST, resetButton);
 
@@ -267,6 +326,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     jp.add(chessButton);
     jp.add(cityButton);
     jp.add(boneButton);
+    jp.add(traceButton);
+    jp.add(writeButton);
     jp.add(resetButton);
     jp.add(saveButton);
     return jp;
@@ -275,16 +336,34 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   ///private class
   private class MyCanvas extends Canvas{
     public void paint(Graphics g){
+      Graphics2D g2 = (Graphics2D)g;
+
       if(tracedImg==null){
         g.drawImage(originalImg,0,0,this);
       }else{
         g.drawImage(tracedImg,0,0,this);
+      }
+
+
+      g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
+      g.setColor(Color.red);
+      for(int i=0;i<pQueue.size()/2;i++){
         int r=10;
         Dimension size = myCanv.getSize();
-        int x=p[0]-r/2;
-        int y=p[1]-r/2;
+        int x=pQueue.get(2*i  )-r/2;
+        int y=pQueue.get(2*i+1)-r/2;
         g.drawOval(x,y,r,r);
       }
+
+      g.setColor(Color.blue);
+      for(int i=0;i<tracedPos.size()/2;i++){
+        int r=10;
+        Dimension size = myCanv.getSize();
+        int x=tracedPos.get(2*i  )-r/2;
+        int y=tracedPos.get(2*i+1)-r/2;
+        g.drawRect(x,y,r,r);
+      }
+
     }
   }
 }

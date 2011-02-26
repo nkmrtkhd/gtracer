@@ -1,5 +1,6 @@
 package filter;
 
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -77,23 +78,64 @@ public class Tracer{
       }
     }
   }
-  public int[] point(int x, int y){
 
-    int n=20;
+  public ArrayList<Integer> trace(ArrayList<Integer> pQueue){
+    System.out.println("trace starts");
+    //traced pos
+    ArrayList<Integer> pos= new ArrayList<Integer>();
+
+    for(int i=0;i<pQueue.size()/2-1;i++){
+      //start pos
+      int startX=pQueue.get(2*i);
+      int startY=pQueue.get(2*i+1);
+      //end pos
+      int endX=pQueue.get(2*(i+1));
+      int endY=pQueue.get(2*(i+1)+1);
+      pos.add(startX);
+      pos.add(startY);
+
+      int traceX=startX;
+      int traceY=startY;
+
+      int dx=1;
+      while( traceX <endX ){
+        traceX+=dx;
+        int ny=10;
+        for(int dy=-ny;dy<=ny;dy++){
+          if( lengthMap[traceX][traceY+dy] != 0 ) {
+            pos.add(traceX);
+            pos.add(traceY+dy);
+            traceY=traceY+dy;
+            break;
+          }
+        }
+      }//while
+    }//i
+
+    System.out.println("trace done");
+    return pos;
+  }
+
+  public int[] getPoint(int x, int y){
+    int n=0;
     int[] point={x,y};
-    loop:for(int xx=x-n;xx<=x+n;xx++){
-      if(xx<0)continue;
-      if(xx>width-1)continue;
-      for(int yy=y-n;yy<=y+n;yy++){
-        if(yy<0)continue;
-        if(yy>height-1)continue;
-        int d=lengthMap[xx][yy];
-        if(d>0){
-          point[0]=xx;
-          point[1]=yy;
-          break loop;
+    loop: while(true){
+      //(x,y)を中心にn近傍を探す
+      for(int xx=x-n;xx<=x+n;xx++){
+        if(xx<0)continue;
+        if(xx>width-1)continue;
+        for(int yy=y-n;yy<=y+n;yy++){
+          if(yy<0)continue;
+          if(yy>height-1)continue;
+          int d=lengthMap[xx][yy];
+          if(d>0){
+            point[0]=xx;
+            point[1]=yy;
+            break loop;
+          }
         }
       }
+      n++;//捜索範囲をどんどん外側に
     }
     return point;
   }
