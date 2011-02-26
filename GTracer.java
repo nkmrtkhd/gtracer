@@ -279,7 +279,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     layout.putConstraint( SpringLayout.WEST, writeButton, 5,SpringLayout.EAST, traceButton);
 
     layout.putConstraint( SpringLayout.SOUTH, resetButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 50,SpringLayout.EAST, traceButton);
+    layout.putConstraint( SpringLayout.WEST, resetButton, 50,SpringLayout.EAST, writeButton);
     layout.putConstraint( SpringLayout.SOUTH, saveButton, -5,SpringLayout.SOUTH, jp);
     layout.putConstraint( SpringLayout.WEST, saveButton, 5,SpringLayout.EAST, resetButton);
 

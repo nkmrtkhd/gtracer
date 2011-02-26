@@ -89,24 +89,35 @@ public class Tracer{
       int startX=pQueue.get(2*i);
       int startY=pQueue.get(2*i+1);
       //end pos
-      int endX=pQueue.get(2*(i+1));
-      int endY=pQueue.get(2*(i+1)+1);
+      int nextX=pQueue.get(2*(i+1));
+      int nextY=pQueue.get(2*(i+1)+1);
       pos.add(startX);
       pos.add(startY);
 
       int traceX=startX;
       int traceY=startY;
 
-      int dx=1;
-      while( traceX <endX ){
+      int dx=1;//increment
+      int ny=10;//search max
+      while( traceX <nextX ){
         traceX+=dx;
-        int ny=10;
-        for(int dy=-ny;dy<=ny;dy++){
-          if( lengthMap[traceX][traceY+dy] != 0 ) {
-            pos.add(traceX);
-            pos.add(traceY+dy);
-            traceY=traceY+dy;
-            break;
+        if(startY>nextY){//note window coordinate is upside down
+          for(int dy=-ny;dy<=ny;dy++){
+            if( lengthMap[traceX][traceY+dy] != 0 ) {
+              pos.add(traceX);
+              pos.add(traceY+dy);
+              traceY=traceY+dy;
+              break;
+            }
+          }
+        }else{
+          for(int dy=ny;dy>=-ny;dy--){
+            if( lengthMap[traceX][traceY+dy] != 0 ) {
+              pos.add(traceX);
+              pos.add(traceY+dy);
+              traceY=traceY+dy;
+              break;
+            }
           }
         }
       }//while
