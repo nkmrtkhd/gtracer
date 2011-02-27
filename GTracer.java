@@ -64,41 +64,66 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
   ArrayList<Integer> pQueue= new ArrayList<Integer>();
   ArrayList<Integer> tracedPos= new ArrayList<Integer>();
-
+  int[] mousePos=new int[2];
   public void mousePressed(MouseEvent e){
     //Dimension size = myCanv.getSize();
     int x=e.getX();
     int y=e.getY();
 
-    int[] p=tracer.getPoint(x,y);//convert
-    pQueue.add(p[0]);
-    pQueue.add(p[1]);
+    mousePos=tracer.getPoint(x,y);//convert
+    if(rbPoints.isSelected()){
+      pQueue.add(mousePos[0]);
+      pQueue.add(mousePos[1]);
+    }else if(rbXStart.isSelected()){
+      xstart[0]=mousePos[0];
+      xstart[1]=mousePos[1];
+    }else if(rbXEnd.isSelected()){
+      xend[0]=mousePos[0];
+      xend[1]=mousePos[1];
+    }else if(rbYStart.isSelected()){
+      ystart[0]=mousePos[0];
+      ystart[1]=mousePos[1];
+    }else if(rbYEnd.isSelected()){
+      yend[0]=mousePos[0];
+      yend[1]=mousePos[1];
+    }
+
     myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
   }
+
   private void updateLabel(){
-    xminLabel.setText(String.format("x min: %.2f",xstart));
-    xmaxLabel.setText(String.format("x max: %.2f",xend));
-    yminLabel.setText(String.format("y min: %.2f",ystart));
-    ymaxLabel.setText(String.format("y max: %.2f",yend));
+    xminLabel.setText(String.format("x min: %.2f",xcutmin));
+    xmaxLabel.setText(String.format("x max: %.2f",xcutmax));
+    yminLabel.setText(String.format("y min: %.2f",ycutmin));
+    ymaxLabel.setText(String.format("y max: %.2f",ycutmax));
   }
+
   public void stateChanged(ChangeEvent ce){
     if(ce.getSource()==xminSlider){
       int t = xminSlider.getValue();
-      xstart=0.01f*t;
+      xcutmin=0.01f*t;
     }else if(ce.getSource()==xmaxSlider){
       int t = xmaxSlider.getValue();
-      xend=0.01f*t;
+      xcutmax=0.01f*t;
     }else if(ce.getSource()==yminSlider){
       int t = yminSlider.getValue();
-      ystart=0.01f*t;
+      ycutmin=0.01f*t;
     }else if(ce.getSource()==ymaxSlider){
       int t = ymaxSlider.getValue();
-      yend=0.01f*t;
+      ycutmax=0.01f*t;
+    }else if(ce.getSource()==spXStart){
+      xRealStart=((Double)spXStart.getValue()).doubleValue();
+    }else if(ce.getSource()==spXEnd){
+      xRealEnd=((Double)spXEnd.getValue()).doubleValue();
+    }else if(ce.getSource()==spYStart){
+      yRealStart=((Double)spYStart.getValue()).doubleValue();
+    }else if(ce.getSource()==spYEnd){
+      yRealEnd=((Double)spYEnd.getValue()).doubleValue();
     }
     updateLabel();
-    tracer.setLengthMap(xstart,xend,ystart,yend);
+    tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
     tracedImg=tracer.doFilter(0);
     myCanv.repaint();
   }
@@ -130,13 +155,17 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       }
       writeFile(str);
     }else if(ae.getSource() == resetButton){
-      xstart=0f;
-      xend=1f;
-      ystart=0f;
-      yend=1f;
+      xcutmin=0f;
+      xcutmax=1f;
+      ycutmin=0f;
+      ycutmax=1f;
+      xstart[0]=EMPTY;
+      xend[0]=EMPTY;
+      ystart[0]=EMPTY;
+      yend[0]=EMPTY;
       pQueue.clear();
       tracedPos.clear();
-      tracer.setLengthMap(xstart,xend,ystart,yend);
+      tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
       tracedImg=null;
     }else if(ae.getSource() == saveButton){
       String currentDir=System.getProperty("user.dir");
@@ -192,10 +221,23 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     }
   }
 
-  private float xstart=0f;
-  private float xend=1f;
-  private float ystart=0f;
-  private float yend=1f;
+  private float xcutmin=0f;
+  private float xcutmax=1f;
+  private float ycutmin=0f;
+  private float ycutmax=1f;
+  private static final int EMPTY=-137928;
+  private int[] xstart={EMPTY,EMPTY};
+  private double xRealStart=0.0;
+  private int[] xend={EMPTY,EMPTY};
+  private double xRealEnd=10.0;
+  private int[] ystart={EMPTY,EMPTY};
+  private double yRealStart=0.0;
+  private int[] yend={EMPTY,EMPTY};
+  private double yRealEnd=10.0;
+
+  private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
+  private JSpinner spXStart,spXEnd,spYStart,spYEnd;
+
   private JButton chessButton;
   private JButton cityButton;
   private JButton boneButton;
@@ -262,6 +304,42 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     ymaxSlider.setFocusable(false);
     ymaxSlider.addChangeListener( this );
 
+    rbPoints=new JRadioButton("Points", true);
+    rbPoints.addChangeListener(this);
+    rbXStart=new JRadioButton("x start", false);
+    rbXStart.addChangeListener(this);
+    rbXEnd  =new JRadioButton("x end", false);
+    rbXEnd.addChangeListener(this);
+    rbYStart=new JRadioButton("y start", false);
+    rbYStart.addChangeListener(this);
+    rbYEnd  =new JRadioButton("y end", false);
+    rbYEnd.addChangeListener(this);
+
+    ButtonGroup group = new ButtonGroup();
+    group.add(rbPoints);
+    group.add(rbXStart);
+    group.add(rbXEnd);
+    group.add(rbYStart);
+    group.add(rbYEnd);
+
+
+    spXStart = new JSpinner(new SpinnerNumberModel(xRealStart, null, null, 1));
+    spXStart.setFocusable(false);
+    spXStart.setPreferredSize(new Dimension(55, 25));
+    spXStart.addChangeListener(this);
+    spXEnd = new JSpinner(new SpinnerNumberModel(xRealEnd, null, null, 1));
+    spXEnd.setFocusable(false);
+    spXEnd.setPreferredSize(new Dimension(55, 25));
+    spXEnd.addChangeListener(this);
+    spYStart = new JSpinner(new SpinnerNumberModel(yRealStart, null, null, 1));
+    spYStart.setFocusable(false);
+    spYStart.setPreferredSize(new Dimension(55, 25));
+    spYStart.addChangeListener(this);
+    spYEnd = new JSpinner(new SpinnerNumberModel(yRealEnd, null, null, 1));
+    spYEnd.setFocusable(false);
+    spYEnd.setPreferredSize(new Dimension(55, 25));
+    spYEnd.addChangeListener(this);
+
     //panel
     JPanel jp=new JPanel();
     //set layout
@@ -305,9 +383,32 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     layout.putConstraint( SpringLayout.WEST, ymaxSlider, 0,SpringLayout.EAST, ymaxLabel);
 
 
+    layout.putConstraint( SpringLayout.SOUTH, rbPoints, 0,SpringLayout.NORTH, xminLabel);
+    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.WEST, jp);
+
+    layout.putConstraint( SpringLayout.SOUTH, rbXStart, 0,SpringLayout.SOUTH, rbPoints);
+    layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.EAST, rbPoints);
+    layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, rbXStart);
+    layout.putConstraint( SpringLayout.WEST, spXStart, 0,SpringLayout.EAST, rbXStart);
+    layout.putConstraint( SpringLayout.SOUTH, rbXEnd, 0,SpringLayout.SOUTH, spXStart);
+    layout.putConstraint( SpringLayout.WEST, rbXEnd, 0,SpringLayout.EAST, spXStart);
+    layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, rbXEnd);
+    layout.putConstraint( SpringLayout.WEST, spXEnd, 0,SpringLayout.EAST, rbXEnd);
+
+    layout.putConstraint( SpringLayout.SOUTH, rbYStart, 0,SpringLayout.SOUTH, spXEnd);
+    layout.putConstraint( SpringLayout.WEST, rbYStart, 10,SpringLayout.EAST, spXEnd);
+    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, rbYStart);
+    layout.putConstraint( SpringLayout.WEST, spYStart, 0,SpringLayout.EAST, rbYStart);
+    layout.putConstraint( SpringLayout.SOUTH, rbYEnd, 0,SpringLayout.SOUTH, spYStart);
+    layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.EAST, spYStart);
+    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
+    layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
 
 
-    layout.putConstraint( SpringLayout.SOUTH, myCanv, 0,SpringLayout.NORTH, xminSlider);
+
+
+
+    layout.putConstraint( SpringLayout.SOUTH, myCanv, -10,SpringLayout.NORTH, rbPoints);
     layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
     layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
@@ -315,6 +416,18 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
     //add to jpanel
     jp.add(myCanv);
+
+    jp.add(rbPoints);
+    jp.add(rbXStart);
+    jp.add(rbXEnd);
+    jp.add(rbYStart);
+    jp.add(rbYEnd);
+    jp.add(spXStart);
+    jp.add(spXEnd);
+    jp.add(spYStart);
+    jp.add(spYEnd);
+
+
     jp.add(xminLabel);
     jp.add(xmaxLabel);
     jp.add(yminLabel);
@@ -345,19 +458,37 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       }
 
 
-      g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
+      g2.setStroke(new BasicStroke(2.0f)); //線の種類を設定
+      //x-axis
       g.setColor(Color.red);
+      if(xstart[0]!=EMPTY && xend[0]!=EMPTY){
+        g.drawLine(xstart[0],xstart[1],xend[0],xend[1]);
+      }else if(rbXStart.isSelected() || rbXEnd.isSelected()){
+        int r=12;
+        g.drawOval(mousePos[0]-r/2,mousePos[1]-r/2,r,r);
+      }
+      //y-axis
+      g.setColor(Color.green);
+      if(ystart[0]!=EMPTY && yend[0]!=EMPTY){
+        g.drawLine(ystart[0],ystart[1],yend[0],yend[1]);
+      }else if(rbYStart.isSelected() || rbYEnd.isSelected()){
+        int r=12;
+        g.drawOval(mousePos[0]-r/2,mousePos[1]-r/2,r,r);
+      }
+
+      g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
+      g.setColor(Color.blue);
+      //selected point
       for(int i=0;i<pQueue.size()/2;i++){
-        int r=10;
+        int r=12;
         Dimension size = myCanv.getSize();
         int x=pQueue.get(2*i  )-r/2;
         int y=pQueue.get(2*i+1)-r/2;
         g.drawOval(x,y,r,r);
       }
-
-      g.setColor(Color.blue);
+      //traced point
       for(int i=0;i<tracedPos.size()/2;i++){
-        int r=10;
+        int r=5;
         Dimension size = myCanv.getSize();
         int x=tracedPos.get(2*i  )-r/2;
         int y=tracedPos.get(2*i+1)-r/2;
