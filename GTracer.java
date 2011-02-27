@@ -159,10 +159,12 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       xcutmax=1f;
       ycutmin=0f;
       ycutmax=1f;
-      xstart[0]=EMPTY;
-      xend[0]=EMPTY;
-      ystart[0]=EMPTY;
-      yend[0]=EMPTY;
+      /*
+       * xstart[0]=EMPTY;
+       * xend[0]=EMPTY;
+       * ystart[0]=EMPTY;
+       * yend[0]=EMPTY;
+       */
       pQueue.clear();
       tracedPos.clear();
       tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
@@ -205,11 +207,15 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       BufferedWriter bw = new BufferedWriter( fw );
       PrintWriter pw = new PrintWriter( bw );
 
-      int height=originalImg.getHeight();
+
+      double dxi=1.0/(xend[0]-xstart[0]);
+      double dxreal=(xRealEnd-xRealStart);
+      double dyi=1.0/(ystart[1]-yend[1]);//note y is upside down
+      double dyreal=(yRealEnd-yRealStart);
       for(int i=0;i<tracedPos.size()/2;i++){
-        int x=tracedPos.get(2*i);
-        int y=height-tracedPos.get(2*i+1);
-        pw.println( String.format("%d %d", x,y) );
+        double x=(tracedPos.get(2*i)-xstart[0])*dxi*dxreal+xRealStart;
+        double y=(ystart[1]-tracedPos.get(2*i+1))*dyi*dyreal+yRealStart;
+        pw.println( String.format("%f %f", x,y) );
       }
 
       pw.close();
@@ -458,7 +464,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       }
 
 
-      g2.setStroke(new BasicStroke(2.0f)); //線の種類を設定
+      g2.setStroke(new BasicStroke(1.5f)); //線の種類を設定
       //x-axis
       g.setColor(Color.red);
       if(xstart[0]!=EMPTY && xend[0]!=EMPTY){
@@ -489,7 +495,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       //traced point
       for(int i=0;i<tracedPos.size()/2;i++){
         int r=5;
-        Dimension size = myCanv.getSize();
+        //Dimension size = myCanv.getSize();
         int x=tracedPos.get(2*i  )-r/2;
         int y=tracedPos.get(2*i+1)-r/2;
         g.drawRect(x,y,r,r);
