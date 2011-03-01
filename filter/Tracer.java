@@ -103,20 +103,28 @@ public class Tracer{
         traceX+=dx;
         if(startY>nextY){//note window coordinate is upside down
           for(int dy=-ny;dy<=ny;dy++){
-            if( lengthMap[traceX][traceY+dy] != 0 ) {
-              pos.add(traceX);
-              pos.add(traceY+dy);
-              traceY=traceY+dy;
-              break;
+            if(traceY+dy<0)continue;
+            if(traceY+dy>=height)continue;
+            if(nextY<=traceY+dy && traceY+dy<=startY){
+              if( lengthMap[traceX][traceY+dy] != 0 ) {
+                pos.add(traceX);
+                pos.add(traceY+dy);
+                traceY=traceY+dy;
+                break;
+              }
             }
           }
         }else{
           for(int dy=ny;dy>=-ny;dy--){
-            if( lengthMap[traceX][traceY+dy] != 0 ) {
-              pos.add(traceX);
-              pos.add(traceY+dy);
-              traceY=traceY+dy;
-              break;
+            if(dy<0)continue;
+            if(dy>=height)continue;
+            if(startY<=traceY+dy && traceY+dy<=nextY){
+              if( lengthMap[traceX][traceY+dy] != 0 ) {
+                pos.add(traceX);
+                pos.add(traceY+dy);
+                traceY=traceY+dy;
+                break;
+              }
             }
           }
         }

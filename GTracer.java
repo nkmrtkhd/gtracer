@@ -288,9 +288,12 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
     //canvas
     myCanv=new MyCanvas();
-    myCanv.setPreferredSize(new Dimension(600, 600));
+    myCanv.setPreferredSize(new Dimension(500, 500));
     myCanv.setBackground(new Color(200,200,200));
     myCanv.addMouseListener(this);
+    JScrollPane sp = new JScrollPane(myCanv,
+                      ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
     //slider
     xminLabel=new JLabel("x min");
     xmaxLabel=new JLabel("x max");
@@ -414,14 +417,14 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
 
 
-    layout.putConstraint( SpringLayout.SOUTH, myCanv, -10,SpringLayout.NORTH, rbPoints);
-    layout.putConstraint( SpringLayout.NORTH, myCanv, 0,SpringLayout.NORTH, jp );
-    layout.putConstraint( SpringLayout.EAST, myCanv, 0,SpringLayout.EAST, jp );
-    layout.putConstraint( SpringLayout.WEST, myCanv, 0,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.SOUTH, sp, -10,SpringLayout.NORTH, rbPoints);
+    layout.putConstraint( SpringLayout.NORTH, sp, 0,SpringLayout.NORTH, jp );
+    layout.putConstraint( SpringLayout.EAST, sp, 0,SpringLayout.EAST, jp );
+    layout.putConstraint( SpringLayout.WEST, sp, 0,SpringLayout.WEST, jp );
 
 
     //add to jpanel
-    jp.add(myCanv);
+    jp.add(sp);
 
     jp.add(rbPoints);
     jp.add(rbXStart);
