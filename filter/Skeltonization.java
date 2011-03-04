@@ -24,7 +24,7 @@ public class Skeltonization{
   }
 
   /** マスクを使った細線化 */
-  static void mask(short[][] lengthMap, int width, int height){
+  static void simpelMask(short[][] lengthMap, int width, int height){
     short[][] mask={//[8][9]
       {0, 0,-1,
        0, 1, 1,
@@ -52,10 +52,10 @@ public class Skeltonization{
        0,-1, 1}
     };
 
-    int xstart=0;
-    int ystart=0;
-    int xend=width-1;
-    int yend=height-1;
+    int xstart=1;
+    int ystart=1;
+    int xend=width-2;
+    int yend=height-2;
 
     short[][] lengthMap1=new short[width][height];
     short[][] lengthMap2=new short[width][height];
@@ -74,8 +74,8 @@ public class Skeltonization{
     while(del>0) {
       del=0;
       for(int n=0;n<8;n++) {
-        for(int y=0;y<height;y++) {
-          for(int x=0;x<width;x++) {
+        for(int y=ystart;y<yend;y++) {
+          for(int x=xstart;x<xstart;x++) {
             short val=lengthMap1[x][y];
             if(val>0 && delPoint(lengthMap1,x,y,mask[n])) {
               val=0;
@@ -119,19 +119,18 @@ public class Skeltonization{
 
 
   /** hildthマスク */
-  static void hildth(short[][] lengthMap, int width, int height){
-
-    int xstart=0;
-    int ystart=0;
-    int xend=width;
-    int yend=height;
+  static void hildthMask(short[][] lengthMap, int width, int height){
+    int xstart=1;
+    int ystart=1;
+    int xend=width-2;
+    int yend=height-2;
 
     short[][] lengthMap1=new short[width][height];
 
-    for(int y=ystart;y<=yend;y++) {
-      for(int x=xstart;x<=xend;x++) {
+    for(int y=0;y<height;y++) {
+      for(int x=0;x<width;x++) {
         if(lengthMap[x][y]>0){
-          lengthMap1[x-xstart][y-ystart]=1;
+          lengthMap1[x][y]=1;
         }
       }
     }
@@ -139,8 +138,8 @@ public class Skeltonization{
     int del=1;
     while(del>0) {
       del=0;
-      for(int y=0;y<height;y++) {
-        for(int x=0;x<width;x++) {
+      for(int y=ystart;y<=yend;y++) {
+        for(int x=xstart;x<=xend;x++) {
           short val=lengthMap1[x][y];
           if(val==1){
             if(delPoint(lengthMap1,x,y)){

@@ -45,7 +45,6 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setVisible(true);
 
-
     //tracer
     tracer=new Tracer(originalImg);
   }
@@ -137,7 +136,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == boneButton){
       tracedImg=null;
-      tracedImg=tracer.makeImage(3);
+      tracedImg=tracer.makeImage(5);
     }else if(ae.getSource() == traceButton){
       if(pQueue.size()>=4){
         tracedPos=tracer.trace(pQueue);
@@ -256,8 +255,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private JLabel yminLabel,ymaxLabel;
   private JSlider xminSlider, xmaxSlider;
   private JSlider yminSlider, ymaxSlider;
-  private JPanel makePanel(){
 
+  private JPanel makePanel(){
     //button
     chessButton=new JButton("chess");
     chessButton.addActionListener( this );
@@ -505,5 +504,6 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       }
 
     }
-  }
+  }//end of mycanvas
+
 }
