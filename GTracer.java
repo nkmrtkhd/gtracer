@@ -70,7 +70,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     int x=e.getX();
     int y=e.getY();
 
-    mousePos=tracer.getPoint(x,y);//convert
+    mousePos=tracer.getPoint(x,y);//convertion
     if(rbPoints.isSelected()){
       pQueue.add(mousePos[0]);
       pQueue.add(mousePos[1]);
@@ -123,21 +123,21 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       yRealEnd=((Double)spYEnd.getValue()).doubleValue();
     }
     updateLabel();
-    tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
-    tracedImg=tracer.doFilter(0);
+    //tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
+    //tracedImg=tracer.makeImage(0);
     myCanv.repaint();
   }
 
   public void actionPerformed(ActionEvent ae){
     if(ae.getSource() == chessButton){
       tracedImg=null;
-      tracedImg=tracer.doFilter(1);
+      tracedImg=tracer.makeImage(1);
     }else if(ae.getSource() == cityButton){
       tracedImg=null;
-      tracedImg=tracer.doFilter(2);
+      tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == boneButton){
       tracedImg=null;
-      tracedImg=tracer.doFilter(3);
+      tracedImg=tracer.makeImage(3);
     }else if(ae.getSource() == traceButton){
       if(pQueue.size()>=4){
         tracedPos=tracer.trace(pQueue);

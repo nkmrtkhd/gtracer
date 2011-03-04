@@ -159,10 +159,10 @@ public class Tracer{
     return point;
   }
 
-  public BufferedImage doFilter(int filterType ){
+  public BufferedImage makeImage(int filterType ){
     if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
     if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
-    if(filterType==3)LengthMap.delete(lengthMap,width,height);
+    if(filterType==3)Skeltonization.localMax(lengthMap,width,height);
 
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
