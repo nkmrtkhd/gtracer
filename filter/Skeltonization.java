@@ -25,7 +25,8 @@ public class Skeltonization{
 
   /** マスクを使った細線化 */
   static void simpelMask(short[][] lengthMap, int width, int height){
-    short[][] mask={//[8][9]
+    //short[8][9]
+    short[][] mask={
       {0, 0,-1,
        0, 1, 1,
        -1, 1,-1},
@@ -61,8 +62,8 @@ public class Skeltonization{
     short[][] lengthMap2=new short[width][height];
 
     //copy img to img1
-    for(int y=ystart;y<=yend;y++) {
-      for(int x=xstart;x<=xend;x++) {
+    for(int y=ystart;y<=yend;y++){
+      for(int x=xstart;x<=xend;x++){
         if(lengthMap[x][y]>0){
           lengthMap1[x-xstart][y-ystart]=1;
         }
@@ -71,13 +72,13 @@ public class Skeltonization{
 
     //
     int del=1;
-    while(del>0) {
+    while(del>0){
       del=0;
-      for(int n=0;n<8;n++) {
-        for(int y=ystart;y<yend;y++) {
-          for(int x=xstart;x<xstart;x++) {
+      for(int n=0;n<8;n++){
+        for(int y=ystart;y<yend;y++){
+          for(int x=xstart;x<xstart;x++){
             short val=lengthMap1[x][y];
-            if(val>0 && delPoint(lengthMap1,x,y,mask[n])) {
+            if(val>0 && delPoint(lengthMap1,x,y,mask[n])){
               val=0;
               del++;
             }
@@ -86,8 +87,8 @@ public class Skeltonization{
         }//y
 
         //copy
-        for(int y=0;y<height;y++) {
-          for(int x=0;x<width;x++) {
+        for(int y=0;y<height;y++){
+          for(int x=0;x<width;x++){
             lengthMap1[x][y]=lengthMap2[x][y];
             lengthMap2[x][y]=0;
           }
@@ -97,8 +98,8 @@ public class Skeltonization{
     }//while
 
     //set output image
-    for(int y=0;y<height;y++) {
-      for(int x=0;x<width;x++) {
+    for(int y=0;y<height;y++){
+      for(int x=0;x<width;x++){
         if(lengthMap1[x][y]>0)lengthMap[x][y]=1;
       }
     }
@@ -106,8 +107,8 @@ public class Skeltonization{
   /** for mask */
   static boolean delPoint(short[][] lengthMap,int x,int y,short[] mask){
     int sum=0;
-    for(int yy=0;yy<=2;yy++) {
-      for(int xx=0;xx<=2;xx++) {
+    for(int yy=0;yy<=2;yy++){
+      for(int xx=0;xx<=2;xx++){
         short val=lengthMap[x+xx-1][y+yy-1];
         short p=mask[xx+yy*3];
         if(p>=0 && val!=p) sum++;
@@ -127,8 +128,8 @@ public class Skeltonization{
 
     short[][] lengthMap1=new short[width][height];
 
-    for(int y=0;y<height;y++) {
-      for(int x=0;x<width;x++) {
+    for(int y=0;y<height;y++){
+      for(int x=0;x<width;x++){
         if(lengthMap[x][y]>0){
           lengthMap1[x][y]=1;
         }
@@ -136,10 +137,10 @@ public class Skeltonization{
     }
 
     int del=1;
-    while(del>0) {
+    while(del>0){
       del=0;
-      for(int y=ystart;y<=yend;y++) {
-        for(int x=xstart;x<=xend;x++) {
+      for(int y=ystart;y<=yend;y++){
+        for(int x=xstart;x<=xend;x++){
           short val=lengthMap1[x][y];
           if(val==1){
             if(delPoint(lengthMap1,x,y)){
@@ -151,16 +152,16 @@ public class Skeltonization{
         }
       }
 
-      for(int y=0;y<height;y++) {
-        for(int x=0;x<width;x++) {
+      for(int y=0;y<height;y++){
+        for(int x=0;x<width;x++){
           if(lengthMap1[x][y]==-1)lengthMap1[x][y]=0;
         }
       }
 
     }//while
 
-    for(int y=ystart;y<=yend;y++) {
-      for(int x=xstart;x<=xend;x++) {
+    for(int y=ystart;y<=yend;y++){
+      for(int x=xstart;x<=xend;x++){
         if(lengthMap1[x][y]>0)lengthMap[x][y]=1;
       }
     }
@@ -179,7 +180,7 @@ public class Skeltonization{
     n[7]=lengthMap[x  ][y+1];
     n[8]=lengthMap[x+1][y+1];
 
-    for(int i=1;i<9;i++) {
+    for(int i=1;i<9;i++){
       if(n[i]<0)
         sn[i] = (short)-n[i];
       else
@@ -190,7 +191,7 @@ public class Skeltonization{
 
     int sum=0;
     int psum=0;
-    for(int i=1;i<9;i++) {
+    for(int i=1;i<9;i++){
       psum+=sn[i];
       if(n[i]>0) sum+=n[i];
     }
@@ -205,7 +206,7 @@ public class Skeltonization{
     if(sum!=1) return false;
 
     /* 連結性を保持できるか2 */
-    for(int i=1;i<9;i++) {
+    for(int i=1;i<9;i++){
       int tmp;
       if(n[i]<0) sn[i]=0;
     }
@@ -216,7 +217,7 @@ public class Skeltonization{
   /** for hildth */
   static int getConnect(short[] sn){
     int sum=0;
-    for(int i=1;i<9;i+=2) {
+    for(int i=1;i<9;i+=2){
       int j=i+1;
       int k=i+2;
       if(j>8) j-=8;

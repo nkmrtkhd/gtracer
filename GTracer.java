@@ -11,7 +11,9 @@ import javax.swing.event.*;
 import filter.*;
 
 
-public class GTracer extends JFrame implements ActionListener,MouseListener,ChangeListener{
+public class GTracer implements ActionListener,
+                                MouseListener,
+                                ChangeListener{
 
   //main function
   public static void main(String[] args) {
@@ -25,7 +27,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
   //constructor
   public GTracer(){
-    this.open("sample.png");
+    this.open("sample.png");//this is for development
     makeControlFrame();
     makeCanvasFrame();
   }
@@ -117,7 +119,13 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     }else if(ae.getSource() == cityButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(2);
-    }else if(ae.getSource() == boneButton){
+    }else if(ae.getSource() == localMaxButton){
+      tracedImg=null;
+      tracedImg=tracer.makeImage(3);
+    }else if(ae.getSource() == simpleMaskButton){
+      tracedImg=null;
+      tracedImg=tracer.makeImage(4);
+    }else if(ae.getSource() == hildthMaskButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(5);
     }else if(ae.getSource() == traceButton){
@@ -125,17 +133,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
         tracedPos=tracer.trace(pQueue);
       }
     }else if(ae.getSource() == writeButton){
-      String currentDir=System.getProperty("user.dir");
-      JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
-      jfc.setDialogTitle("save image");
-
-      String str = null;
-      int s = jfc.showSaveDialog( null );
-      if( s == JFileChooser.APPROVE_OPTION ){
-        File file = jfc.getSelectedFile();
-        str = new String( file.getAbsolutePath() );
-      }
-      if(str!=null)writeFile(str);
+      this.writeTracedPoint();
     }else if(ae.getSource() == resetButton){
       xcutmin=0f;
       xcutmax=1f;
@@ -145,18 +143,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       tracedPos.clear();
       tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
       tracedImg=null;
-    }else if(ae.getSource() == saveButton){
-      this.saveImg();
     }
     myCanv.repaint();
-  }
-
-  //get extension
-  private static String getSuffix(String fileName) {
-    if(fileName == null)return null;
-    int point = fileName.lastIndexOf(".");
-    if (point != -1)return fileName.substring(point + 1);
-    return fileName;
   }
 
   /** 引数がnullだったらダイアログで選んで，open */
@@ -183,61 +171,53 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     tracer=new Tracer(originalImg);
   }
 
-  private void saveImg(){
+
+  private void writeTracedPoint(){
     String currentDir=System.getProperty("user.dir");
     JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
-    jfc.setDialogTitle("save image");
+    jfc.setDialogTitle("write file");
 
-    String str = null;
+    String str=null;
     int s = jfc.showSaveDialog( null );
     if( s == JFileChooser.APPROVE_OPTION ){
       File file = jfc.getSelectedFile();
       str = new String( file.getAbsolutePath() );
     }
-
-    //save
     if(str!=null){
-      File imgfile = new File(str+".png");
-      try{
-        ImageIO.write(tracedImg, "png", imgfile);
-      }catch(Exception e){
+      try {
+        FileWriter fw = new FileWriter(str);
+        BufferedWriter bw = new BufferedWriter( fw );
+        PrintWriter pw = new PrintWriter( bw );
+
+
+        double dxi=1.0/(xend[0]-xstart[0]);
+        double dxreal=(xRealEnd-xRealStart);
+        double dyi=1.0/(ystart[1]-yend[1]);//note y is upside down
+        double dyreal=(yRealEnd-yRealStart);
+        for(int i=0;i<tracedPos.size()/2;i++){
+          double x=(tracedPos.get(2*i)-xstart[0])*dxi*dxreal+xRealStart;
+          double y=(ystart[1]-tracedPos.get(2*i+1))*dyi*dyreal+yRealStart;
+          pw.println( String.format("%f %f", x,y) );
+        }
+
+        pw.close();
+        bw.close();
+        fw.close();
+        //System.out.println("saved slice position");
+      }catch ( IOException ioe ){
       }
     }
   }
 
-  private void writeFile(String filename){
-    try {
-      FileWriter fw = new FileWriter(filename);
-      BufferedWriter bw = new BufferedWriter( fw );
-      PrintWriter pw = new PrintWriter( bw );
-
-
-      double dxi=1.0/(xend[0]-xstart[0]);
-      double dxreal=(xRealEnd-xRealStart);
-      double dyi=1.0/(ystart[1]-yend[1]);//note y is upside down
-      double dyreal=(yRealEnd-yRealStart);
-      for(int i=0;i<tracedPos.size()/2;i++){
-        double x=(tracedPos.get(2*i)-xstart[0])*dxi*dxreal+xRealStart;
-        double y=(ystart[1]-tracedPos.get(2*i+1))*dyi*dyreal+yRealStart;
-        pw.println( String.format("%f %f", x,y) );
-      }
-
-      pw.close();
-      bw.close();
-      fw.close();
-      //System.out.println("saved slice position");
-    }catch ( IOException ioe ){
-    }
-  }
-
+  //create canvas frame
   private MyCanvas myCanv;
   private void makeCanvasFrame(){
     JFrame canvasJframe=new JFrame("Gtracer");
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    canvasJframe.setBounds( 0, 250,
-                  screenDim.width - 100,
-                  screenDim.height - 400);
+    canvasJframe.setBounds( 0, 255,
+                            screenDim.width - 100,
+                            screenDim.height - 280);
     //how to action, when close
     canvasJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -248,8 +228,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     myCanv.addMouseListener(this);
 
     JScrollPane sp = new JScrollPane(myCanv,
-                      ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                                     ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                     ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
     canvasJframe.setLayout(new GridLayout(1, 1));
     canvasJframe.add(sp);
@@ -270,18 +250,17 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private double yRealStart=0.0;
   private int[] yend={EMPTY,EMPTY};
   private double yRealEnd=10.0;
-
   private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
-
   private JButton openButton;
   private JButton chessButton;
   private JButton cityButton;
-  private JButton boneButton;
+  private JButton localMaxButton;
+  private JButton simpleMaskButton;
+  private JButton hildthMaskButton;
   private JButton traceButton;
   private JButton writeButton;
   private JButton resetButton;
-  private JButton saveButton;
   private JLabel xminLabel,xmaxLabel;
   private JLabel yminLabel,ymaxLabel;
   private JSlider xminSlider, xmaxSlider;
@@ -291,8 +270,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
-                  screenDim.width - 100,
-                  200);
+                          screenDim.width - 100,
+                          250);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -307,9 +286,16 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     cityButton=new JButton("city");
     cityButton.addActionListener( this );
     cityButton.setFocusable(false);
-    boneButton=new JButton("thinning");
-    boneButton.addActionListener( this );
-    boneButton.setFocusable(false);
+    //thining
+    localMaxButton=new JButton("localMax");
+    localMaxButton.addActionListener( this );
+    localMaxButton.setFocusable(false);
+    simpleMaskButton=new JButton("simple Mask");
+    simpleMaskButton.addActionListener( this );
+    simpleMaskButton.setFocusable(false);
+    hildthMaskButton=new JButton("Hildth Mask");
+    hildthMaskButton.addActionListener( this );
+    hildthMaskButton.setFocusable(false);
 
 
     traceButton=new JButton("trace");
@@ -323,10 +309,6 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     resetButton=new JButton("reset");
     resetButton.addActionListener( this );
     resetButton.setFocusable(false);
-
-    saveButton=new JButton("save");
-    saveButton.addActionListener( this );
-    saveButton.setFocusable(false);
 
     //slider
     xminLabel=new JLabel("x min");
@@ -388,51 +370,32 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     //set layout
     SpringLayout layout = new SpringLayout();
     jp.setLayout( layout );
+
+    //open
     layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.NORTH, jp );
-    layout.putConstraint( SpringLayout.WEST, openButton, 0,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
 
-
-    layout.putConstraint( SpringLayout.SOUTH, chessButton, -5,SpringLayout.SOUTH, jp );
-    layout.putConstraint( SpringLayout.WEST, chessButton, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.SOUTH, cityButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, cityButton, 5,SpringLayout.EAST, chessButton);
-    layout.putConstraint( SpringLayout.SOUTH, boneButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, boneButton, 5,SpringLayout.EAST, cityButton);
-    layout.putConstraint( SpringLayout.SOUTH, traceButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.EAST, boneButton);
-    layout.putConstraint( SpringLayout.SOUTH, writeButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, writeButton, 5,SpringLayout.EAST, traceButton);
-
-    layout.putConstraint( SpringLayout.SOUTH, resetButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 50,SpringLayout.EAST, writeButton);
-    layout.putConstraint( SpringLayout.SOUTH, saveButton, -5,SpringLayout.SOUTH, jp);
-    layout.putConstraint( SpringLayout.WEST, saveButton, 5,SpringLayout.EAST, resetButton);
-
-
-    layout.putConstraint( SpringLayout.SOUTH, xminLabel, -10,SpringLayout.NORTH, chessButton);
-    layout.putConstraint( SpringLayout.WEST, xminLabel, 0,SpringLayout.WEST, chessButton);
+    //cut
+    layout.putConstraint( SpringLayout.NORTH, xminLabel, 10,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.WEST, xminLabel, 5,SpringLayout.WEST, openButton);
     layout.putConstraint( SpringLayout.NORTH, xminSlider, 0,SpringLayout.NORTH,xminLabel);
     layout.putConstraint( SpringLayout.WEST, xminSlider, 0,SpringLayout.EAST, xminLabel);
-
     layout.putConstraint( SpringLayout.NORTH, xmaxLabel, 0,SpringLayout.NORTH, xminLabel);
     layout.putConstraint( SpringLayout.WEST, xmaxLabel, 10,SpringLayout.EAST, xminSlider);
     layout.putConstraint( SpringLayout.NORTH, xmaxSlider, 0,SpringLayout.NORTH, xmaxLabel);
     layout.putConstraint( SpringLayout.WEST, xmaxSlider, 0,SpringLayout.EAST, xmaxLabel);
-
     layout.putConstraint( SpringLayout.NORTH, yminLabel, 0,SpringLayout.NORTH, xminLabel);
     layout.putConstraint( SpringLayout.WEST, yminLabel, 20,SpringLayout.EAST, xmaxSlider);
     layout.putConstraint( SpringLayout.NORTH, yminSlider, 0,SpringLayout.NORTH,yminLabel);
     layout.putConstraint( SpringLayout.WEST, yminSlider, 0,SpringLayout.EAST, yminLabel);
-
     layout.putConstraint( SpringLayout.NORTH, ymaxLabel, 0,SpringLayout.NORTH, xminLabel);
     layout.putConstraint( SpringLayout.WEST, ymaxLabel, 10,SpringLayout.EAST, yminSlider);
     layout.putConstraint( SpringLayout.NORTH, ymaxSlider, 0,SpringLayout.NORTH, ymaxLabel);
     layout.putConstraint( SpringLayout.WEST, ymaxSlider, 0,SpringLayout.EAST, ymaxLabel);
 
-
-    layout.putConstraint( SpringLayout.SOUTH, rbPoints, 0,SpringLayout.NORTH, xminLabel);
-    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.WEST, jp);
-
+    //radiobutton
+    layout.putConstraint( SpringLayout.NORTH, rbPoints, 10,SpringLayout.SOUTH, xminLabel);
+    layout.putConstraint( SpringLayout.WEST, rbPoints, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, rbXStart, 0,SpringLayout.SOUTH, rbPoints);
     layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.EAST, rbPoints);
     layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, rbXStart);
@@ -441,7 +404,6 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     layout.putConstraint( SpringLayout.WEST, rbXEnd, 0,SpringLayout.EAST, spXStart);
     layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, rbXEnd);
     layout.putConstraint( SpringLayout.WEST, spXEnd, 0,SpringLayout.EAST, rbXEnd);
-
     layout.putConstraint( SpringLayout.SOUTH, rbYStart, 0,SpringLayout.SOUTH, spXEnd);
     layout.putConstraint( SpringLayout.WEST, rbYStart, 10,SpringLayout.EAST, spXEnd);
     layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, rbYStart);
@@ -450,6 +412,29 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.EAST, spYStart);
     layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
     layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
+
+
+    //lengthmap
+    layout.putConstraint( SpringLayout.NORTH, chessButton, 5,SpringLayout.SOUTH, rbPoints);
+    layout.putConstraint( SpringLayout.WEST, chessButton, 5,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.SOUTH, cityButton, 0,SpringLayout.SOUTH, chessButton);
+    layout.putConstraint( SpringLayout.WEST, cityButton, 0,SpringLayout.EAST, chessButton);
+    //
+    layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, cityButton);
+    layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
+    layout.putConstraint( SpringLayout.WEST, simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
+    layout.putConstraint( SpringLayout.SOUTH, hildthMaskButton, 0,SpringLayout.SOUTH, simpleMaskButton);
+    layout.putConstraint( SpringLayout.WEST, hildthMaskButton, 0,SpringLayout.EAST, simpleMaskButton);
+
+    //trace
+    layout.putConstraint( SpringLayout.NORTH, traceButton, 5,SpringLayout.SOUTH, localMaxButton);
+    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, writeButton, 0,SpringLayout.SOUTH, traceButton);
+    layout.putConstraint( SpringLayout.WEST, writeButton, 0,SpringLayout.EAST, traceButton);
+    layout.putConstraint( SpringLayout.SOUTH, resetButton, 0,SpringLayout.SOUTH, writeButton);
+    layout.putConstraint( SpringLayout.WEST, resetButton, 0,SpringLayout.EAST, writeButton);
+
 
 
 
@@ -478,17 +463,19 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     jp.add(ymaxSlider);
     jp.add(chessButton);
     jp.add(cityButton);
-    jp.add(boneButton);
+    jp.add(localMaxButton);
+    jp.add(simpleMaskButton);
+    jp.add(hildthMaskButton);
+
     jp.add(traceButton);
     jp.add(writeButton);
     jp.add(resetButton);
-    jp.add(saveButton);
 
     ctrlJframe.add(jp);
     ctrlJframe.setVisible(true);
   }
 
-  ///private class
+  /** private class for rendering image*/
   private class MyCanvas extends JPanel{
     public void paint(Graphics g){
       Graphics2D g2 = (Graphics2D)g;

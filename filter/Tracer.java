@@ -12,11 +12,11 @@ import filter.*;
 
 public class Tracer{
 
-  int height;
-  int width;
-  short[][] lengthMap;
-  BufferedImage originalImg;
-  BufferedImage tracedImg;
+  private int height;
+  private int width;
+  private short[][] lengthMap;
+  private BufferedImage originalImg;
+  private BufferedImage tracedImg;
 
   //constructor
   public Tracer(BufferedImage originalImg){
@@ -71,13 +71,35 @@ public class Tracer{
          * int m = (max+min)/2;
          */
 
+        //しきい値より小さい時は
         if(m<250){
           if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
         }
+        //cut
         if(x<xs || xe<x || y<ys ||ye<y)lengthMap[x][y]=0;
       }
     }
   }
+  public BufferedImage makeImage(int filterType ){
+    if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
+    if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
+    if(filterType==3)Skeltonization.localMax(lengthMap,width,height);
+    if(filterType==4)Skeltonization.simpelMask(lengthMap,width,height);
+    if(filterType==5)Skeltonization.hildthMask(lengthMap,width,height);
+
+    for (int x = 0; x < width;x++){
+      for (int y = 0; y < height;y++){
+        int m=255;//white
+        if(lengthMap[x][y]>0)m=0;//black
+        if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;//border is black
+        int a=255;
+        tracedImg.setRGB(x, y, new Color(m, m, m, a).getRGB());
+      }
+    }
+
+    return tracedImg;
+  }
+
 
   public ArrayList<Integer> trace(ArrayList<Integer> pQueue){
     System.out.println("trace starts");
@@ -157,26 +179,6 @@ public class Tracer{
       n++;//捜索範囲をどんどん外側に
     }
     return point;
-  }
-
-  public BufferedImage makeImage(int filterType ){
-    if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
-    if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
-    if(filterType==3)Skeltonization.localMax(lengthMap,width,height);
-    if(filterType==4)Skeltonization.simpelMask(lengthMap,width,height);
-    if(filterType==5)Skeltonization.hildthMask(lengthMap,width,height);
-
-    for (int x = 0; x < width;x++){
-      for (int y = 0; y < height;y++){
-        int m=255;//white
-        if(lengthMap[x][y]>0)m=0;//black
-        if(x==0 || x==width-1 || y==0 ||y==height-1)m=0;//border is black
-        int a=255;
-        tracedImg.setRGB(x, y, new Color(m, m, m, a).getRGB());
-      }
-    }
-
-    return tracedImg;
   }
 
 }
