@@ -15,7 +15,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
   //main function
   public static void main(String[] args) {
-    new GTracer("sample.png");
+    new GTracer();
   }
 
   //class variables
@@ -24,29 +24,10 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private Tracer tracer;
 
   //constructor
-  public GTracer(String filename){
-    super("GTracer");//new JFrame
-
-    //load image file
-    try{
-      File imgfile = new File(filename);
-      originalImg = ImageIO.read(imgfile);
-    }catch (Exception e) {
-    }
-
-    //window size
-    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    setBounds( 0, 0,
-               screenDim.width - 100,
-               screenDim.height - 100);
-    //create panel and add to this(JFrame)
-    add(makePanel());
-    //how to action, when close
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setVisible(true);
-
-    //tracer
-    tracer=new Tracer(originalImg);
+  public GTracer(){
+    this.open("sample.png");
+    makeControlFrame();
+    makeCanvasFrame();
   }
 
   //mouse
@@ -76,6 +57,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     }else if(rbXStart.isSelected()){
       xstart[0]=mousePos[0];
       xstart[1]=mousePos[1];
+      ystart[0]=mousePos[0];
+      ystart[1]=mousePos[1];
     }else if(rbXEnd.isSelected()){
       xend[0]=mousePos[0];
       xend[1]=mousePos[1];
@@ -122,13 +105,13 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       yRealEnd=((Double)spYEnd.getValue()).doubleValue();
     }
     updateLabel();
-    //tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
-    //tracedImg=tracer.makeImage(0);
     myCanv.repaint();
   }
 
   public void actionPerformed(ActionEvent ae){
-    if(ae.getSource() == chessButton){
+    if(ae.getSource() == openButton){
+      this.open(null);
+    }else if(ae.getSource() == chessButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(1);
     }else if(ae.getSource() == cityButton){
@@ -152,42 +135,18 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
         File file = jfc.getSelectedFile();
         str = new String( file.getAbsolutePath() );
       }
-      writeFile(str);
+      if(str!=null)writeFile(str);
     }else if(ae.getSource() == resetButton){
       xcutmin=0f;
       xcutmax=1f;
       ycutmin=0f;
       ycutmax=1f;
-      /*
-       * xstart[0]=EMPTY;
-       * xend[0]=EMPTY;
-       * ystart[0]=EMPTY;
-       * yend[0]=EMPTY;
-       */
       pQueue.clear();
       tracedPos.clear();
       tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
       tracedImg=null;
     }else if(ae.getSource() == saveButton){
-      String currentDir=System.getProperty("user.dir");
-      JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
-      jfc.setDialogTitle("save image");
-
-      String str = null;
-      int s = jfc.showSaveDialog( null );
-      if( s == JFileChooser.APPROVE_OPTION ){
-        File file = jfc.getSelectedFile();
-        str = new String( file.getAbsolutePath() );
-      }
-
-      //save
-      if(str!=null){
-        File imgfile = new File(str+".png");
-        try{
-          ImageIO.write(tracedImg, "png", imgfile);
-        }catch(Exception e){
-        }
-      }
+      this.saveImg();
     }
     myCanv.repaint();
   }
@@ -200,7 +159,53 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     return fileName;
   }
 
-  public void writeFile(String filename){
+  /** 引数がnullだったらダイアログで選んで，open */
+  private void open(String filename){
+    if(filename==null){
+      String currentDir=System.getProperty("user.dir");
+      JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
+      jfc.setDialogTitle("open image");
+
+      int s = jfc.showOpenDialog( null );
+      if( s == JFileChooser.APPROVE_OPTION ){
+        File file = jfc.getSelectedFile();
+        filename = new String( file.getAbsolutePath() );
+      }
+    }
+    //load image file
+    try{
+      File imgfile = new File(filename);
+      originalImg = ImageIO.read(imgfile);
+    }catch (Exception e) {
+    }
+    //tracer
+    tracer=null;
+    tracer=new Tracer(originalImg);
+  }
+
+  private void saveImg(){
+    String currentDir=System.getProperty("user.dir");
+    JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
+    jfc.setDialogTitle("save image");
+
+    String str = null;
+    int s = jfc.showSaveDialog( null );
+    if( s == JFileChooser.APPROVE_OPTION ){
+      File file = jfc.getSelectedFile();
+      str = new String( file.getAbsolutePath() );
+    }
+
+    //save
+    if(str!=null){
+      File imgfile = new File(str+".png");
+      try{
+        ImageIO.write(tracedImg, "png", imgfile);
+      }catch(Exception e){
+      }
+    }
+  }
+
+  private void writeFile(String filename){
     try {
       FileWriter fw = new FileWriter(filename);
       BufferedWriter bw = new BufferedWriter( fw );
@@ -221,10 +226,36 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
       bw.close();
       fw.close();
       //System.out.println("saved slice position");
-    }
-    catch ( IOException ioe ){
+    }catch ( IOException ioe ){
     }
   }
+
+  private MyCanvas myCanv;
+  private void makeCanvasFrame(){
+    JFrame canvasJframe=new JFrame("Gtracer");
+    //window size
+    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+    canvasJframe.setBounds( 0, 250,
+                  screenDim.width - 100,
+                  screenDim.height - 400);
+    //how to action, when close
+    canvasJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    //canvas
+    myCanv=new MyCanvas();
+    myCanv.setPreferredSize(new Dimension(500, 500));//what do i do ?
+    myCanv.setBackground(new Color(200,200,200));
+    myCanv.addMouseListener(this);
+
+    JScrollPane sp = new JScrollPane(myCanv,
+                      ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    canvasJframe.setLayout(new GridLayout(1, 1));
+    canvasJframe.add(sp);
+    canvasJframe.setVisible(true);
+  }
+
 
   private float xcutmin=0f;
   private float xcutmax=1f;
@@ -243,6 +274,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
 
+  private JButton openButton;
   private JButton chessButton;
   private JButton cityButton;
   private JButton boneButton;
@@ -250,13 +282,24 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
   private JButton writeButton;
   private JButton resetButton;
   private JButton saveButton;
-  private MyCanvas myCanv;
   private JLabel xminLabel,xmaxLabel;
   private JLabel yminLabel,ymaxLabel;
   private JSlider xminSlider, xmaxSlider;
   private JSlider yminSlider, ymaxSlider;
+  private void makeControlFrame(){
+    JFrame ctrlJframe=new JFrame("Gtracer");
+    //window size
+    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+    ctrlJframe.setBounds( 0, 0,
+                  screenDim.width - 100,
+                  200);
+    //how to action, when close
+    ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-  private JPanel makePanel(){
+    //button
+    openButton=new JButton("open");
+    openButton.addActionListener( this );
+    openButton.setFocusable(false);
     //button
     chessButton=new JButton("chess");
     chessButton.addActionListener( this );
@@ -285,14 +328,6 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     saveButton.addActionListener( this );
     saveButton.setFocusable(false);
 
-    //canvas
-    myCanv=new MyCanvas();
-    myCanv.setPreferredSize(new Dimension(500, 500));
-    myCanv.setBackground(new Color(200,200,200));
-    myCanv.addMouseListener(this);
-    JScrollPane sp = new JScrollPane(myCanv,
-                      ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-                      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
     //slider
     xminLabel=new JLabel("x min");
     xmaxLabel=new JLabel("x max");
@@ -353,6 +388,10 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     //set layout
     SpringLayout layout = new SpringLayout();
     jp.setLayout( layout );
+    layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.NORTH, jp );
+    layout.putConstraint( SpringLayout.WEST, openButton, 0,SpringLayout.WEST, jp );
+
+
     layout.putConstraint( SpringLayout.SOUTH, chessButton, -5,SpringLayout.SOUTH, jp );
     layout.putConstraint( SpringLayout.WEST, chessButton, 5,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.SOUTH, cityButton, -5,SpringLayout.SOUTH, jp);
@@ -416,15 +455,8 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
 
 
 
-    layout.putConstraint( SpringLayout.SOUTH, sp, -10,SpringLayout.NORTH, rbPoints);
-    layout.putConstraint( SpringLayout.NORTH, sp, 0,SpringLayout.NORTH, jp );
-    layout.putConstraint( SpringLayout.EAST, sp, 0,SpringLayout.EAST, jp );
-    layout.putConstraint( SpringLayout.WEST, sp, 0,SpringLayout.WEST, jp );
-
-
     //add to jpanel
-    jp.add(sp);
-
+    jp.add(openButton);
     jp.add(rbPoints);
     jp.add(rbXStart);
     jp.add(rbXEnd);
@@ -451,11 +483,13 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
     jp.add(writeButton);
     jp.add(resetButton);
     jp.add(saveButton);
-    return jp;
+
+    ctrlJframe.add(jp);
+    ctrlJframe.setVisible(true);
   }
 
   ///private class
-  private class MyCanvas extends Canvas{
+  private class MyCanvas extends JPanel{
     public void paint(Graphics g){
       Graphics2D g2 = (Graphics2D)g;
 
@@ -465,7 +499,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
         g.drawImage(tracedImg,0,0,this);
       }
 
-
+      //draw axis
       g2.setStroke(new BasicStroke(1.5f)); //線の種類を設定
       //x-axis
       g.setColor(Color.red);
@@ -484,6 +518,7 @@ public class GTracer extends JFrame implements ActionListener,MouseListener,Chan
         g.drawOval(mousePos[0]-r/2,mousePos[1]-r/2,r,r);
       }
 
+      //draw points
       g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
       g.setColor(Color.blue);
       //selected point
