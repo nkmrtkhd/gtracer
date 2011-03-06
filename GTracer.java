@@ -17,7 +17,11 @@ public class GTracer implements ActionListener,
 
   //main function
   public static void main(String[] args) {
-    new GTracer();
+    if(args.length>0)
+      new GTracer(args[0]);
+    else
+      new GTracer(null);
+
   }
 
   //class variables
@@ -26,8 +30,8 @@ public class GTracer implements ActionListener,
   private Tracer tracer;
 
   //constructor
-  public GTracer(){
-    this.open("sample.png");//this is for development
+  public GTracer(String inputFile){
+    if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
   }
@@ -215,7 +219,7 @@ public class GTracer implements ActionListener,
     JFrame canvasJframe=new JFrame("Gtracer");
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    canvasJframe.setBounds( 0, 255,
+    canvasJframe.setBounds( 0, 270,
                             screenDim.width - 100,
                             screenDim.height - 280);
     //how to action, when close
@@ -271,7 +275,7 @@ public class GTracer implements ActionListener,
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
                           screenDim.width - 100,
-                          250);
+                          240);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

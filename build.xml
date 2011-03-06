@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-02-13 23:03:36 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-03-06 12:41:56 by NAKAMURA Takahide> -->
 
   <project name="GTracer" default="run" basedir=".">
 
@@ -18,6 +18,7 @@
       <pathelement path="." />
     </path>
 
+    <!-- make -->
     <target name="make">
       <javac includeAntRuntime="true" encoding="UTF-8" srcdir="." deprecation="on" debug="${dbg}" source="1.5" target="1.5">
         <include name="GTracer.java" />
@@ -26,12 +27,28 @@
       </javac>
     </target>
 
-    <!-- run conv-->
+    <!-- run -->
     <target name="run" depends="make" description="run">
       <java classname="GTracer" classpath="." fork="yes" maxmemory="1024m"  >
         <classpath refid="libpath_ref" />
+        <arg line="sample.png" />
       </java>
     </target>
+
+    <!-- jar -->
+    <target name="jar" depends="make " >
+      <jar destfile="GTracer.jar" basedir=".">
+        <include name="**/*.class" />
+        <manifest>
+          <attribute name="Main-Class" value="GTracer" />
+          <attribute name="Class-Path" value="." />
+          <attribute name="Implementation-Title" value="GTracer" />
+          <attribute name="Implementation-Version" value="1" />
+          <attribute name="Implementation-Vender" value="Ogata Lab.(NIT)" />
+        </manifest>
+      </jar>
+    </target>
+
 
 
     <!-- Clean -->
