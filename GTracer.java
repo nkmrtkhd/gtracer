@@ -117,6 +117,7 @@ public class GTracer implements ActionListener,
   public void actionPerformed(ActionEvent ae){
     if(ae.getSource() == openButton){
       this.open(null);
+      myCanv.repaint();
     }else if(ae.getSource() == chessButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(1);
@@ -129,9 +130,6 @@ public class GTracer implements ActionListener,
     }else if(ae.getSource() == simpleMaskButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(4);
-    }else if(ae.getSource() == hildthMaskButton){
-      tracedImg=null;
-      tracedImg=tracer.makeImage(5);
     }else if(ae.getSource() == traceButton){
       if(pQueue.size()>=4){
         tracedPos=tracer.trace(pQueue);
@@ -261,7 +259,6 @@ public class GTracer implements ActionListener,
   private JButton cityButton;
   private JButton localMaxButton;
   private JButton simpleMaskButton;
-  private JButton hildthMaskButton;
   private JButton traceButton;
   private JButton writeButton;
   private JButton resetButton;
@@ -297,9 +294,6 @@ public class GTracer implements ActionListener,
     simpleMaskButton=new JButton("simple Mask");
     simpleMaskButton.addActionListener( this );
     simpleMaskButton.setFocusable(false);
-    hildthMaskButton=new JButton("Hildth Mask");
-    hildthMaskButton.addActionListener( this );
-    hildthMaskButton.setFocusable(false);
 
 
     traceButton=new JButton("trace");
@@ -428,8 +422,6 @@ public class GTracer implements ActionListener,
     layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
     layout.putConstraint( SpringLayout.WEST, simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
-    layout.putConstraint( SpringLayout.SOUTH, hildthMaskButton, 0,SpringLayout.SOUTH, simpleMaskButton);
-    layout.putConstraint( SpringLayout.WEST, hildthMaskButton, 0,SpringLayout.EAST, simpleMaskButton);
 
     //trace
     layout.putConstraint( SpringLayout.NORTH, traceButton, 5,SpringLayout.SOUTH, localMaxButton);
@@ -469,7 +461,6 @@ public class GTracer implements ActionListener,
     jp.add(cityButton);
     jp.add(localMaxButton);
     jp.add(simpleMaskButton);
-    jp.add(hildthMaskButton);
 
     jp.add(traceButton);
     jp.add(writeButton);
@@ -484,6 +475,7 @@ public class GTracer implements ActionListener,
     public void paint(Graphics g){
       Graphics2D g2 = (Graphics2D)g;
 
+      g2.clearRect(0, 0, getWidth(), getHeight());
       if(tracedImg==null){
         g.drawImage(originalImg,0,0,this);
       }else{

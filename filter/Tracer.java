@@ -84,8 +84,7 @@ public class Tracer{
     if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
     if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
     if(filterType==3)Skeltonization.localMax(lengthMap,width,height);
-    if(filterType==4)Skeltonization.simpelMask(lengthMap,width,height);
-    if(filterType==5)Skeltonization.hildthMask(lengthMap,width,height);
+    if(filterType==4)Skeltonization.simpleMask(lengthMap,width,height);
 
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){

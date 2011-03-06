@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-03-06 12:41:56 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-03-06 20:42:52 by NAKAMURA Takahide> -->
 
   <project name="GTracer" default="run" basedir=".">
 
@@ -55,6 +55,7 @@
     <target name="clean" >
       <delete>
         <fileset dir="." includes="**/*.class" />
+        <fileset dir="." includes="GTracer.jar" />
       </delete>
     </target>
 

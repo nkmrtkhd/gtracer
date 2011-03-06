@@ -3,7 +3,7 @@ package filter;
 public class Skeltonization{
   /** 周辺８ブロックのうち，極大値の場合だけ残す */
   static void localMax(short[][] lengthMap, int width, int height){
-    System.out.println("boner");
+    System.out.println("local max ");
     //ignore 1pixcel on border
     int xstart=1;
     int xend=width-2;
@@ -23,208 +23,94 @@ public class Skeltonization{
     }
   }
 
-  /** マスクを使った細線化 */
-  static void simpelMask(short[][] lengthMap, int width, int height){
-    //short[8][9]
-    short[][] mask={
-      {0, 0,-1,
-       0, 1, 1,
-       -1, 1,-1},
-      {0, 0, 0,
-       -1, 1,-1,
-       1, 1,-1},
-      {-1, 0, 0,
-       1, 1, 0,
-       -1, 1,-1},
-      {1,-1, 0,
-       1, 1, 0,
-       -1,-1, 0},
-      {-1, 1,-1,
-       1, 1, 0,
-       -1, 0, 0},
-      {-1, 1, 1,
-       -1, 1,-1,
-       0, 0, 0},
-      {-1, 1,-1,
-       0, 1, 1,
-       0, 0,-1},
-      {0,-1,-1,
-       0, 1, 1,
-       0,-1, 1}
-    };
+  /**
+   * skeltonization
+   * reference: http://codezine.jp/article/detail/98
+   */
+  static void simpleMask(short[][] lengthMap, int width, int height){
 
-    int xstart=1;
-    int ystart=1;
-    int xend=width-2;
-    int yend=height-2;
+    short[][] newMap=new short[width][height];
+    short[][] oldMap=new short[width][height];
 
-    short[][] lengthMap1=new short[width][height];
-    short[][] lengthMap2=new short[width][height];
-
-    //copy img to img1
-    for(int y=ystart;y<=yend;y++){
-      for(int x=xstart;x<=xend;x++){
-        if(lengthMap[x][y]>0){
-          lengthMap1[x-xstart][y-ystart]=1;
-        }
-      }
-    }
-
-    //
-    int del=1;
-    while(del>0){
-      del=0;
-      for(int n=0;n<8;n++){
-        for(int y=ystart;y<yend;y++){
-          for(int x=xstart;x<xstart;x++){
-            short val=lengthMap1[x][y];
-            if(val>0 && delPoint(lengthMap1,x,y,mask[n])){
-              val=0;
-              del++;
-            }
-            lengthMap2[x][y]=val;
-          }//x
-        }//y
-
-        //copy
-        for(int y=0;y<height;y++){
-          for(int x=0;x<width;x++){
-            lengthMap1[x][y]=lengthMap2[x][y];
-            lengthMap2[x][y]=0;
-          }
-        }
-
-      }//n
-    }//while
-
-    //set output image
+    //copy lengthMap to newMap
     for(int y=0;y<height;y++){
       for(int x=0;x<width;x++){
-        if(lengthMap1[x][y]>0)lengthMap[x][y]=1;
+        if(lengthMap[x][y]>0)
+          newMap[x][y]=1;
+        else
+          newMap[x][y]=0;
       }
     }
-  }//end of mask
-  /** for mask */
-  static boolean delPoint(short[][] lengthMap,int x,int y,short[] mask){
-    int sum=0;
-    for(int yy=0;yy<=2;yy++){
-      for(int xx=0;xx<=2;xx++){
-        short val=lengthMap[x+xx-1][y+yy-1];
-        short p=mask[xx+yy*3];
-        if(p>=0 && val!=p) sum++;
-      }
+
+
+    //direction
+    int UPPER_LEFT=2,LOWER_RIGHT=6,UPPER_RIGHT=0,LOWER_LEFT=4;
+
+    //flag
+    int change_flag=1;
+    while(change_flag==1){
+      change_flag=0;
+
+      //copy
+      for(int y=0;y<height;y++)for(int x=0;x<width;x++)oldMap[x][y]=newMap[x][y];
+      //左上から細線化
+      for(int j=1;j<height-1;j++)
+        for(int i=1;i<width-1;i++)
+          if(oldMap[i][j]==1)change_flag=thinImage(i,j,UPPER_LEFT,newMap,oldMap);
+
+      //copy
+      for(int y=0;y<height;y++)for(int x=0;x<width;x++)oldMap[x][y]=newMap[x][y];
+      //右下から細線化
+      for(int j=height-2;j>=1;j--)
+        for(int i=width-2;i>=1;i--)
+          if(newMap[i][j]==1)change_flag=thinImage(i,j,LOWER_RIGHT,newMap,oldMap);
+
+      //copy
+      for(int y=0;y<height;y++)for(int x=0;x<width;x++)oldMap[x][y]=newMap[x][y];
+      //右上から細線化
+      for(int j=1;j<height-1;j++)
+        for(int i=width-2;i>=1;i--)
+          if(newMap[i][j]==1)change_flag=thinImage(i,j,UPPER_RIGHT,newMap,oldMap);
+
+      //copy
+      for(int y=0;y<height;y++)for(int x=0;x<width;x++)oldMap[x][y]=newMap[x][y];
+      //左下から細線化
+      for(int j=height-2;j>=1;j--)
+        for(int i=1;i<width-1;i++)
+          if(newMap[i][j]==1)change_flag=thinImage(i,j,LOWER_LEFT,newMap,oldMap);
+
     }
-    if(sum>0) return false;
-    return true;
+
+    //copy to lengthMap
+    for(int y=0;y<height;y++)for(int x=0;x<width;x++)lengthMap[x][y]=newMap[x][y];
   }
 
+  /**
+   * for simpleMask
+   */
+  private static int thinImage(int i,int j,int start,short[][] newMap,short[][] oldMap){
+    short[] p=new short[8];
+    int product,sum;
+    p[0]=oldMap[i-1][j-1];
+    p[1]=oldMap[i-1][j];
+    p[2]=oldMap[i-1][j+1];
+    p[3]=oldMap[i][j+1];
+    p[4]=oldMap[i+1][j+1];
+    p[5]=oldMap[i+1][j];
+    p[6]=oldMap[i+1][j-1];
+    p[7]=oldMap[i][j-1];
 
-  /** hildthマスク */
-  static void hildthMask(short[][] lengthMap, int width, int height){
-    int xstart=1;
-    int ystart=1;
-    int xend=width-2;
-    int yend=height-2;
-
-    short[][] lengthMap1=new short[width][height];
-
-    for(int y=0;y<height;y++){
-      for(int x=0;x<width;x++){
-        if(lengthMap[x][y]>0){
-          lengthMap1[x][y]=1;
-        }
+    int flag=0;
+    for(int k=start;k<start+3;k++){
+      product=p[k % 8]*p[(k+1) % 8]*p[(k+2) % 8];
+      sum=p[(k+4) % 8]+p[(k+5) % 8]+p[(k+6) % 8];
+      if(product==1 && sum==0){
+        newMap[i][j]=0;   //消去するs
+        flag=1;
+        break;//exit k-loop
       }
     }
-
-    int del=1;
-    while(del>0){
-      del=0;
-      for(int y=ystart;y<=yend;y++){
-        for(int x=xstart;x<=xend;x++){
-          short val=lengthMap1[x][y];
-          if(val==1){
-            if(delPoint(lengthMap1,x,y)){
-              val=-1;
-              del++;
-            }
-          }
-          lengthMap1[x][y]=val;
-        }
-      }
-
-      for(int y=0;y<height;y++){
-        for(int x=0;x<width;x++){
-          if(lengthMap1[x][y]==-1)lengthMap1[x][y]=0;
-        }
-      }
-
-    }//while
-
-    for(int y=ystart;y<=yend;y++){
-      for(int x=xstart;x<=xend;x++){
-        if(lengthMap1[x][y]>0)lengthMap[x][y]=1;
-      }
-    }
-  }//end of hildth
-  /** for hildth */
-  static boolean delPoint(short[][] lengthMap ,int x,int y){
-    short[] n=new short[9];
-    short[] sn=new short[9];
-
-    n[1]=lengthMap[x+1][y  ];
-    n[2]=lengthMap[x+1][y-1];
-    n[3]=lengthMap[x  ][y-1];
-    n[4]=lengthMap[x-1][y-1];
-    n[5]=lengthMap[x-1][y  ];
-    n[6]=lengthMap[x-1][y+1];
-    n[7]=lengthMap[x  ][y+1];
-    n[8]=lengthMap[x+1][y+1];
-
-    for(int i=1;i<9;i++){
-      if(n[i]<0)
-        sn[i] = (short)-n[i];
-      else
-        sn[i]=n[i];
-    }
-    /* 境界であるか */
-    if(n[1]+n[3]+n[5]+n[7]==4) return false;
-
-    int sum=0;
-    int psum=0;
-    for(int i=1;i<9;i++){
-      psum+=sn[i];
-      if(n[i]>0) sum+=n[i];
-    }
-    /* 端点か */
-    if(psum<2) return false;
-
-    /* 孤立点か */
-    if(sum<1) return false;
-
-    /* 連結性を保持できるか */
-    sum=getConnect(sn);
-    if(sum!=1) return false;
-
-    /* 連結性を保持できるか2 */
-    for(int i=1;i<9;i++){
-      int tmp;
-      if(n[i]<0) sn[i]=0;
-    }
-    sum=getConnect(sn);
-    if(sum!=1) return false;
-    return true;
-  }
-  /** for hildth */
-  static int getConnect(short[] sn){
-    int sum=0;
-    for(int i=1;i<9;i+=2){
-      int j=i+1;
-      int k=i+2;
-      if(j>8) j-=8;
-      if(k>8) k-=8;
-      sum+=(sn[i]-sn[i]*sn[j]*sn[k]);
-    }
-    return sum;
+    return flag;
   }
 
 }
