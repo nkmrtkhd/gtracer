@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-03-06 20:42:52 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-03-06 21:15:17 by NAKAMURA Takahide> -->
 
   <project name="GTracer" default="run" basedir=".">
 
@@ -21,7 +21,7 @@
     <!-- make -->
     <target name="make">
       <javac includeAntRuntime="true" encoding="UTF-8" srcdir="." deprecation="on" debug="${dbg}" source="1.5" target="1.5">
-        <include name="GTracer.java" />
+        <include name="*.java" />
         <include name="filter/*.java" />
         <classpath refid="libpath_ref" />
       </javac>

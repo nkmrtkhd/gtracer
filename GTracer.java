@@ -154,6 +154,10 @@ public class GTracer implements ActionListener,
     if(filename==null){
       String currentDir=System.getProperty("user.dir");
       JFileChooser jfc = new JFileChooser( (new File(currentDir)).getAbsolutePath() );
+
+      ImagePreview preview = new ImagePreview(jfc);
+      jfc.addPropertyChangeListener(preview);
+      jfc.setAccessory(preview);
       jfc.setDialogTitle("open image");
 
       int s = jfc.showOpenDialog( null );
