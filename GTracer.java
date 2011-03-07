@@ -81,27 +81,9 @@ public class GTracer implements ActionListener,
   public void mouseReleased(MouseEvent e){
   }
 
-  private void updateLabel(){
-    xminLabel.setText(String.format("x min: %.2f",xcutmin));
-    xmaxLabel.setText(String.format("x max: %.2f",xcutmax));
-    yminLabel.setText(String.format("y min: %.2f",ycutmin));
-    ymaxLabel.setText(String.format("y max: %.2f",ycutmax));
-  }
 
   public void stateChanged(ChangeEvent ce){
-    if(ce.getSource()==xminSlider){
-      int t = xminSlider.getValue();
-      xcutmin=0.01f*t;
-    }else if(ce.getSource()==xmaxSlider){
-      int t = xmaxSlider.getValue();
-      xcutmax=0.01f*t;
-    }else if(ce.getSource()==yminSlider){
-      int t = yminSlider.getValue();
-      ycutmin=0.01f*t;
-    }else if(ce.getSource()==ymaxSlider){
-      int t = ymaxSlider.getValue();
-      ycutmax=0.01f*t;
-    }else if(ce.getSource()==spXStart){
+    if(ce.getSource()==spXStart){
       xRealStart=((Double)spXStart.getValue()).doubleValue();
     }else if(ce.getSource()==spXEnd){
       xRealEnd=((Double)spXEnd.getValue()).doubleValue();
@@ -110,12 +92,12 @@ public class GTracer implements ActionListener,
     }else if(ce.getSource()==spYEnd){
       yRealEnd=((Double)spYEnd.getValue()).doubleValue();
     }
-    updateLabel();
     myCanv.repaint();
   }
 
   public void actionPerformed(ActionEvent ae){
     if(ae.getSource() == openButton){
+      reset();
       this.open(null);
       myCanv.repaint();
     }else if(ae.getSource() == chessButton){
@@ -137,17 +119,17 @@ public class GTracer implements ActionListener,
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
     }else if(ae.getSource() == resetButton){
-      xcutmin=0f;
-      xcutmax=1f;
-      ycutmin=0f;
-      ycutmax=1f;
-      pQueue.clear();
-      tracedPos.clear();
-      tracer.setLengthMap(xcutmin,xcutmax,ycutmin,ycutmax);
-      tracedImg=null;
+      reset();
     }
     myCanv.repaint();
   }
+  private void reset(){
+      pQueue.clear();
+      tracedPos.clear();
+      tracer.setLengthMap();
+      tracedImg=null;
+  }
+
 
   /** 引数がnullだったらダイアログで選んで，open */
   private void open(String filename){
@@ -243,10 +225,6 @@ public class GTracer implements ActionListener,
   }
 
 
-  private float xcutmin=0f;
-  private float xcutmax=1f;
-  private float ycutmin=0f;
-  private float ycutmax=1f;
   private static final int EMPTY=-137928;
   private int[] xstart={EMPTY,EMPTY};
   private double xRealStart=0.0;
@@ -266,10 +244,6 @@ public class GTracer implements ActionListener,
   private JButton traceButton;
   private JButton writeButton;
   private JButton resetButton;
-  private JLabel xminLabel,xmaxLabel;
-  private JLabel yminLabel,ymaxLabel;
-  private JSlider xminSlider, xmaxSlider;
-  private JSlider yminSlider, ymaxSlider;
   private void makeControlFrame(){
     JFrame ctrlJframe=new JFrame("Gtracer");
     //window size
@@ -312,28 +286,10 @@ public class GTracer implements ActionListener,
     resetButton.addActionListener( this );
     resetButton.setFocusable(false);
 
-    //slider
-    xminLabel=new JLabel("x min");
-    xmaxLabel=new JLabel("x max");
-    yminLabel=new JLabel("y min");
-    ymaxLabel=new JLabel("y max");
-    updateLabel();
-    xminSlider = new JSlider( 0, 100, 0 );
-    xminSlider.setFocusable(false);
-    xminSlider.addChangeListener( this );
-    xmaxSlider = new JSlider( 0, 100, 100 );
-    xmaxSlider.setFocusable(false);
-    xmaxSlider.addChangeListener( this );
-    yminSlider = new JSlider( 0, 100, 0);
-    yminSlider.setFocusable(false);
-    yminSlider.addChangeListener( this );
-    ymaxSlider = new JSlider( 0, 100, 100);
-    ymaxSlider.setFocusable(false);
-    ymaxSlider.addChangeListener( this );
 
-    rbPoints=new JRadioButton("Points", true);
+    rbPoints=new JRadioButton("Points", false);
     rbPoints.addChangeListener(this);
-    rbXStart=new JRadioButton("x start", false);
+    rbXStart=new JRadioButton("x start", true);
     rbXStart.addChangeListener(this);
     rbXEnd  =new JRadioButton("x end", false);
     rbXEnd.addChangeListener(this);
@@ -377,29 +333,9 @@ public class GTracer implements ActionListener,
     layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
 
-    //cut
-    layout.putConstraint( SpringLayout.NORTH, xminLabel, 10,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.WEST, xminLabel, 5,SpringLayout.WEST, openButton);
-    layout.putConstraint( SpringLayout.NORTH, xminSlider, 0,SpringLayout.NORTH,xminLabel);
-    layout.putConstraint( SpringLayout.WEST, xminSlider, 0,SpringLayout.EAST, xminLabel);
-    layout.putConstraint( SpringLayout.NORTH, xmaxLabel, 0,SpringLayout.NORTH, xminLabel);
-    layout.putConstraint( SpringLayout.WEST, xmaxLabel, 10,SpringLayout.EAST, xminSlider);
-    layout.putConstraint( SpringLayout.NORTH, xmaxSlider, 0,SpringLayout.NORTH, xmaxLabel);
-    layout.putConstraint( SpringLayout.WEST, xmaxSlider, 0,SpringLayout.EAST, xmaxLabel);
-    layout.putConstraint( SpringLayout.NORTH, yminLabel, 0,SpringLayout.NORTH, xminLabel);
-    layout.putConstraint( SpringLayout.WEST, yminLabel, 20,SpringLayout.EAST, xmaxSlider);
-    layout.putConstraint( SpringLayout.NORTH, yminSlider, 0,SpringLayout.NORTH,yminLabel);
-    layout.putConstraint( SpringLayout.WEST, yminSlider, 0,SpringLayout.EAST, yminLabel);
-    layout.putConstraint( SpringLayout.NORTH, ymaxLabel, 0,SpringLayout.NORTH, xminLabel);
-    layout.putConstraint( SpringLayout.WEST, ymaxLabel, 10,SpringLayout.EAST, yminSlider);
-    layout.putConstraint( SpringLayout.NORTH, ymaxSlider, 0,SpringLayout.NORTH, ymaxLabel);
-    layout.putConstraint( SpringLayout.WEST, ymaxSlider, 0,SpringLayout.EAST, ymaxLabel);
-
     //radiobutton
-    layout.putConstraint( SpringLayout.NORTH, rbPoints, 10,SpringLayout.SOUTH, xminLabel);
-    layout.putConstraint( SpringLayout.WEST, rbPoints, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, rbXStart, 0,SpringLayout.SOUTH, rbPoints);
-    layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.EAST, rbPoints);
+    layout.putConstraint( SpringLayout.NORTH, rbXStart, 10,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, rbXStart);
     layout.putConstraint( SpringLayout.WEST, spXStart, 0,SpringLayout.EAST, rbXStart);
     layout.putConstraint( SpringLayout.SOUTH, rbXEnd, 0,SpringLayout.SOUTH, spXStart);
@@ -414,6 +350,9 @@ public class GTracer implements ActionListener,
     layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.EAST, spYStart);
     layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
     layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
+    layout.putConstraint( SpringLayout.SOUTH, rbPoints, 0,SpringLayout.SOUTH, spYEnd);
+    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.EAST, spYEnd);
+
 
 
     //lengthmap
@@ -453,14 +392,6 @@ public class GTracer implements ActionListener,
     jp.add(spYEnd);
 
 
-    jp.add(xminLabel);
-    jp.add(xmaxLabel);
-    jp.add(yminLabel);
-    jp.add(ymaxLabel);
-    jp.add(xminSlider);
-    jp.add(xmaxSlider);
-    jp.add(yminSlider);
-    jp.add(ymaxSlider);
     jp.add(chessButton);
     jp.add(cityButton);
     jp.add(localMaxButton);

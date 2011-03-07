@@ -21,7 +21,7 @@ public class Tracer{
   //constructor
   public Tracer(BufferedImage originalImg){
     this.originalImg=originalImg;
-    setLengthMap(0f,1f,0f,1f);
+    setLengthMap();
 
     //create buffer
     tracedImg = new BufferedImage(originalImg.getWidth(),originalImg.getHeight(),
@@ -29,7 +29,7 @@ public class Tracer{
 
   }
 
-  public void setLengthMap(float sxstart,float sxend,float systart,float syend){
+  public void setLengthMap(){
 
     width=originalImg.getWidth();
     height=originalImg.getHeight();
@@ -37,10 +37,6 @@ public class Tracer{
     lengthMap=null;
     lengthMap=new short[width][height];
 
-    int xs=(int)(sxstart*width);
-    int xe=(int)(sxend*width);
-    int ys=(int)(systart*height);
-    int ye=(int)(syend*height);
     //convert to gray scale
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
@@ -75,8 +71,6 @@ public class Tracer{
         if(m<250){
           if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
         }
-        //cut
-        if(x<xs || xe<x || y<ys ||ye<y)lengthMap[x][y]=0;
       }
     }
   }
