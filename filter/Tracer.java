@@ -94,7 +94,7 @@ public class Tracer{
   }
 
 
-  public ArrayList<Integer> trace(ArrayList<Integer> pQueue){
+  public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();

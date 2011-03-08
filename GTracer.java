@@ -48,7 +48,7 @@ public class GTracer implements ActionListener,
   public void mouseExited(MouseEvent e){
   }
 
-  ArrayList<Integer> pQueue= new ArrayList<Integer>();
+  LinkedList<Integer> assistPoints= new LinkedList<Integer>();
   ArrayList<Integer> tracedPos= new ArrayList<Integer>();
   int[] mousePos=new int[2];
   public void mousePressed(MouseEvent e){
@@ -58,8 +58,7 @@ public class GTracer implements ActionListener,
 
     mousePos=tracer.getPoint(x,y);//convertion
     if(rbPoints.isSelected()){
-      pQueue.add(mousePos[0]);
-      pQueue.add(mousePos[1]);
+      addAssistPoints(mousePos);
     }else if(rbXStart.isSelected()){
       xstart[0]=mousePos[0];
       xstart[1]=mousePos[1];
@@ -80,7 +79,23 @@ public class GTracer implements ActionListener,
   }
   public void mouseReleased(MouseEvent e){
   }
-
+  private void addAssistPoints(int[] pos){
+    //search that pos[0] should be, and insert it
+    boolean addEnd=true;
+    for(int i=0;i<assistPoints.size()/2;i++){
+      if(pos[0]<assistPoints.get(2*i)){
+        assistPoints.add(2*i,pos[0]);
+        assistPoints.add(2*i+1,pos[1]);
+        addEnd=false;
+        break;
+      }
+    }
+    //if there is no correct position, add last
+    if(addEnd){
+      assistPoints.add(pos[0]);
+      assistPoints.add(pos[1]);
+    }
+  }
 
   public void stateChanged(ChangeEvent ce){
     if(ce.getSource()==spXStart){
@@ -113,8 +128,8 @@ public class GTracer implements ActionListener,
       tracedImg=null;
       tracedImg=tracer.makeImage(4);
     }else if(ae.getSource() == traceButton){
-      if(pQueue.size()>=4){
-        tracedPos=tracer.trace(pQueue);
+      if(assistPoints.size()>=4){
+        tracedPos=tracer.trace(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -124,7 +139,7 @@ public class GTracer implements ActionListener,
     myCanv.repaint();
   }
   private void reset(){
-      pQueue.clear();
+      assistPoints.clear();
       tracedPos.clear();
       tracer.setLengthMap();
       tracedImg=null;
@@ -440,11 +455,11 @@ public class GTracer implements ActionListener,
       g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
       g.setColor(Color.blue);
       //selected point
-      for(int i=0;i<pQueue.size()/2;i++){
+      for(int i=0;i<assistPoints.size()/2;i++){
         int r=12;
         Dimension size = myCanv.getSize();
-        int x=pQueue.get(2*i  )-r/2;
-        int y=pQueue.get(2*i+1)-r/2;
+        int x=assistPoints.get(2*i  )-r/2;
+        int y=assistPoints.get(2*i+1)-r/2;
         g.drawOval(x,y,r,r);
       }
       //traced point
