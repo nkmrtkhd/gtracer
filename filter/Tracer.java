@@ -152,9 +152,10 @@ public class Tracer{
 
         traceX+=dx;
 
-        for ( int j=traceY-10; j<traceY+10; j++ ) {
-          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
-        }
+// T.Tamura  for debug
+//        for ( int j=traceY-10; j<traceY+10; j++ ) {
+//          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
+//        }
 
 // T.Tamura  search of Max. and Min.
         int isum = 0;
@@ -163,7 +164,8 @@ public class Tracer{
             isum+=1;
           }
         }
-        System.out.println("isum  " + isum);
+// T.Tamura  for debug
+//      System.out.println("isum  " + isum);
         if(isum != 0) {
           int ymaxtmp = ymax;
           int ymintmp = ymin;
@@ -186,6 +188,7 @@ public class Tracer{
             for ( int j=ymintmp; j>ymaxtmp; j-- ) {
               if( lengthMap[traceX][j] != 0 ) {
                 ymin = j;
+                break;
               }
             }
           } else {
@@ -212,7 +215,7 @@ public class Tracer{
               }
             }
         } // if(isum)
-        System.out.println(ymax + "  " + ymin);
+        System.out.println(traceX + "  " + ymax + "  " + ymin);
 // pos should be real, not integer
         imod= (ymax+ymin)%2 ;
         if (imod == 0) {
