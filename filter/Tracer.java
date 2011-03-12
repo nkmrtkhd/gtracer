@@ -104,7 +104,7 @@ public class Tracer{
       int startX=pQueue.get(2*i);
       int startY=pQueue.get(2*i+1);
 
-// T.Tamura Note that Max and Min are opposite
+      // T.Tamura Note that Max and Min are opposite
       System.out.println("startX  " + startX);
       System.out.println("startY  " + startY);
       int ymax = startY;
@@ -131,9 +131,9 @@ public class Tracer{
       int nextX=pQueue.get(2*(i+1));
       int nextY=pQueue.get(2*(i+1)+1);
 
-//    pos.add(startX);
-//    pos.add(startY);
-// T.Tamura  pos should be real, not integer
+      //    pos.add(startX);
+      //    pos.add(startY);
+      // T.Tamura  pos should be real, not integer
       int imod= (ymax+ymin)%2 ;
       if (imod == 0) {
         pos.add(startX);
@@ -152,20 +152,20 @@ public class Tracer{
 
         traceX+=dx;
 
-// T.Tamura  for debug
-//        for ( int j=traceY-10; j<traceY+10; j++ ) {
-//          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
-//        }
+        // T.Tamura  for debug
+        //        for ( int j=traceY-10; j<traceY+10; j++ ) {
+        //          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
+        //        }
 
-// T.Tamura  search of Max. and Min.
+        // T.Tamura  search of Max. and Min.
         int isum = 0;
         for ( int j=ymax; j<=ymin; j++ ) {
           if(lengthMap[traceX][j] != 0) {
             isum+=1;
           }
         }
-// T.Tamura  for debug
-//      System.out.println("isum  " + isum);
+        // T.Tamura  for debug
+        //      System.out.println("isum  " + isum);
         if(isum != 0) {
           int ymaxtmp = ymax;
           int ymintmp = ymin;
@@ -182,7 +182,7 @@ public class Tracer{
                 ymax = j+1;
                 break;
               }
-            }      
+            }
           }
           if ( lengthMap[traceX][ymin] == 0 ) {
             for ( int j=ymintmp; j>ymaxtmp; j-- ) {
@@ -197,26 +197,26 @@ public class Tracer{
                 ymin = j-1;
                 break;
               }
-            }      
+            }
           }
         } else {
           int ymaxtmp = ymax-ny;
           int ymintmp = ymin+ny;
-            for ( int j=ymaxtmp; j<ymintmp; j++ ) {
-              if( lengthMap[traceX][j] != 0 ) {
-                ymax = j;
-                break;
-              }
-            }        
-            for ( int j=ymintmp; j>ymaxtmp; j-- ) {
-              if( lengthMap[traceX][j] != 0 ) {
-                ymin = j;
-                break;
-              }
+          for ( int j=ymaxtmp; j<ymintmp; j++ ) {
+            if( lengthMap[traceX][j] != 0 ) {
+              ymax = j;
+              break;
             }
+          }
+          for ( int j=ymintmp; j>ymaxtmp; j-- ) {
+            if( lengthMap[traceX][j] != 0 ) {
+              ymin = j;
+              break;
+            }
+          }
         } // if(isum)
         System.out.println(traceX + "  " + ymax + "  " + ymin);
-// pos should be real, not integer
+        // pos should be real, not integer
         imod= (ymax+ymin)%2 ;
         if (imod == 0) {
           pos.add(traceX);
@@ -228,35 +228,35 @@ public class Tracer{
           traceY = (ymax+ymin+1)/2;
         }
 
+        //        //上と下から挟み込み
+        //        if(startY>nextY){//note window coordinate is upside down
+        //          for(int dy=-ny;dy<=ny;dy++){
+        //            if(traceY+dy<0)continue;
+        //            if(traceY+dy>=height)continue;
+        //            if(nextY<=traceY+dy && traceY+dy<=startY){
+        //              if( lengthMap[traceX][traceY+dy] != 0 ) {
+        //                pos.add(traceX);
+        //                pos.add(traceY+dy);
+        //                traceY=traceY+dy;
+        //                break;
+        //              }
+        //            }
+        //          }
+        //        }else{
+        //          for(int dy=ny;dy>=-ny;dy--){
+        //            if(dy<0)continue;
+        //            if(dy>=height)continue;
+        //            if(startY<=traceY+dy && traceY+dy<=nextY){
+        //              if( lengthMap[traceX][traceY+dy] != 0 ) {
+        //                pos.add(traceX);
+        //                pos.add(traceY+dy);
+        //                traceY=traceY+dy;
+        //                break;
+        //              }
+        //            }
+        //          }
+        //        }
 
-//        if(startY>nextY){//note window coordinate is upside down
-//          for(int dy=-ny;dy<=ny;dy++){
-//            if(traceY+dy<0)continue;
-//            if(traceY+dy>=height)continue;
-//            if(nextY<=traceY+dy && traceY+dy<=startY){
-//              if( lengthMap[traceX][traceY+dy] != 0 ) {
-//                pos.add(traceX);
-//                pos.add(traceY+dy);
-//                traceY=traceY+dy;
-//                break;
-//              }
-//            }
-//          }
-//        }else{
-//          for(int dy=ny;dy>=-ny;dy--){
-//            if(dy<0)continue;
-//            if(dy>=height)continue;
-//            if(startY<=traceY+dy && traceY+dy<=nextY){
-//              if( lengthMap[traceX][traceY+dy] != 0 ) {
-//                pos.add(traceX);
-//                pos.add(traceY+dy);
-//                traceY=traceY+dy;
-//                break;
-//              }
-//            }
-//          }
-//        }
-      
       }//while
     }//i
 

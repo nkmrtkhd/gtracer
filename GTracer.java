@@ -141,7 +141,7 @@ public class GTracer implements ActionListener,
   private void reset(){
       assistPoints.clear();
       tracedPos.clear();
-      tracer.setLengthMap();
+      if(tracer!=null)tracer.setLengthMap();
       tracedImg=null;
   }
 
@@ -388,10 +388,6 @@ public class GTracer implements ActionListener,
     layout.putConstraint( SpringLayout.WEST, writeButton, 0,SpringLayout.EAST, traceButton);
     layout.putConstraint( SpringLayout.SOUTH, resetButton, 0,SpringLayout.SOUTH, writeButton);
     layout.putConstraint( SpringLayout.WEST, resetButton, 0,SpringLayout.EAST, writeButton);
-
-
-
-
 
 
     //add to jpanel
