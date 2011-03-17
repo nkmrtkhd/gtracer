@@ -16,11 +16,20 @@ public class GTracer implements ActionListener,
                                 ChangeListener{
 
   //main function
-  public static void main(String[] args) {
+  public static void main(String[] args) throws AWTException {
     if(args.length>0)
       new GTracer(args[0]);
     else
       new GTracer(null);
+
+
+    //loupe http://sawat.jf.land.to/loupe.html
+    Loupe f = new Loupe();
+    f.setAlwaysOnTop(true);
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.pack();
+    f.setLocationRelativeTo(null);
+    f.setVisible(true);
 
   }
 
@@ -34,6 +43,7 @@ public class GTracer implements ActionListener,
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
+
   }
 
   //mouse
