@@ -416,10 +416,10 @@ public class GTracer implements ActionListener,
     try{
       //loupe http://sawat.jf.land.to/loupe.html
       Loupe f = new Loupe();
-      layout.putConstraint( SpringLayout.NORTH, f, 0,SpringLayout.NORTH, jp);
-      layout.putConstraint( SpringLayout.WEST, f, 10,SpringLayout.EAST, rbPoints);
-      layout.putConstraint( SpringLayout.EAST, f, 10,SpringLayout.EAST, jp);
       layout.putConstraint( SpringLayout.SOUTH, f, 0,SpringLayout.SOUTH, jp);
+      layout.putConstraint( SpringLayout.NORTH, f, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.EAST, f, 10,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.WEST, f, 10,SpringLayout.EAST, rbPoints);
       jp.add(f);
     }catch(AWTException e){
       e.printStackTrace();

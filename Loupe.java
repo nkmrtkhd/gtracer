@@ -27,11 +27,13 @@ public class Loupe extends JPanel {
   private GridMode gridMode = GridMode.GUIDE_LINE;
 
   public Loupe() throws AWTException {
+    super();
     this.robot = new Robot();
     robot.setAutoDelay(0);
 
     this.captureLabel = new JLabel();
     captureLabel.setBorder(BorderFactory.createEtchedBorder());
+    captureLabel.setPreferredSize(new Dimension(200,200));
     captureLabel.setToolTipText("<html><h3>使い方</h3>" +
                                 "<ul style='width:300px'>" +
                                 "<li>\'g\'キーを押すとグリッド線の変更</li>" +
@@ -45,15 +47,15 @@ public class Loupe extends JPanel {
     //addition
     SpringLayout layout = new SpringLayout();
     this.setLayout( layout );
-    layout.putConstraint( SpringLayout.NORTH, slider, 10,SpringLayout.NORTH, this);
-    layout.putConstraint( SpringLayout.SOUTH, slider, -10,SpringLayout.SOUTH, this);
-    layout.putConstraint( SpringLayout.EAST, slider, -20,SpringLayout.EAST, this);
-    layout.putConstraint( SpringLayout.NORTH, captureLabel, 10,SpringLayout.NORTH, this);
     layout.putConstraint( SpringLayout.SOUTH, captureLabel, -10,SpringLayout.SOUTH, this);
-    layout.putConstraint( SpringLayout.WEST, captureLabel, 0,SpringLayout.WEST, this);
+    layout.putConstraint( SpringLayout.NORTH, captureLabel, 10,SpringLayout.NORTH, this);
     layout.putConstraint( SpringLayout.EAST, captureLabel, -10,SpringLayout.WEST, slider);
-    add(captureLabel);
-    add(slider);
+    layout.putConstraint( SpringLayout.WEST, captureLabel, 10,SpringLayout.WEST, this);
+    layout.putConstraint( SpringLayout.EAST, slider, -20,SpringLayout.EAST, this);
+    layout.putConstraint( SpringLayout.SOUTH, slider, -10,SpringLayout.SOUTH, this);
+    layout.putConstraint( SpringLayout.NORTH, slider, 10,SpringLayout.NORTH, this);
+    this.add(captureLabel);
+    this.add(slider);
 
     initSliderLabels();
     initEventListener();
