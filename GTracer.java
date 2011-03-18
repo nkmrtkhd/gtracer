@@ -63,7 +63,7 @@ public class GTracer implements ActionListener,
   }
 
   LinkedList<Integer> assistPoints= new LinkedList<Integer>();
-  ArrayList<Integer> tracedPos= new ArrayList<Integer>();
+  ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
   int[] mousePos=new int[2];
   public void mousePressed(MouseEvent e){
     //Dimension size = myCanv.getSize();
@@ -143,7 +143,7 @@ public class GTracer implements ActionListener,
       tracedImg=tracer.makeImage(4);
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
-        tracedPos=tracer.trace(assistPoints);
+        tracedPoints=tracer.trace(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -154,7 +154,7 @@ public class GTracer implements ActionListener,
   }
   private void reset(){
       assistPoints.clear();
-      tracedPos.clear();
+      tracedPoints.clear();
       if(tracer!=null)tracer.setLengthMap();
       tracedImg=null;
   }
@@ -211,9 +211,9 @@ public class GTracer implements ActionListener,
         double dxreal=(xRealEnd-xRealStart);
         double dyi=1.0/(ystart[1]-yend[1]);//note y is upside down
         double dyreal=(yRealEnd-yRealStart);
-        for(int i=0;i<tracedPos.size()/2;i++){
-          double x=(tracedPos.get(2*i)-xstart[0])*dxi*dxreal+xRealStart;
-          double y=(ystart[1]-tracedPos.get(2*i+1))*dyi*dyreal+yRealStart;
+        for(int i=0;i<tracedPoints.size()/2;i++){
+          double x=(tracedPoints.get(2*i)-xstart[0])*dxi*dxreal+xRealStart;
+          double y=(ystart[1]-tracedPoints.get(2*i+1))*dyi*dyreal+yRealStart;
           pw.println( String.format("%f %f", x,y) );
         }
 
@@ -469,7 +469,6 @@ public class GTracer implements ActionListener,
       //selected point
       for(int i=0;i<assistPoints.size()/2;i++){
         int r=12;
-        Dimension size = myCanv.getSize();
         //circle
         int x=assistPoints.get(2*i  )-r/2;
         int y=assistPoints.get(2*i+1)-r/2;
@@ -481,11 +480,10 @@ public class GTracer implements ActionListener,
         g.drawOval(x,y,r,r);
       }
       //traced point
-      for(int i=0;i<tracedPos.size()/2;i++){
+      for(int i=0;i<tracedPoints.size()/2;i++){
         int r=5;
-        //Dimension size = myCanv.getSize();
-        int x=tracedPos.get(2*i  )-r/2;
-        int y=tracedPos.get(2*i+1)-r/2;
+        int x=tracedPoints.get(2*i  )-r/2;
+        int y=tracedPoints.get(2*i+1)-r/2;
         g.drawRect(x,y,r,r);
       }
 
