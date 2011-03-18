@@ -16,21 +16,11 @@ public class GTracer implements ActionListener,
                                 ChangeListener{
 
   //main function
-  public static void main(String[] args) throws AWTException {
+  public static void main(String[] args)throws AWTException {
     if(args.length>0)
       new GTracer(args[0]);
     else
       new GTracer(null);
-
-
-    //loupe http://sawat.jf.land.to/loupe.html
-    Loupe f = new Loupe();
-    f.setAlwaysOnTop(true);
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    f.pack();
-    f.setLocationRelativeTo(null);
-    f.setVisible(true);
-
   }
 
   //class variables
@@ -39,10 +29,24 @@ public class GTracer implements ActionListener,
   private Tracer tracer;
 
   //constructor
-  public GTracer(String inputFile){
+  public GTracer(String inputFile)throws AWTException {
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
+
+
+    //loupe http://sawat.jf.land.to/loupe.html
+    Loupe f = new Loupe();
+    f.setAlwaysOnTop(true);
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    Rectangle rect=ctrlJframe.getBounds();
+    f.pack();
+    f.setBounds( rect.x+rect.width,
+                 rect.y,
+                 240,
+                 240);
+    //f.setLocationRelativeTo(ctrlJframe);
+    f.setVisible(true);
 
   }
 
@@ -269,12 +273,14 @@ public class GTracer implements ActionListener,
   private JButton traceButton;
   private JButton writeButton;
   private JButton resetButton;
+
+  private JFrame ctrlJframe;
   private void makeControlFrame(){
-    JFrame ctrlJframe=new JFrame("Gtracer");
+    ctrlJframe=new JFrame("Gtracer");
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
-                          screenDim.width - 100,
+                          screenDim.width - 350,
                           240);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -464,8 +470,14 @@ public class GTracer implements ActionListener,
       for(int i=0;i<assistPoints.size()/2;i++){
         int r=12;
         Dimension size = myCanv.getSize();
+        //circle
         int x=assistPoints.get(2*i  )-r/2;
         int y=assistPoints.get(2*i+1)-r/2;
+        g.drawOval(x,y,r,r);
+        //point
+        r=1;
+        x=assistPoints.get(2*i  );
+        y=assistPoints.get(2*i+1);
         g.drawOval(x,y,r,r);
       }
       //traced point
