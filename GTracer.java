@@ -16,7 +16,7 @@ public class GTracer implements ActionListener,
                                 ChangeListener{
 
   //main function
-  public static void main(String[] args)throws AWTException {
+  public static void main(String[] args){
     if(args.length>0)
       new GTracer(args[0]);
     else
@@ -29,25 +29,10 @@ public class GTracer implements ActionListener,
   private Tracer tracer;
 
   //constructor
-  public GTracer(String inputFile)throws AWTException {
+  public GTracer(String inputFile){
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
-
-
-    //loupe http://sawat.jf.land.to/loupe.html
-    Loupe f = new Loupe();
-    f.setAlwaysOnTop(true);
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    Rectangle rect=ctrlJframe.getBounds();
-    f.pack();
-    f.setBounds( rect.x+rect.width,
-                 rect.y,
-                 240,
-                 240);
-    //f.setLocationRelativeTo(ctrlJframe);
-    f.setVisible(true);
-
   }
 
   //mouse
@@ -427,6 +412,18 @@ public class GTracer implements ActionListener,
     jp.add(traceButton);
     jp.add(writeButton);
     jp.add(resetButton);
+
+    try{
+      //loupe http://sawat.jf.land.to/loupe.html
+      Loupe f = new Loupe();
+      layout.putConstraint( SpringLayout.NORTH, f, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.WEST, f, 10,SpringLayout.EAST, rbPoints);
+      layout.putConstraint( SpringLayout.EAST, f, 10,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.SOUTH, f, 0,SpringLayout.SOUTH, jp);
+      jp.add(f);
+    }catch(AWTException e){
+      e.printStackTrace();
+    }
 
     ctrlJframe.add(jp);
     ctrlJframe.setVisible(true);
