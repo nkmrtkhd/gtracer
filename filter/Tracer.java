@@ -94,7 +94,88 @@ public class Tracer{
   }
 
 
-  public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
+  public int[] getPoint(int x, int y){
+    int n=0;
+    int[] point={x,y};
+    loop: while(true){
+      //(x,y)を中心にn近傍を探す
+      for(int xx=x-n;xx<=x+n;xx++){
+        if(xx<0)continue;
+        if(xx>width-1)continue;
+        for(int yy=y-n;yy<=y+n;yy++){
+          if(yy<0)continue;
+          if(yy>height-1)continue;
+          int d=lengthMap[xx][yy];
+          if(d>0){
+            point[0]=xx;
+            point[1]=yy;
+            break loop;
+          }
+        }
+      }
+      n++;//捜索範囲をどんどん外側に
+    }
+    return point;
+  }
+
+  public ArrayList<Integer> trace1(LinkedList<Integer> pQueue){
+    //by Nakamura
+    System.out.println("trace starts");
+    //traced pos
+    ArrayList<Integer> pos= new ArrayList<Integer>();
+
+    for(int i=0;i<pQueue.size()/2-1;i++){
+      //start pos
+      int startX=pQueue.get(2*i);
+      int startY=pQueue.get(2*i+1);
+      //end pos
+      int endX=pQueue.get(2*(i+1));
+      int endY=pQueue.get(2*(i+1)+1);
+
+      int dx=1;//increment
+      int ny=10;//search max
+
+      int traceX=startX;
+      int traceY=startY;
+      while(traceX<endX){
+       //上と下から挟み込み
+        if(startY>endY){//note window coordinate is upside down
+          for(int dy=-ny;dy<=ny;dy++){
+            if(traceY+dy<0)continue;
+            if(traceY+dy>=height)continue;
+            if(endY<=traceY+dy && traceY+dy<=startY){
+              if( lengthMap[traceX][traceY+dy] != 0 ) {
+                pos.add(traceX);
+                pos.add(traceY+dy);
+                traceY=traceY+dy;
+                break;
+              }
+            }
+          }
+        }else{
+          for(int dy=ny;dy>=-ny;dy--){
+            if(dy<0)continue;
+            if(dy>=height)continue;
+            if(startY<=traceY+dy && traceY+dy<=endY){
+              if( lengthMap[traceX][traceY+dy] != 0 ) {
+                pos.add(traceX);
+                pos.add(traceY+dy);
+                traceY=traceY+dy;
+                break;
+              }
+            }
+          }
+        }
+      }//while
+
+    }//i
+
+    System.out.println("trace done");
+    return pos;
+  }
+
+  public ArrayList<Integer> trace2(LinkedList<Integer> pQueue){
+    //by Tamura
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
@@ -228,35 +309,6 @@ public class Tracer{
           traceY = (ymax+ymin+1)/2;
         }
 
-        //        //上と下から挟み込み
-        //        if(startY>nextY){//note window coordinate is upside down
-        //          for(int dy=-ny;dy<=ny;dy++){
-        //            if(traceY+dy<0)continue;
-        //            if(traceY+dy>=height)continue;
-        //            if(nextY<=traceY+dy && traceY+dy<=startY){
-        //              if( lengthMap[traceX][traceY+dy] != 0 ) {
-        //                pos.add(traceX);
-        //                pos.add(traceY+dy);
-        //                traceY=traceY+dy;
-        //                break;
-        //              }
-        //            }
-        //          }
-        //        }else{
-        //          for(int dy=ny;dy>=-ny;dy--){
-        //            if(dy<0)continue;
-        //            if(dy>=height)continue;
-        //            if(startY<=traceY+dy && traceY+dy<=nextY){
-        //              if( lengthMap[traceX][traceY+dy] != 0 ) {
-        //                pos.add(traceX);
-        //                pos.add(traceY+dy);
-        //                traceY=traceY+dy;
-        //                break;
-        //              }
-        //            }
-        //          }
-        //        }
-
       }//while
     }//i
 
@@ -264,28 +316,53 @@ public class Tracer{
     return pos;
   }
 
-  public int[] getPoint(int x, int y){
-    int n=0;
-    int[] point={x,y};
-    loop: while(true){
-      //(x,y)を中心にn近傍を探す
-      for(int xx=x-n;xx<=x+n;xx++){
-        if(xx<0)continue;
-        if(xx>width-1)continue;
-        for(int yy=y-n;yy<=y+n;yy++){
-          if(yy<0)continue;
-          if(yy>height-1)continue;
-          int d=lengthMap[xx][yy];
-          if(d>0){
-            point[0]=xx;
-            point[1]=yy;
-            break loop;
-          }
+  public ArrayList<Integer> trace3(LinkedList<Integer> pQueue){
+    //by Nakamura
+    System.out.println("trace starts");
+    //traced pos
+    ArrayList<Integer> pos= new ArrayList<Integer>();
+
+    for(int i=0;i<pQueue.size()/2-1;i++){
+      //start pos
+      int startX=pQueue.get(2*i);
+      int startY=pQueue.get(2*i+1);
+      //end pos
+      int endX=pQueue.get(2*(i+1));
+      int endY=pQueue.get(2*(i+1)+1);
+
+      int dx=1;//increment
+      int ny=10;//search max
+
+      int traceX=startX;
+      int traceY=startY;
+      int EMPTY=-1123;
+      while(traceX<endX){
+        int ymax=startY;
+        int ymin=startY;
+        for(int dy=0;dy<ny;dy++){
+          //upward
+          if(traceY+dy<height && lengthMap[traceX][traceY+dy]>0)ymax=traceY+dy;
+          //downward
+          if(traceY-dy>0 && lengthMap[traceX][traceY-dy]>0)ymin=traceY-dy;
         }
-      }
-      n++;//捜索範囲をどんどん外側に
-    }
-    return point;
+
+        int y=(ymax+ymin)/2;
+        pos.add(traceX);
+        pos.add(y);
+
+        traceX+=dx;
+        if(startY>endY)
+          traceY=ymin;
+        else
+          traceY=ymax;
+
+      }//while
+
+    }//i
+
+    System.out.println("trace done");
+    return pos;
   }
+
 
 }

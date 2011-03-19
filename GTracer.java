@@ -11,9 +11,7 @@ import javax.swing.event.*;
 import filter.*;
 
 
-public class GTracer implements ActionListener,
-                                MouseListener,
-                                ChangeListener{
+public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
   //main function
   public static void main(String[] args){
@@ -97,15 +95,10 @@ public class GTracer implements ActionListener,
   }
 
   public void stateChanged(ChangeEvent ce){
-    if(ce.getSource()==spXStart){
-      xRealStart=((Double)spXStart.getValue()).doubleValue();
-    }else if(ce.getSource()==spXEnd){
-      xRealEnd=((Double)spXEnd.getValue()).doubleValue();
-    }else if(ce.getSource()==spYStart){
-      yRealStart=((Double)spYStart.getValue()).doubleValue();
-    }else if(ce.getSource()==spYEnd){
-      yRealEnd=((Double)spYEnd.getValue()).doubleValue();
-    }
+    xRealStart=((Double)spXStart.getValue()).doubleValue();
+    xRealEnd=((Double)spXEnd.getValue()).doubleValue();
+    yRealStart=((Double)spYStart.getValue()).doubleValue();
+    yRealEnd=((Double)spYEnd.getValue()).doubleValue();
     myCanv.repaint();
   }
 
@@ -128,7 +121,9 @@ public class GTracer implements ActionListener,
       tracedImg=tracer.makeImage(4);
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
-        tracedPoints=tracer.trace(assistPoints);
+        //tracedPoints=tracer.trace2(assistPoints);
+        //tracedPoints=tracer.trace2(assistPoints);
+        tracedPoints=tracer.trace3(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -138,10 +133,10 @@ public class GTracer implements ActionListener,
     myCanv.repaint();
   }
   private void reset(){
-      assistPoints.clear();
-      tracedPoints.clear();
-      if(tracer!=null)tracer.setLengthMap();
-      tracedImg=null;
+    assistPoints.clear();
+    tracedPoints.clear();
+    if(tracer!=null)tracer.setLengthMap();
+    tracedImg=null;
   }
 
 
