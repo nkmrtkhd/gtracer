@@ -364,5 +364,84 @@ public class Tracer{
     return pos;
   }
 
+  int EMPTY=-1123;
+  public ArrayList<Integer> trace4(LinkedList<Integer> pQueue){
+    //by Nakamura
+    System.out.println("trace starts");
+    //traced pos
+    ArrayList<Integer> pos= new ArrayList<Integer>();
+
+    for(int i=0;i<pQueue.size()/2-1;i++){
+      //start pos
+      int startX=pQueue.get(2*i);
+      int startY=pQueue.get(2*i+1);
+      //end pos
+      int endX=pQueue.get(2*(i+1));
+      int endY=pQueue.get(2*(i+1)+1);
+
+      int dx=1;//increment
+      int ny=10;//search max
+
+      int traceX=startX;
+      int traceY=startY;
+      while(traceX<endX){
+        int ymax=startY;
+        int ymin=startY;
+        boolean existYMax=false;
+        for(int dy=1;dy<ny;dy++){
+          //upward
+          if(traceY+dy<height && lengthMap[traceX][traceY+dy]<=0){
+            ymax=traceY+dy-1;
+            existYMax=true;
+            break;
+          }
+        }
+        boolean existYMin=false;
+        for(int dy=1;dy<ny;dy++){
+          //downward
+          if(traceY-dy>0 && lengthMap[traceX][traceY-dy]<=0){
+            ymin=traceY-dy+1;
+            existYMin=true;
+            break;
+          }
+        }
+        if(existYMax&& existYMin){
+          int y=(ymax+ymin)/2;
+          pos.add(traceX);
+          pos.add(y);
+        }
+
+        do{
+          traceX+=dx;
+          if(startY>endY)
+            traceY=nextYup(traceX,ymin);
+          else
+            traceY=nextYdown(traceX,ymax);
+        }while(traceY==EMPTY && traceX<endX);
+
+      }//while
+
+    }//i
+
+    System.out.println("trace done");
+    return pos;
+  }
+  private int nextYup(int xin, int ymin){
+    for(int dy=1;dy<100;dy++){
+      if(ymin-dy>0 && lengthMap[xin][ymin-dy]>0){
+        return ymin-dy;
+      }
+    }
+    return EMPTY;
+  }
+
+  private int nextYdown(int xin, int yin){
+    for(int dy=1;dy<100;dy++){
+      if(yin+dy<height && lengthMap[xin][yin+dy]>0){
+        return yin+dy;
+      }
+    }
+    return EMPTY;
+  }
 
 }

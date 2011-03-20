@@ -124,6 +124,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
         //tracedPoints=tracer.trace2(assistPoints);
         //tracedPoints=tracer.trace2(assistPoints);
         tracedPoints=tracer.trace3(assistPoints);
+        //tracedPoints=tracer.trace4(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -469,14 +470,15 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
         r=1;
         x=assistPoints.get(2*i  );
         y=assistPoints.get(2*i+1);
-        g.drawOval(x,y,r,r);
+        //g.drawOval(x,y,r,r);
+        g.fillOval(x,y,r,r);
       }
       //traced point
+      g.setColor(Color.red);
       for(int i=0;i<tracedPoints.size()/2;i++){
-        int r=5;
-        int x=tracedPoints.get(2*i  )-r/2;
-        int y=tracedPoints.get(2*i+1)-r/2;
-        g.drawRect(x,y,r,r);
+        int x=tracedPoints.get(2*i  );
+        int y=tracedPoints.get(2*i+1);
+        g.fill3DRect(x,y,1,1,false);
       }
 
     }
