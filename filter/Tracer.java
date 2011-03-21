@@ -119,7 +119,7 @@ public class Tracer{
   }
 
   public ArrayList<Integer> trace1(LinkedList<Integer> pQueue){
-    //by Nakamura
+    //上と下から挟み込む by Nakamura
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
@@ -175,7 +175,7 @@ public class Tracer{
   }
 
   public ArrayList<Integer> trace2(LinkedList<Integer> pQueue){
-    //by Tamura
+    //??? by Tamura
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
@@ -317,7 +317,7 @@ public class Tracer{
   }
 
   public ArrayList<Integer> trace3(LinkedList<Integer> pQueue){
-    //by Nakamura
+    //拡げる by Nakamura
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
@@ -335,7 +335,6 @@ public class Tracer{
 
       int traceX=startX;
       int traceY=startY;
-      int EMPTY=-1123;
       while(traceX<endX){
         int ymax=startY;
         int ymin=startY;
@@ -364,9 +363,9 @@ public class Tracer{
     return pos;
   }
 
-  int EMPTY=-1123;
+  static final int EMPTY=-1123;
   public ArrayList<Integer> trace4(LinkedList<Integer> pQueue){
-    //by Nakamura
+    //拡げる その2 by Nakamura
     System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
@@ -385,38 +384,40 @@ public class Tracer{
       int traceX=startX;
       int traceY=startY;
       while(traceX<endX){
+        //search ymax
         int ymax=startY;
-        int ymin=startY;
         boolean existYMax=false;
         for(int dy=1;dy<ny;dy++){
-          //upward
           if(traceY+dy<height && lengthMap[traceX][traceY+dy]<=0){
             ymax=traceY+dy-1;
             existYMax=true;
             break;
           }
         }
+        //search ymin
+        int ymin=startY;
         boolean existYMin=false;
         for(int dy=1;dy<ny;dy++){
-          //downward
           if(traceY-dy>0 && lengthMap[traceX][traceY-dy]<=0){
             ymin=traceY-dy+1;
             existYMin=true;
             break;
           }
         }
-        if(existYMax&& existYMin){
+        //addition
+        if(existYMax && existYMin){
           int y=(ymax+ymin)/2;
           pos.add(traceX);
           pos.add(y);
         }
 
+        //search next y
         do{
           traceX+=dx;
           if(startY>endY)
-            traceY=nextYup(traceX,ymin);
+            traceY=nextYup(traceX,ymax);
           else
-            traceY=nextYdown(traceX,ymax);
+            traceY=nextYdown(traceX,ymin);
         }while(traceY==EMPTY && traceX<endX);
 
       }//while
@@ -427,19 +428,15 @@ public class Tracer{
     return pos;
   }
   private int nextYup(int xin, int ymin){
-    for(int dy=1;dy<100;dy++){
-      if(ymin-dy>0 && lengthMap[xin][ymin-dy]>0){
-        return ymin-dy;
-      }
+    for(int dy=1;dy<10;dy++){
+      if(ymin-dy>0 && lengthMap[xin][ymin-dy]>0) return ymin-dy;
     }
     return EMPTY;
   }
 
   private int nextYdown(int xin, int yin){
-    for(int dy=1;dy<100;dy++){
-      if(yin+dy<height && lengthMap[xin][yin+dy]>0){
-        return yin+dy;
-      }
+    for(int dy=1;dy<10;dy++){
+      if(yin+dy<height && lengthMap[xin][yin+dy]>0)return yin+dy;
     }
     return EMPTY;
   }
