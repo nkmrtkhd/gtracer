@@ -370,4 +370,27 @@ public class Tracer{
    * }
    */
 
+
+  public int[] setAxis(int[] org){
+    int[] a={org[0],org[1],
+             org[0],org[1]};
+    //x end
+    for(int x=org[0];x<width;x++){
+      if(lengthMap[x][org[1]]<=0){
+        a[0]=x-1;
+        a[1]=org[1];
+        break;
+      }
+    }
+    //y end
+    for(int y=org[1];y>=0;y--){
+      if(lengthMap[org[0]][y]<=0){
+        a[2]=org[0];
+        a[3]=y+1;
+        break;
+      }
+    }
+
+    return a;
+  }
 }

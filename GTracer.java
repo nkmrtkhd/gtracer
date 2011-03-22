@@ -113,6 +113,15 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       reset();
       this.open(null);
       myCanv.repaint();
+    }else if(ae.getSource() == setAxisButton){
+      int[] a=tracer.setAxis(xstart);
+      if(a!=null){
+        xend[0]  =a[0];
+        xend[1]  =a[1];
+        yend[0]=a[2];
+        yend[1]=a[3];
+        myCanv.repaint();
+      }
     }else if(ae.getSource() == binalizeButton){
       tracer.setLengthMap(false);
       tracedImg=null;
@@ -249,6 +258,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
   private JButton openButton;
+  private JButton setAxisButton;
   private JButton binalizeButton;
   private JButton colorCutButton;
   private JButton localMaxButton;
@@ -272,6 +282,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     openButton=new JButton("open");
     openButton.addActionListener( this );
     openButton.setFocusable(false);
+    setAxisButton=new JButton("set axis");
+    setAxisButton.addActionListener( this );
+    setAxisButton.setFocusable(false);
+
     //button
     binalizeButton=new JButton("binalize");
     binalizeButton.addActionListener( this );
@@ -347,6 +361,9 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.NORTH, jp );
     layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
 
+    layout.putConstraint( SpringLayout.NORTH, setAxisButton, 0,SpringLayout.NORTH, openButton);
+    layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.EAST, openButton);
+
     //radiobutton
     layout.putConstraint( SpringLayout.NORTH, rbXStart, 10,SpringLayout.SOUTH, openButton);
     layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.WEST, jp);
@@ -391,6 +408,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     //add to jpanel
     jp.add(openButton);
+    jp.add(setAxisButton);
     jp.add(rbPoints);
     jp.add(rbXStart);
     jp.add(rbXEnd);
