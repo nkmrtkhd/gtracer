@@ -25,6 +25,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private BufferedImage originalImg;
   private BufferedImage tracedImg;
   private Tracer tracer;
+  private Loupe loupe;
 
   //constructor
   public GTracer(String inputFile){
@@ -49,27 +50,32 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
   int[] mousePos=new int[2];
   public void mousePressed(MouseEvent e){
-    //Dimension size = myCanv.getSize();
     int x=e.getX();
     int y=e.getY();
-
-    mousePos=tracer.getPoint(x,y);//convertion
-    if(rbPoints.isSelected()){
-      addAssistPoints(mousePos);
-    }else if(rbXStart.isSelected()){
-      xstart[0]=mousePos[0];
-      xstart[1]=mousePos[1];
-      ystart[0]=mousePos[0];
-      ystart[1]=mousePos[1];
-    }else if(rbXEnd.isSelected()){
-      xend[0]=mousePos[0];
-      xend[1]=mousePos[1];
-    }else if(rbYStart.isSelected()){
-      ystart[0]=mousePos[0];
-      ystart[1]=mousePos[1];
-    }else if(rbYEnd.isSelected()){
-      yend[0]=mousePos[0];
-      yend[1]=mousePos[1];
+    mousePos=tracer.getPoint(x,y);
+    //left click
+    if((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0){
+      if(rbPoints.isSelected()){
+        addAssistPoints(mousePos);
+      }else if(rbXStart.isSelected()){
+        xstart[0]=mousePos[0];
+        xstart[1]=mousePos[1];
+        ystart[0]=mousePos[0];
+        ystart[1]=mousePos[1];
+      }else if(rbXEnd.isSelected()){
+        xend[0]=mousePos[0];
+        xend[1]=mousePos[1];
+      }else if(rbYStart.isSelected()){
+        ystart[0]=mousePos[0];
+        ystart[1]=mousePos[1];
+      }else if(rbYEnd.isSelected()){
+        yend[0]=mousePos[0];
+        yend[1]=mousePos[1];
+      }
+    }
+    //right click
+    if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0){
+      loupe.setBorder(tracer.getRGBRef());
     }
 
     myCanv.repaint();
@@ -107,22 +113,22 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       reset();
       this.open(null);
       myCanv.repaint();
-    }else if(ae.getSource() == chessButton){
+    }else if(ae.getSource() == binalizeButton){
+      tracer.setLengthMap(false);
       tracedImg=null;
-      tracedImg=tracer.makeImage(1);
-    }else if(ae.getSource() == cityButton){
+      tracedImg=tracer.makeImage(0);
+    }else if(ae.getSource() == colorCutButton){
+      tracer.setLengthMap(true);
       tracedImg=null;
-      tracedImg=tracer.makeImage(2);
+      tracedImg=tracer.makeImage(0);
     }else if(ae.getSource() == localMaxButton){
       tracedImg=null;
-      tracedImg=tracer.makeImage(3);
+      tracedImg=tracer.makeImage(1);
     }else if(ae.getSource() == simpleMaskButton){
       tracedImg=null;
-      tracedImg=tracer.makeImage(4);
+      tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == traceButton){
-      if(assistPoints.size()>=4){
-        tracedPoints=tracer.trace(assistPoints);
-      }
+      if(assistPoints.size()>=4) tracedPoints=tracer.trace(assistPoints);
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
     }else if(ae.getSource() == resetButton){
@@ -133,7 +139,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private void reset(){
     assistPoints.clear();
     tracedPoints.clear();
-    if(tracer!=null)tracer.setLengthMap();
+    if(tracer!=null)tracer.setLengthMap(false);
     tracedImg=null;
   }
 
@@ -198,7 +204,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
         pw.close();
         bw.close();
         fw.close();
-        //System.out.println("saved slice position");
       }catch ( IOException ioe ){
       }
     }
@@ -244,8 +249,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
   private JButton openButton;
-  private JButton chessButton;
-  private JButton cityButton;
+  private JButton binalizeButton;
+  private JButton colorCutButton;
   private JButton localMaxButton;
   private JButton simpleMaskButton;
   private JButton traceButton;
@@ -268,17 +273,17 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     openButton.addActionListener( this );
     openButton.setFocusable(false);
     //button
-    chessButton=new JButton("chess");
-    chessButton.addActionListener( this );
-    chessButton.setFocusable(false);
-    cityButton=new JButton("city");
-    cityButton.addActionListener( this );
-    cityButton.setFocusable(false);
+    binalizeButton=new JButton("binalize");
+    binalizeButton.addActionListener( this );
+    binalizeButton.setFocusable(false);
+    colorCutButton=new JButton("color cut");
+    colorCutButton.addActionListener( this );
+    colorCutButton.setFocusable(false);
     //thining
-    localMaxButton=new JButton("localMax");
+    localMaxButton=new JButton("local max mask");
     localMaxButton.addActionListener( this );
     localMaxButton.setFocusable(false);
-    simpleMaskButton=new JButton("simple Mask");
+    simpleMaskButton=new JButton("simple mask");
     simpleMaskButton.addActionListener( this );
     simpleMaskButton.setFocusable(false);
 
@@ -296,9 +301,9 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     resetButton.setFocusable(false);
 
 
-    rbPoints=new JRadioButton("Points", false);
+    rbPoints=new JRadioButton("Points", true);
     rbPoints.addChangeListener(this);
-    rbXStart=new JRadioButton("x start", true);
+    rbXStart=new JRadioButton("x start", false);
     rbXStart.addChangeListener(this);
     rbXEnd  =new JRadioButton("x end", false);
     rbXEnd.addChangeListener(this);
@@ -365,12 +370,12 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
 
     //lengthmap
-    layout.putConstraint( SpringLayout.NORTH, chessButton, 5,SpringLayout.SOUTH, rbPoints);
-    layout.putConstraint( SpringLayout.WEST, chessButton, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.SOUTH, cityButton, 0,SpringLayout.SOUTH, chessButton);
-    layout.putConstraint( SpringLayout.WEST, cityButton, 0,SpringLayout.EAST, chessButton);
+    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 5,SpringLayout.SOUTH, rbPoints);
+    layout.putConstraint( SpringLayout.WEST, binalizeButton, 5,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.SOUTH, colorCutButton, 0,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, binalizeButton);
     //
-    layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, cityButton);
+    layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, colorCutButton);
     layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
     layout.putConstraint( SpringLayout.WEST, simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
@@ -397,8 +402,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.add(spYEnd);
 
 
-    jp.add(chessButton);
-    jp.add(cityButton);
+    jp.add(binalizeButton);
+    jp.add(colorCutButton);
     jp.add(localMaxButton);
     jp.add(simpleMaskButton);
 
@@ -408,12 +413,12 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     try{
       //loupe http://sawat.jf.land.to/loupe.html
-      Loupe f = new Loupe();
-      layout.putConstraint( SpringLayout.SOUTH, f, 0,SpringLayout.SOUTH, jp);
-      layout.putConstraint( SpringLayout.NORTH, f, 0,SpringLayout.NORTH, jp);
-      layout.putConstraint( SpringLayout.EAST, f, 10,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST, f, 10,SpringLayout.EAST, rbPoints);
-      jp.add(f);
+      loupe = new Loupe();
+      layout.putConstraint( SpringLayout.SOUTH, loupe, 0,SpringLayout.SOUTH, jp);
+      layout.putConstraint( SpringLayout.NORTH, loupe, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.EAST, loupe, 10,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.WEST, loupe, 10,SpringLayout.EAST, rbPoints);
+      jp.add(loupe);
     }catch(AWTException e){
       e.printStackTrace();
     }
@@ -478,7 +483,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
         g.fill3DRect(x,y,3,3,false);
       }
       for(int i=0;i<tracedPoints.size()/2-1;i++){
-       int x1=tracedPoints.get(2*i  );
+        int x1=tracedPoints.get(2*i  );
         int y1=tracedPoints.get(2*i+1);
         int x2=tracedPoints.get(2*i +2);
         int y2=tracedPoints.get(2*i+1 +2);

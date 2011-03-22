@@ -15,6 +15,7 @@ public class Loupe extends JPanel {
   private final Robot robot;
   private final JLabel captureLabel;
   private final JSlider slider;
+  private final JTextField colorLabel;
 
   public Loupe() throws AWTException {
     super();
@@ -25,6 +26,9 @@ public class Loupe extends JPanel {
     captureLabel.setBorder(BorderFactory.createEtchedBorder());
     captureLabel.setPreferredSize(new Dimension(200,200));
 
+    colorLabel = new JTextField();
+    colorLabel.setText("selected pixel color is null. DO right click");
+
     slider = new JSlider(SwingConstants.VERTICAL,
                          MIN_SCALE * SLIDER_ACCURACY,
                          MAX_SCALE * SLIDER_ACCURACY,
@@ -33,15 +37,24 @@ public class Loupe extends JPanel {
     //addition
     SpringLayout layout = new SpringLayout();
     this.setLayout( layout );
-    layout.putConstraint( SpringLayout.SOUTH, captureLabel, -10,SpringLayout.SOUTH, this);
+    layout.putConstraint( SpringLayout.SOUTH, colorLabel, -8,SpringLayout.SOUTH, this);
+    layout.putConstraint( SpringLayout.WEST, colorLabel, 5,SpringLayout.WEST, this);
+    layout.putConstraint( SpringLayout.EAST, colorLabel, -10,SpringLayout.WEST, slider);
+
+    layout.putConstraint( SpringLayout.SOUTH, captureLabel, -5,SpringLayout.NORTH, colorLabel);
     layout.putConstraint( SpringLayout.NORTH, captureLabel, 10,SpringLayout.NORTH, this);
     layout.putConstraint( SpringLayout.EAST, captureLabel, -10,SpringLayout.WEST, slider);
     layout.putConstraint( SpringLayout.WEST, captureLabel, 10,SpringLayout.WEST, this);
+
     layout.putConstraint( SpringLayout.EAST, slider, -20,SpringLayout.EAST, this);
-    layout.putConstraint( SpringLayout.SOUTH, slider, -10,SpringLayout.SOUTH, this);
+    layout.putConstraint( SpringLayout.SOUTH, slider, 10,SpringLayout.NORTH, colorLabel);
     layout.putConstraint( SpringLayout.NORTH, slider, 10,SpringLayout.NORTH, this);
+
+
+
     this.add(captureLabel);
     this.add(slider);
+    this.add(colorLabel);
 
     initSliderLabels();
     initTimer();
@@ -78,7 +91,32 @@ public class Loupe extends JPanel {
     captureLabel.setIcon(new ExpandImageIcon(image, scale));
   }
 
+  public void setBorder(int icolor){
+    Color color = new Color(icolor);
+    String hexColor = toHexString(color);
+    colorLabel.setText("selected pixel color: "+hexColor);
+    Border border = BorderFactory.
+      createCompoundBorder(BorderFactory.createEtchedBorder(),
+                           BorderFactory.createLineBorder(color, 3));
+    colorLabel.setBorder(border);
 
+  }
+  private void appendHex(StringBuffer buffer, int i) {
+    if(i < 0x10)buffer.append('0');
+    buffer.append(Integer.toHexString(i));
+  }
+  private String toHexString(Color color) {
+    StringBuffer buffer = new StringBuffer(9);
+    buffer.append('#');
+    appendHex(buffer, color.getAlpha());
+    appendHex(buffer, color.getRed());
+    appendHex(buffer, color.getGreen());
+    appendHex(buffer, color.getBlue());
+
+    return buffer.toString();
+  }
+
+  ///local class
   static class ExpandImageIcon extends ImageIcon {
     private static final Color guidLineColor = new Color(0, 0, 255, 128);
     private static final Color gridColor = new Color(128, 128, 128, 128);

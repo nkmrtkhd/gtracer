@@ -17,11 +17,16 @@ public class Tracer{
   private short[][] lengthMap;
   private BufferedImage originalImg;
   private BufferedImage tracedImg;
+  private int rgbRef=-123456789;
+
+  public int getRGBRef(){
+    return rgbRef;
+  }
 
   //constructor
   public Tracer(BufferedImage originalImg){
     this.originalImg=originalImg;
-    setLengthMap();
+    setLengthMap(false);
 
     //create buffer
     tracedImg = new BufferedImage(originalImg.getWidth(),originalImg.getHeight(),
@@ -29,8 +34,7 @@ public class Tracer{
 
   }
 
-  public void setLengthMap(){
-
+  public void setLengthMap(boolean isColorCut){
     width=originalImg.getWidth();
     height=originalImg.getHeight();
 
@@ -41,44 +45,59 @@ public class Tracer{
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
         int rgb = originalImg.getRGB(x, y);
-        //r,g,b,a, has 0~255
-        int a = (rgb >> 24) & 0xff;
-        int r = (rgb >> 16) & 0xff;
-        int g = (rgb >> 8) & 0xff;
-        int b = rgb & 0xff;
+        if(isColorCut && rgbRef!=-123456789){
+          //color cut
+          if(rgb==rgbRef)lengthMap[x][y]=Short.MAX_VALUE;
 
-        //unknown method
-        //int m = (2*r + 4*g + b) / 7;
+        }else{
+          //しきい値より小さい時は
 
-        //NTSC arithmetic average
-        //Y = 0.298912*R + 0.586611*G + 0.114478*B
-        //予め1024倍して整数化して，最後に1024で割る(右へ10bitシフト)
-        int m=306*r+600*g+117*b;
-        m=m>>10;
+          //r,g,b,a, has 0~255
+          int a = (rgb >> 24) & 0xff;
+          int r = (rgb >> 16) & 0xff;
+          int g = (rgb >> 8) & 0xff;
+          int b = rgb & 0xff;
 
-        //middle value method
-        /*
-         * int max=r;
-         * if(max<g)max=g;
-         * if(max<b)max=b;
-         * int min=r;
-         * if(min>g)min=g;
-         * if(min>b)min=b;
-         * int m = (max+min)/2;
-         */
+          //unknown method
+          //int m = (2*r + 4*g + b) / 7;
 
-        //しきい値より小さい時は
-        if(m<250){
-          if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
+          //NTSC arithmetic average
+          //Y = 0.298912*R + 0.586611*G + 0.114478*B
+          //予め1024倍して整数化して，最後に1024で割る(右へ10bitシフト)
+          int m=306*r+600*g+117*b;
+          m=m>>10;
+
+          //middle value method
+          /*
+           * int max=r;
+           * if(max<g)max=g;
+           * if(max<b)max=b;
+           * int min=r;
+           * if(min>g)min=g;
+           * if(min>b)min=b;
+           * int m = (max+min)/2;
+           */
+
+          if(m<250){
+            if(x!=0 || y!=0 || x!=width-1 || y!=height-1)lengthMap[x][y]=Short.MAX_VALUE;
+          }
         }
+
       }
     }
   }
+
   public BufferedImage makeImage(int filterType ){
-    if(filterType==1)LengthMap.setChessBoard(lengthMap,width,height);
-    if(filterType==2)LengthMap.setCityBlock(lengthMap,width,height);
-    if(filterType==3)Skeltonization.localMax(lengthMap,width,height);
-    if(filterType==4)Skeltonization.simpleMask(lengthMap,width,height);
+    if(filterType==1){
+      LengthMap.setChessBoard(lengthMap,width,height);
+      //LengthMap.setCityBlock(lengthMap,width,height);
+      Skeltonization.localMax(lengthMap,width,height);
+    }
+    if(filterType==2){
+      LengthMap.setChessBoard(lengthMap,width,height);
+      //LengthMap.setCityBlock(lengthMap,width,height);
+      Skeltonization.simpleMask(lengthMap,width,height);
+    }
 
     for (int x = 0; x < width;x++){
       for (int y = 0; y < height;y++){
@@ -109,6 +128,7 @@ public class Tracer{
           if(d>0){
             point[0]=xx;
             point[1]=yy;
+            rgbRef = originalImg.getRGB(xx, yy);
             break loop;
           }
         }
@@ -119,27 +139,32 @@ public class Tracer{
   }
 
   static final int EMPTY=-1123;
-  static final int INC_X=1;//increment
-  static final int BAND_Y=10;//search max
+  //increment
+  int INC_X=1;
+  //search max
+  int BAND_Y=10;
+
   public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
     // by Nakamura
     System.out.println("trace starts");
-    //traced pos
-    ArrayList<Integer> pos= new ArrayList<Integer>();
+
+
+    ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
 
     for(int i=0;i<pQueue.size()/2-1;i++){
-      //start pos
+      //start point
       int startX=pQueue.get(2*i);
       int startY=pQueue.get(2*i+1);
-      //end pos
+      //end point
       int endX=pQueue.get(2*(i+1));
       int endY=pQueue.get(2*(i+1)+1);
 
-      //tracepoint
+      //trace point
       int traceX=startX;
       int traceY=startY;
-      pos.add(traceX);
-      pos.add(traceY);
+      //add assist point
+      tracedPoints.add(traceX);
+      tracedPoints.add(traceY);
       while(traceX<endX){
         //search ymax
         int ymax=startY;
@@ -164,8 +189,8 @@ public class Tracer{
         //addition
         if(existYMax && existYMin){
           int y=(ymax+ymin)/2;
-          pos.add(traceX);
-          pos.add(y);
+          tracedPoints.add(traceX);
+          tracedPoints.add(y);
         }
 
         //search next y
@@ -184,7 +209,7 @@ public class Tracer{
     }//i
 
     System.out.println("trace done");
-    return pos;
+    return tracedPoints;
   }
   private int nextYup(int xin, int ymin, int band){
     for(int dy=1;dy<band;dy++){
@@ -192,7 +217,6 @@ public class Tracer{
     }
     return EMPTY;
   }
-
   private int nextYdown(int xin, int yin,int band){
     for(int dy=1;dy<band;dy++){
       if(yin+dy<height && lengthMap[xin][yin+dy]>0)return yin+dy;
