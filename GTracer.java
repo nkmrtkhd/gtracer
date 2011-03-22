@@ -121,10 +121,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       tracedImg=tracer.makeImage(4);
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
-        //tracedPoints=tracer.trace2(assistPoints);
-        //tracedPoints=tracer.trace2(assistPoints);
-        //tracedPoints=tracer.trace3(assistPoints);
-        tracedPoints=tracer.trace4(assistPoints);
+        tracedPoints=tracer.trace(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -261,7 +258,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
-                          screenDim.width - 350,
+                          screenDim.width - 100,
                           240);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
