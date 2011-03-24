@@ -55,29 +55,38 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     mousePos=tracer.getPoint(x,y);
     //left click
     if((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0){
-      if(rbPoints.isSelected()){
-        addAssistPoints(mousePos);
-      }else if(rbXStart.isSelected()){
+      switch(clickType){
+      case 0:
         xstart[0]=mousePos[0];
         xstart[1]=mousePos[1];
         ystart[0]=mousePos[0];
         ystart[1]=mousePos[1];
-      }else if(rbXEnd.isSelected()){
+        break;
+      case 1:
+        addAssistPoints(mousePos);
+        break;
+      case 2:
+        loupe.setBorder(tracer.getRGBRef());
+        break;
+      case 3:
+        xstart[0]=mousePos[0];
+        xstart[1]=mousePos[1];
+        break;
+      case 4:
         xend[0]=mousePos[0];
         xend[1]=mousePos[1];
-      }else if(rbYStart.isSelected()){
+        break;
+      case 5:
         ystart[0]=mousePos[0];
         ystart[1]=mousePos[1];
-      }else if(rbYEnd.isSelected()){
+      case 6:
         yend[0]=mousePos[0];
         yend[1]=mousePos[1];
+        break;
+      default:
+        break;
       }
     }
-    //right click
-    if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0){
-      loupe.setBorder(tracer.getRGBRef());
-    }
-
     myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
@@ -113,6 +122,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       reset();
       this.open(null);
       myCanv.repaint();
+    }else if(ae.getSource() == clickTypeCombo){
+      clickType=clickTypeCombo.getSelectedIndex();
     }else if(ae.getSource() == setAxisButton){
       int[] a=tracer.setAxis(xstart);
       if(a!=null){
@@ -255,7 +266,13 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private double yRealStart=0.0;
   private int[] yend={EMPTY,EMPTY};
   private double yRealEnd=10.0;
-  private JRadioButton rbXStart,rbXEnd,rbYStart,rbYEnd,rbPoints;
+
+  private final String[] clickTypeString = {"set origin","set assist-points","select color",
+                                            "set x1","set x2","set y1","set y2"};
+  private int clickType=0;
+
+  private JComboBox clickTypeCombo;
+  private JLabel labelXStart,labelXEnd,labelYStart,labelYEnd;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
   private JButton openButton;
   private JButton setAxisButton;
@@ -315,23 +332,14 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     resetButton.setFocusable(false);
 
 
-    rbPoints=new JRadioButton("Points", true);
-    rbPoints.addChangeListener(this);
-    rbXStart=new JRadioButton("x start", false);
-    rbXStart.addChangeListener(this);
-    rbXEnd  =new JRadioButton("x end", false);
-    rbXEnd.addChangeListener(this);
-    rbYStart=new JRadioButton("y start", false);
-    rbYStart.addChangeListener(this);
-    rbYEnd  =new JRadioButton("y end", false);
-    rbYEnd.addChangeListener(this);
+    clickTypeCombo = new JComboBox(clickTypeString);
+    clickTypeCombo.setSelectedIndex(clickType);
+    clickTypeCombo.addActionListener(this);
 
-    ButtonGroup group = new ButtonGroup();
-    group.add(rbPoints);
-    group.add(rbXStart);
-    group.add(rbXEnd);
-    group.add(rbYStart);
-    group.add(rbYEnd);
+    labelXStart=new JLabel("x1");
+    labelXEnd  =new JLabel("x2");
+    labelYStart=new JLabel("y1");
+    labelYEnd  =new JLabel("y2");
 
 
     spXStart = new JSpinner(new SpinnerNumberModel(xRealStart, null, null, 1));
@@ -376,41 +384,44 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.SOUTH, loupe);
     layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
 
-    layout.putConstraint( SpringLayout.NORTH, setAxisButton, 0,SpringLayout.NORTH, openButton);
-    layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.EAST, openButton);
+    JLabel clickTypeLabel=new JLabel("click type");
+    layout.putConstraint( SpringLayout.NORTH, clickTypeLabel, 10,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.WEST, clickTypeLabel, 5,SpringLayout.WEST, jp );
+    layout.putConstraint( SpringLayout.NORTH, clickTypeCombo, 0,SpringLayout.NORTH, clickTypeLabel);
+    layout.putConstraint( SpringLayout.WEST, clickTypeCombo, 5,SpringLayout.EAST,clickTypeLabel );
 
-    //radiobutton
-    layout.putConstraint( SpringLayout.NORTH, rbYEnd, 10,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
-    layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
+    layout.putConstraint( SpringLayout.NORTH, setAxisButton, 5,SpringLayout.SOUTH, clickTypeCombo);
+    layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH, rbYStart, 10,SpringLayout.SOUTH, rbYEnd);
-    layout.putConstraint( SpringLayout.WEST, rbYStart, 0,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, rbYStart);
-    layout.putConstraint( SpringLayout.WEST, spYStart, 0,SpringLayout.EAST, rbYStart);
+    //x axis
+    layout.putConstraint( SpringLayout.NORTH, labelXStart, 15,SpringLayout.SOUTH, setAxisButton);
+    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, labelXStart);
+    layout.putConstraint( SpringLayout.WEST, spXStart, 5,SpringLayout.EAST, labelXStart);
 
-    layout.putConstraint( SpringLayout.NORTH, rbXStart, 10,SpringLayout.SOUTH, rbYStart);
-    layout.putConstraint( SpringLayout.WEST, rbXStart, 0,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, rbXStart);
-    layout.putConstraint( SpringLayout.WEST, spXStart, 0,SpringLayout.EAST, rbXStart);
-    layout.putConstraint( SpringLayout.SOUTH, rbXEnd, 0,SpringLayout.SOUTH, spXStart);
-    layout.putConstraint( SpringLayout.WEST, rbXEnd, 0,SpringLayout.EAST, spXStart);
-    layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, rbXEnd);
-    layout.putConstraint( SpringLayout.WEST, spXEnd, 0,SpringLayout.EAST, rbXEnd);
+    layout.putConstraint( SpringLayout.SOUTH, labelXEnd, 0,SpringLayout.SOUTH, spXStart);
+    layout.putConstraint( SpringLayout.WEST, labelXEnd, 10,SpringLayout.EAST, spXStart);
+    layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, labelXEnd);
+    layout.putConstraint( SpringLayout.WEST, spXEnd, 5,SpringLayout.EAST, labelXEnd);
+    //y axis
+    layout.putConstraint( SpringLayout.NORTH, labelYStart, 10,SpringLayout.SOUTH, labelXStart);
+    layout.putConstraint( SpringLayout.WEST, labelYStart, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, labelYStart);
+    layout.putConstraint( SpringLayout.WEST, spYStart, 5,SpringLayout.EAST, labelYStart);
 
-    layout.putConstraint( SpringLayout.NORTH, rbPoints, 10,SpringLayout.SOUTH, rbXStart);
-    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.WEST, jp);
-
+    layout.putConstraint( SpringLayout.SOUTH, labelYEnd, 0,SpringLayout.SOUTH, spYStart);
+    layout.putConstraint( SpringLayout.WEST, labelYEnd, 10,SpringLayout.EAST, spYStart);
+    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, labelYEnd);
+    layout.putConstraint( SpringLayout.WEST, spYEnd, 5,SpringLayout.EAST, labelYEnd);
 
 
     //lengthmap
-    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 10,SpringLayout.SOUTH, rbPoints);
+    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 10,SpringLayout.SOUTH, labelYStart);
     layout.putConstraint( SpringLayout.WEST, binalizeButton, 5,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.SOUTH, colorCutButton, 0,SpringLayout.SOUTH, binalizeButton);
     layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, binalizeButton);
     layout.putConstraint( SpringLayout.NORTH, resetButton, 0,SpringLayout.NORTH, colorCutButton);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 0,SpringLayout.EAST, colorCutButton);
+    layout.putConstraint( SpringLayout.WEST, resetButton, 20,SpringLayout.EAST, colorCutButton);
     //mask
     layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, colorCutButton);
     layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
@@ -427,11 +438,12 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //add to jpanel
     jp.add(openButton);
     jp.add(setAxisButton);
-    jp.add(rbPoints);
-    jp.add(rbXStart);
-    jp.add(rbXEnd);
-    jp.add(rbYStart);
-    jp.add(rbYEnd);
+    jp.add(clickTypeLabel);
+    jp.add(clickTypeCombo);
+    jp.add(labelXStart);
+    jp.add(labelXEnd);
+    jp.add(labelYStart);
+    jp.add(labelYEnd);
     jp.add(spXStart);
     jp.add(spXEnd);
     jp.add(spYStart);
@@ -470,25 +482,25 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       g.setColor(Color.red);
       if(xstart[0]!=EMPTY && xend[0]!=EMPTY){
         g.drawLine(xstart[0],xstart[1],xend[0],xend[1]);
-      }else if(rbXStart.isSelected() || rbXEnd.isSelected()){
-        int r=12;
-        g.drawOval(mousePos[0]-r/2,mousePos[1]-r/2,r,r);
       }
       //y-axis
       g.setColor(Color.green);
       if(ystart[0]!=EMPTY && yend[0]!=EMPTY){
         g.drawLine(ystart[0],ystart[1],yend[0],yend[1]);
-      }else if(rbYStart.isSelected() || rbYEnd.isSelected()){
-        int r=12;
-        g.drawOval(mousePos[0]-r/2,mousePos[1]-r/2,r,r);
       }
+      int ra=5;
+      int rashift=2;
+      if(xstart[0]!=EMPTY)g.fill3DRect(xstart[0]-rashift,xstart[1]-rashift,ra,ra,false);
+      if(xend[0]!=EMPTY)g.fill3DRect(xend[0]-rashift,xend[1]-rashift,ra,ra,false);
+      if(ystart[0]!=EMPTY)g.fill3DRect(ystart[0]-rashift,ystart[1]-rashift,ra,ra,false);
+      if(yend[0]!=EMPTY)g.fill3DRect(yend[0]-rashift,yend[1]-rashift,ra,ra,false);
 
       //draw points
       g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
       g.setColor(Color.blue);
       //selected point
       for(int i=0;i<assistPoints.size()/2;i++){
-        int r=12;
+        int r=13;
         //circle
         int x=assistPoints.get(2*i  )-r/2;
         int y=assistPoints.get(2*i+1)-r/2;
@@ -497,7 +509,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
         r=1;
         x=assistPoints.get(2*i  );
         y=assistPoints.get(2*i+1);
-        //g.drawOval(x,y,r,r);
         g.fillOval(x,y,r,r);
       }
       //traced point

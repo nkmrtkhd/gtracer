@@ -38,8 +38,8 @@ public class Loupe extends JPanel {
     SpringLayout layout = new SpringLayout();
     this.setLayout( layout );
     layout.putConstraint( SpringLayout.SOUTH, colorLabel, -8,SpringLayout.SOUTH, this);
-    layout.putConstraint( SpringLayout.WEST, colorLabel, 5,SpringLayout.WEST, this);
     layout.putConstraint( SpringLayout.EAST, colorLabel, -10,SpringLayout.WEST, slider);
+    layout.putConstraint( SpringLayout.WEST, colorLabel, 5,SpringLayout.WEST, this);
 
     layout.putConstraint( SpringLayout.SOUTH, captureLabel, -5,SpringLayout.NORTH, colorLabel);
     layout.putConstraint( SpringLayout.NORTH, captureLabel, 10,SpringLayout.NORTH, this);
