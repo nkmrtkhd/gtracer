@@ -224,9 +224,9 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     JFrame canvasJframe=new JFrame("Gtracer");
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    canvasJframe.setBounds( 0, 270,
-                            screenDim.width - 100,
-                            screenDim.height - 280);
+    canvasJframe.setBounds( 450, 0,
+                            screenDim.width - 500,
+                            screenDim.height - 100);
     //how to action, when close
     canvasJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -273,8 +273,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
-                          screenDim.width - 100,
-                          240);
+                          440,
+                          screenDim.height-100);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -357,41 +357,61 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     SpringLayout layout = new SpringLayout();
     jp.setLayout( layout );
 
+    try{
+      //loupe http://sawat.jf.land.to/loupe.html
+      loupe = new Loupe();
+      loupe.setPreferredSize(new Dimension(400,400));
+
+      //layout.putConstraint( SpringLayout.SOUTH, loupe, 0,SpringLayout.SOUTH, jp);
+      layout.putConstraint( SpringLayout.NORTH, loupe, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.EAST, loupe, 10,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.WEST, loupe, 10,SpringLayout.WEST, jp);
+      jp.add(loupe);
+    }catch(AWTException e){
+      e.printStackTrace();
+    }
+
+
     //open
-    layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.NORTH, jp );
+    layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.SOUTH, loupe);
     layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
 
     layout.putConstraint( SpringLayout.NORTH, setAxisButton, 0,SpringLayout.NORTH, openButton);
     layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.EAST, openButton);
 
     //radiobutton
-    layout.putConstraint( SpringLayout.NORTH, rbXStart, 10,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.WEST, rbXStart, 10,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.NORTH, rbYEnd, 10,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
+    layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
+
+    layout.putConstraint( SpringLayout.NORTH, rbYStart, 10,SpringLayout.SOUTH, rbYEnd);
+    layout.putConstraint( SpringLayout.WEST, rbYStart, 0,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, rbYStart);
+    layout.putConstraint( SpringLayout.WEST, spYStart, 0,SpringLayout.EAST, rbYStart);
+
+    layout.putConstraint( SpringLayout.NORTH, rbXStart, 10,SpringLayout.SOUTH, rbYStart);
+    layout.putConstraint( SpringLayout.WEST, rbXStart, 0,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, rbXStart);
     layout.putConstraint( SpringLayout.WEST, spXStart, 0,SpringLayout.EAST, rbXStart);
     layout.putConstraint( SpringLayout.SOUTH, rbXEnd, 0,SpringLayout.SOUTH, spXStart);
     layout.putConstraint( SpringLayout.WEST, rbXEnd, 0,SpringLayout.EAST, spXStart);
     layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, rbXEnd);
     layout.putConstraint( SpringLayout.WEST, spXEnd, 0,SpringLayout.EAST, rbXEnd);
-    layout.putConstraint( SpringLayout.SOUTH, rbYStart, 0,SpringLayout.SOUTH, spXEnd);
-    layout.putConstraint( SpringLayout.WEST, rbYStart, 10,SpringLayout.EAST, spXEnd);
-    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, rbYStart);
-    layout.putConstraint( SpringLayout.WEST, spYStart, 0,SpringLayout.EAST, rbYStart);
-    layout.putConstraint( SpringLayout.SOUTH, rbYEnd, 0,SpringLayout.SOUTH, spYStart);
-    layout.putConstraint( SpringLayout.WEST, rbYEnd, 0,SpringLayout.EAST, spYStart);
-    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, rbYEnd);
-    layout.putConstraint( SpringLayout.WEST, spYEnd, 0,SpringLayout.EAST, rbYEnd);
-    layout.putConstraint( SpringLayout.SOUTH, rbPoints, 0,SpringLayout.SOUTH, spYEnd);
-    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.EAST, spYEnd);
+
+    layout.putConstraint( SpringLayout.NORTH, rbPoints, 10,SpringLayout.SOUTH, rbXStart);
+    layout.putConstraint( SpringLayout.WEST, rbPoints, 0,SpringLayout.WEST, jp);
 
 
 
     //lengthmap
-    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 5,SpringLayout.SOUTH, rbPoints);
+    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 10,SpringLayout.SOUTH, rbPoints);
     layout.putConstraint( SpringLayout.WEST, binalizeButton, 5,SpringLayout.WEST, jp );
     layout.putConstraint( SpringLayout.SOUTH, colorCutButton, 0,SpringLayout.SOUTH, binalizeButton);
     layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, binalizeButton);
-    //
+    layout.putConstraint( SpringLayout.NORTH, resetButton, 0,SpringLayout.NORTH, colorCutButton);
+    layout.putConstraint( SpringLayout.WEST, resetButton, 0,SpringLayout.EAST, colorCutButton);
+    //mask
     layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, colorCutButton);
     layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
@@ -400,10 +420,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //trace
     layout.putConstraint( SpringLayout.NORTH, traceButton, 5,SpringLayout.SOUTH, localMaxButton);
     layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, writeButton, 0,SpringLayout.SOUTH, traceButton);
-    layout.putConstraint( SpringLayout.WEST, writeButton, 0,SpringLayout.EAST, traceButton);
-    layout.putConstraint( SpringLayout.SOUTH, resetButton, 0,SpringLayout.SOUTH, writeButton);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 0,SpringLayout.EAST, writeButton);
+    layout.putConstraint( SpringLayout.NORTH, writeButton, 0,SpringLayout.SOUTH, traceButton);
+    layout.putConstraint( SpringLayout.WEST, writeButton, 0,SpringLayout.WEST, traceButton);
 
 
     //add to jpanel
@@ -429,17 +447,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.add(writeButton);
     jp.add(resetButton);
 
-    try{
-      //loupe http://sawat.jf.land.to/loupe.html
-      loupe = new Loupe();
-      layout.putConstraint( SpringLayout.SOUTH, loupe, 0,SpringLayout.SOUTH, jp);
-      layout.putConstraint( SpringLayout.NORTH, loupe, 0,SpringLayout.NORTH, jp);
-      layout.putConstraint( SpringLayout.EAST, loupe, 10,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST, loupe, 10,SpringLayout.EAST, rbPoints);
-      jp.add(loupe);
-    }catch(AWTException e){
-      e.printStackTrace();
-    }
 
     ctrlJframe.add(jp);
     ctrlJframe.setVisible(true);
@@ -458,7 +465,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       }
 
       //draw axis
-      g2.setStroke(new BasicStroke(1.5f)); //線の種類を設定
+      g2.setStroke(new BasicStroke(2f)); //線の種類を設定
       //x-axis
       g.setColor(Color.red);
       if(xstart[0]!=EMPTY && xend[0]!=EMPTY){

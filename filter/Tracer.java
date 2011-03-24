@@ -387,6 +387,7 @@ public class Tracer{
       if(lengthMap[org[0]][y]<=0){
         a[2]=org[0];
         a[3]=y+1;
+        System.out.println(String.format("%d",y+1));
         break;
       }
     }

@@ -24,7 +24,7 @@ public class Loupe extends JPanel {
 
     this.captureLabel = new JLabel();
     captureLabel.setBorder(BorderFactory.createEtchedBorder());
-    captureLabel.setPreferredSize(new Dimension(200,200));
+    captureLabel.setPreferredSize(new Dimension(400,400));
 
     colorLabel = new JTextField();
     colorLabel.setText("selected pixel color is null. DO right click");
