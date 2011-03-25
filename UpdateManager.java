@@ -20,15 +20,14 @@ import com.centerkey.utils.BareBonesBrowserLaunch;
 
 public class UpdateManager{
   private double thisVersion=1.000;
-
-  private double wwwVersion;
-  private String homeURL="http://code.google.com/p/gtracer";
+  private double wwwVersion=thisVersion;
   private String downloadURL="http://code.google.com/p/gtracer/downloads/list";
 
   //constructor
   public UpdateManager(){
     showDialog();
   }
+
   public void showDialog(){
     //show dialog
     String str;
@@ -39,23 +38,6 @@ public class UpdateManager{
       str="The current version "+thisVersion+" is up to date";
 
     System.out.println(str);
-  }
-
-  public void showAbout(){
-    JFrame frame = new JFrame();
-    String option[] = { "WWW page","OK"};
-    String query="GTracer";
-    int ans = JOptionPane.showOptionDialog(frame,
-                                           query,
-                                           "About GTracer",
-                                           JOptionPane.DEFAULT_OPTION,
-                                           JOptionPane.QUESTION_MESSAGE,
-                                           icon,
-                                           option,
-                                           option[1] );
-    if(ans==0){//WWW page
-      BareBonesBrowserLaunch.openURL(homeURL);
-    }
   }
 
   public boolean isStrongUpdate(){

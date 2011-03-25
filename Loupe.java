@@ -27,7 +27,7 @@ public class Loupe extends JPanel {
     captureLabel.setPreferredSize(new Dimension(400,400));
 
     colorLabel = new JTextField();
-    colorLabel.setText("selected pixel color is null. DO right click");
+    colorLabel.setText("selected color: null");
 
     slider = new JSlider(SwingConstants.VERTICAL,
                          MIN_SCALE * SLIDER_ACCURACY,
@@ -94,7 +94,7 @@ public class Loupe extends JPanel {
   public void setBorder(int icolor){
     Color color = new Color(icolor);
     String hexColor = toHexString(color);
-    colorLabel.setText("selected pixel color: "+hexColor);
+    colorLabel.setText("selected color: "+hexColor);
     Border border = BorderFactory.
       createCompoundBorder(BorderFactory.createEtchedBorder(),
                            BorderFactory.createLineBorder(color, 3));

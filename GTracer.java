@@ -7,7 +7,7 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-//hand made library
+//handmade library
 import filter.*;
 
 
@@ -32,7 +32,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
-    new UpdateManager();
   }
 
   //mouse
@@ -47,9 +46,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   public void mouseExited(MouseEvent e){
   }
 
-  LinkedList<Integer> assistPoints= new LinkedList<Integer>();
-  ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
-  int[] mousePos=new int[2];
+  private LinkedList<Integer> assistPoints= new LinkedList<Integer>();
+  private ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
+  private int[] mousePos=new int[2];
+
   public void mousePressed(MouseEvent e){
     int x=e.getX();
     int y=e.getY();
@@ -119,17 +119,25 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   }
 
   public void actionPerformed(ActionEvent ae){
-    if(ae.getSource() == openButton){
+    String cmd = ae.getActionCommand();
+    if(cmd.startsWith("open")){
       reset();
       this.open(null);
       myCanv.repaint();
-    }else if(ae.getSource() == clickTypeCombo){
+    }else if(cmd.startsWith("check update")){
+      UpdateManager up=new UpdateManager();
+      up.showDialog();
+    }else if(cmd.startsWith("exit")){
+      System.exit(0);
+    }
+
+    if(ae.getSource() == clickTypeCombo){
       clickType=clickTypeCombo.getSelectedIndex();
     }else if(ae.getSource() == setAxisButton){
       int[] a=tracer.setAxis(xstart);
       if(a!=null){
-        xend[0]  =a[0];
-        xend[1]  =a[1];
+        xend[0]=a[0];
+        xend[1]=a[1];
         yend[0]=a[2];
         yend[1]=a[3];
         myCanv.repaint();
@@ -157,6 +165,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     }
     myCanv.repaint();
   }
+
   private void reset(){
     assistPoints.clear();
     tracedPoints.clear();
@@ -275,7 +284,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JComboBox clickTypeCombo;
   private JLabel labelXStart,labelXEnd,labelYStart,labelYEnd;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
-  private JButton openButton;
   private JButton setAxisButton;
   private JButton binalizeButton;
   private JButton colorCutButton;
@@ -296,11 +304,9 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    //button
-    openButton=new JButton("open");
-    openButton.addActionListener( this );
-    openButton.setFocusable(false);
-    setAxisButton=new JButton("set axis");
+    ctrlJframe.setJMenuBar(getControlMenu());
+
+    setAxisButton=new JButton("auto axis set");
     setAxisButton.addActionListener( this );
     setAxisButton.setFocusable(false);
 
@@ -380,23 +386,23 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       e.printStackTrace();
     }
 
-
-    //open
-    layout.putConstraint( SpringLayout.NORTH, openButton, 0,SpringLayout.SOUTH, loupe);
-    layout.putConstraint( SpringLayout.WEST, openButton, 5,SpringLayout.WEST, jp );
-
     JLabel clickTypeLabel=new JLabel("click type");
-    layout.putConstraint( SpringLayout.NORTH, clickTypeLabel, 10,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.NORTH, clickTypeLabel, 10,SpringLayout.SOUTH, loupe);
     layout.putConstraint( SpringLayout.WEST, clickTypeLabel, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.NORTH, clickTypeCombo, 0,SpringLayout.NORTH, clickTypeLabel);
+    layout.putConstraint( SpringLayout.NORTH, clickTypeCombo, -5,SpringLayout.NORTH, clickTypeLabel);
     layout.putConstraint( SpringLayout.WEST, clickTypeCombo, 5,SpringLayout.EAST,clickTypeLabel );
 
     layout.putConstraint( SpringLayout.NORTH, setAxisButton, 5,SpringLayout.SOUTH, clickTypeCombo);
     layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.WEST, jp);
 
+
+    //axis label
+    JLabel axisLabel=new JLabel("Axis Range");
+    layout.putConstraint( SpringLayout.NORTH, axisLabel, 10,SpringLayout.SOUTH, setAxisButton);
+    layout.putConstraint( SpringLayout.WEST, axisLabel, 5,SpringLayout.WEST, jp );
     //x axis
-    layout.putConstraint( SpringLayout.NORTH, labelXStart, 15,SpringLayout.SOUTH, setAxisButton);
-    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.NORTH, labelXStart, 0,SpringLayout.NORTH, axisLabel);
+    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.EAST, axisLabel);
     layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, labelXStart);
     layout.putConstraint( SpringLayout.WEST, spXStart, 5,SpringLayout.EAST, labelXStart);
 
@@ -406,7 +412,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.WEST, spXEnd, 5,SpringLayout.EAST, labelXEnd);
     //y axis
     layout.putConstraint( SpringLayout.NORTH, labelYStart, 10,SpringLayout.SOUTH, labelXStart);
-    layout.putConstraint( SpringLayout.WEST, labelYStart, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.WEST, labelYStart, 0,SpringLayout.WEST, labelXStart);
     layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, labelYStart);
     layout.putConstraint( SpringLayout.WEST, spYStart, 5,SpringLayout.EAST, labelYStart);
 
@@ -428,18 +434,16 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
     layout.putConstraint( SpringLayout.WEST, simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
-
     //trace
     layout.putConstraint( SpringLayout.NORTH, traceButton, 5,SpringLayout.SOUTH, localMaxButton);
     layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH, writeButton, 0,SpringLayout.SOUTH, traceButton);
-    layout.putConstraint( SpringLayout.WEST, writeButton, 0,SpringLayout.WEST, traceButton);
-
+    layout.putConstraint( SpringLayout.NORTH, writeButton, 0,SpringLayout.NORTH, traceButton);
+    layout.putConstraint( SpringLayout.WEST, writeButton, 5,SpringLayout.EAST, traceButton);
 
     //add to jpanel
-    jp.add(openButton);
     jp.add(setAxisButton);
     jp.add(clickTypeLabel);
+    jp.add(axisLabel);
     jp.add(clickTypeCombo);
     jp.add(labelXStart);
     jp.add(labelXEnd);
@@ -463,6 +467,29 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     ctrlJframe.add(jp);
     ctrlJframe.setVisible(true);
+  }
+
+  private JMenuBar getControlMenu(){
+    JMenu menu=new JMenu("File");
+    JMenuItem openMenu=new JMenuItem("Open");
+    openMenu.addActionListener( this );
+    openMenu.setActionCommand("open");
+    JMenuItem updateCheckMenu=new JMenuItem("Check Update");
+    updateCheckMenu.addActionListener( this );
+    updateCheckMenu.setActionCommand("check update");
+    JMenuItem exitMenu=new JMenuItem("Exit");
+    exitMenu.addActionListener( this );
+    exitMenu.setActionCommand("exit");
+
+    menu.add(openMenu);
+    menu.add(updateCheckMenu);
+    menu.add(exitMenu);
+
+    //menu bar
+    JMenuBar menuBar;
+    menuBar  = new JMenuBar();
+    menuBar.add(menu);
+    return menuBar;
   }
 
   /** private class for rendering image*/
