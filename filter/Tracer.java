@@ -224,151 +224,147 @@ public class Tracer{
     return EMPTY;
   }
 
+  public ArrayList<Integer> traceByTamura(LinkedList<Integer> pQueue){
+    //by Tamura
+    System.out.println("trace starts");
+    //traced pos
+    ArrayList<Integer> pos= new ArrayList<Integer>();
 
+    for(int i=0;i<pQueue.size()/2-1;i++){
+      //start pos
+      int startX=pQueue.get(2*i);
+      int startY=pQueue.get(2*i+1);
 
-  /*
-   * public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
-   *   //??? by Tamura
-   *   System.out.println("trace starts");
-   *   //traced pos
-   *   ArrayList<Integer> pos= new ArrayList<Integer>();
-   *
-   *   for(int i=0;i<pQueue.size()/2-1;i++){
-   *     //start pos
-   *     int startX=pQueue.get(2*i);
-   *     int startY=pQueue.get(2*i+1);
-   *
-   *     // T.Tamura Note that Max and Min are opposite
-   *     System.out.println("startX  " + startX);
-   *     System.out.println("startY  " + startY);
-   *     int ymax = startY;
-   *     int ymin = startY;
-   *     for ( int j=startY; j>startY-200; j-- ) {
-   *       if( lengthMap[startX][j] == 0 ) {
-   *         ymax = j+1;
-   *         break;
-   *       }
-   *     }
-   *     for ( int j=startY; j<startY+200; j++ ) {
-   *       if( lengthMap[startX][j] == 0 ) {
-   *         ymin = j-1;
-   *         break;
-   *       }
-   *     }
-   *     System.out.println("ymax  " + ymax);
-   *     System.out.println("ymin  " + ymin);
-   *     for ( int j=startY-10; j<startY+10; j++ ) {
-   *       System.out.println(j + "  " + lengthMap[startX][j]);
-   *     }
-   *
-   *     //end pos
-   *     int nextX=pQueue.get(2*(i+1));
-   *     int nextY=pQueue.get(2*(i+1)+1);
-   *
-   *     //    pos.add(startX);
-   *     //    pos.add(startY);
-   *     // T.Tamura  pos should be real, not integer
-   *     int imod= (ymax+ymin)%2 ;
-   *     if (imod == 0) {
-   *       pos.add(startX);
-   *       pos.add((ymax+ymin)/2);
-   *     } else {
-   *       pos.add(startX);
-   *       pos.add((ymax+ymin+1)/2);
-   *     }
-   *
-   *     int traceX=startX;
-   *     int traceY=startY;
-   *
-   *     int dx=1;//increment
-   *     int ny=10;//search max
-   *     while( traceX <nextX ){
-   *
-   *       traceX+=dx;
-   *
-   *       // T.Tamura  for debug
-   *       //        for ( int j=traceY-10; j<traceY+10; j++ ) {
-   *       //          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
-   *       //        }
-   *
-   *       // T.Tamura  search of Max. and Min.
-   *       int isum = 0;
-   *       for ( int j=ymax; j<=ymin; j++ ) {
-   *         if(lengthMap[traceX][j] != 0) {
-   *           isum+=1;
-   *         }
-   *       }
-   *       // T.Tamura  for debug
-   *       //      System.out.println("isum  " + isum);
-   *       if(isum != 0) {
-   *         int ymaxtmp = ymax;
-   *         int ymintmp = ymin;
-   *         if ( lengthMap[traceX][ymax] == 0 ) {
-   *           for ( int j=ymaxtmp; j<ymintmp; j++ ) {
-   *             if( lengthMap[traceX][j] != 0 ) {
-   *               ymax = j;
-   *               break;
-   *             }
-   *           }
-   *         } else {
-   *           for ( int j=ymaxtmp; j>ymaxtmp-100; j-- ) {
-   *             if( lengthMap[traceX][j] == 0 ) {
-   *               ymax = j+1;
-   *               break;
-   *             }
-   *           }
-   *         }
-   *         if ( lengthMap[traceX][ymin] == 0 ) {
-   *           for ( int j=ymintmp; j>ymaxtmp; j-- ) {
-   *             if( lengthMap[traceX][j] != 0 ) {
-   *               ymin = j;
-   *               break;
-   *             }
-   *           }
-   *         } else {
-   *           for ( int j=ymintmp; j<ymintmp+100; j++ ) {
-   *             if( lengthMap[traceX][j] == 0 ) {
-   *               ymin = j-1;
-   *               break;
-   *             }
-   *           }
-   *         }
-   *       } else {
-   *         int ymaxtmp = ymax-ny;
-   *         int ymintmp = ymin+ny;
-   *         for ( int j=ymaxtmp; j<ymintmp; j++ ) {
-   *           if( lengthMap[traceX][j] != 0 ) {
-   *             ymax = j;
-   *             break;
-   *           }
-   *         }
-   *         for ( int j=ymintmp; j>ymaxtmp; j-- ) {
-   *           if( lengthMap[traceX][j] != 0 ) {
-   *             ymin = j;
-   *             break;
-   *           }
-   *         }
-   *       } // if(isum)
-   *       System.out.println(traceX + "  " + ymax + "  " + ymin);
-   *       // pos should be real, not integer
-   *       imod= (ymax+ymin)%2 ;
-   *       if (imod == 0) {
-   *         pos.add(traceX);
-   *         pos.add((ymax+ymin)/2);
-   *         traceY = (ymax+ymin)/2;
-   *       } else {
-   *         pos.add(traceX);
-   *         pos.add((ymax+ymin+1)/2);
-   *         traceY = (ymax+ymin+1)/2;
-   *       }
-   *
-   *     }//while
-   *   }//i
-   *
-   *   System.out.println("trace done");
-   *   return pos;
-   * }
-   */
+      // T.Tamura Note that Max and Min are opposite
+      System.out.println("startX  " + startX);
+      System.out.println("startY  " + startY);
+      int ymax = startY;
+      int ymin = startY;
+      for ( int j=startY; j>startY-200; j-- ) {
+        if( lengthMap[startX][j] == 0 ) {
+          ymax = j+1;
+          break;
+        }
+      }
+      for ( int j=startY; j<startY+200; j++ ) {
+        if( lengthMap[startX][j] == 0 ) {
+          ymin = j-1;
+          break;
+        }
+      }
+      System.out.println("ymax  " + ymax);
+      System.out.println("ymin  " + ymin);
+      for ( int j=startY-10; j<startY+10; j++ ) {
+        System.out.println(j + "  " + lengthMap[startX][j]);
+      }
+
+      //end pos
+      int nextX=pQueue.get(2*(i+1));
+      int nextY=pQueue.get(2*(i+1)+1);
+
+      //    pos.add(startX);
+      //    pos.add(startY);
+      // T.Tamura  pos should be real, not integer
+      int imod= (ymax+ymin)%2 ;
+      if (imod == 0) {
+        pos.add(startX);
+        pos.add((ymax+ymin)/2);
+      } else {
+        pos.add(startX);
+        pos.add((ymax+ymin+1)/2);
+      }
+
+      int traceX=startX;
+      int traceY=startY;
+
+      int dx=1;//increment
+      int ny=10;//search max
+      while( traceX <nextX ){
+
+        traceX+=dx;
+
+        // T.Tamura  for debug
+        //        for ( int j=traceY-10; j<traceY+10; j++ ) {
+        //          System.out.println(traceX + "  " + j + "  " + lengthMap[traceX][j]);
+        //        }
+
+        // T.Tamura  search of Max. and Min.
+        int isum = 0;
+        for ( int j=ymax; j<=ymin; j++ ) {
+          if(lengthMap[traceX][j] != 0) {
+            isum+=1;
+          }
+        }
+        // T.Tamura  for debug
+        //      System.out.println("isum  " + isum);
+        if(isum != 0) {
+          int ymaxtmp = ymax;
+          int ymintmp = ymin;
+          if ( lengthMap[traceX][ymax] == 0 ) {
+            for ( int j=ymaxtmp; j<ymintmp; j++ ) {
+              if( lengthMap[traceX][j] != 0 ) {
+                ymax = j;
+                break;
+              }
+            }
+          } else {
+            for ( int j=ymaxtmp; j>ymaxtmp-100; j-- ) {
+              if( lengthMap[traceX][j] == 0 ) {
+                ymax = j+1;
+                break;
+              }
+            }
+          }
+          if ( lengthMap[traceX][ymin] == 0 ) {
+            for ( int j=ymintmp; j>ymaxtmp; j-- ) {
+              if( lengthMap[traceX][j] != 0 ) {
+                ymin = j;
+                break;
+              }
+            }
+          } else {
+            for ( int j=ymintmp; j<ymintmp+100; j++ ) {
+              if( lengthMap[traceX][j] == 0 ) {
+                ymin = j-1;
+                break;
+              }
+            }
+          }
+        } else {
+          int ymaxtmp = ymax-ny;
+          int ymintmp = ymin+ny;
+          for ( int j=ymaxtmp; j<ymintmp; j++ ) {
+            if( lengthMap[traceX][j] != 0 ) {
+              ymax = j;
+              break;
+            }
+          }
+          for ( int j=ymintmp; j>ymaxtmp; j-- ) {
+            if( lengthMap[traceX][j] != 0 ) {
+              ymin = j;
+              break;
+            }
+          }
+        } // if(isum)
+        System.out.println(traceX + "  " + ymax + "  " + ymin);
+        // pos should be real, not integer
+        imod= (ymax+ymin)%2 ;
+        if (imod == 0) {
+          pos.add(traceX);
+          pos.add((ymax+ymin)/2);
+          traceY = (ymax+ymin)/2;
+        } else {
+          pos.add(traceX);
+          pos.add((ymax+ymin+1)/2);
+          traceY = (ymax+ymin+1)/2;
+        }
+
+      }//while
+    }//i
+
+    System.out.println("trace done");
+    return pos;
+  }
 
 
   public int[] setAxis(int[] org){

@@ -157,7 +157,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       tracedImg=null;
       tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == traceButton){
-      if(assistPoints.size()>=4) tracedPoints=tracer.trace(assistPoints);
+      if(assistPoints.size()>=4){
+        tracedPoints=tracer.trace(assistPoints);
+        //tracedPoints=tracer.traceByTamura(assistPoints);
+      }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
     }else if(ae.getSource() == resetButton){
