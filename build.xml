@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-03-12 21:12:44 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-03-25 12:45:58 by NAKAMURA Takahide> -->
 
   <project name="GTracer" default="run" basedir=".">
 
@@ -12,10 +12,13 @@
     <property name="jarsigner" value="${JAVA_HOME}/bin/jarsigner" />
 
 
+    <property name="browser_lib" value="BareBonesBrowserLaunch.jar" />
+
 
     <!-- set classpath -->
     <path id="libpath_ref">
       <pathelement path="." />
+      <pathelement path="${browser_lib}" />
     </path>
 
     <!-- make -->
@@ -39,6 +42,8 @@
     <target name="jar" depends="make " >
       <jar destfile="GTracer.jar" basedir=".">
         <include name="**/*.class" />
+        <include name="icon/**" />
+        <zipfileset src="${browser_lib}" />
         <manifest>
           <attribute name="Main-Class" value="GTracer" />
           <attribute name="Class-Path" value="." />

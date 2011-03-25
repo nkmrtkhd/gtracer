@@ -32,6 +32,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
+    new UpdateManager();
   }
 
   //mouse
