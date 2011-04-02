@@ -6,6 +6,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.border.*;
 
 //handmade library
 import filter.*;
@@ -163,8 +164,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
-    }else if(ae.getSource() == resetButton){
-      reset();
+      //}else if(ae.getSource() == resetButton){
+      //reset();
     }
     myCanv.repaint();
   }
@@ -285,73 +286,25 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private int clickType=0;
 
   private JComboBox clickTypeCombo;
-  private JLabel labelXStart,labelXEnd,labelYStart,labelYEnd;
-  private JSpinner spXStart,spXEnd,spYStart,spYEnd;
-  private JButton setAxisButton;
-  private JButton binalizeButton;
-  private JButton colorCutButton;
-  private JButton localMaxButton;
-  private JButton simpleMaskButton;
-  private JButton traceButton;
-  private JButton writeButton;
-  private JButton resetButton;
+
 
   private JFrame ctrlJframe;
-  private void makeControlFrame(){
-    ctrlJframe=new JFrame("Gtracer");
-    //window size
-    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    ctrlJframe.setBounds( 0, 0,
-                          440,
-                          screenDim.height-100);
-    //how to action, when close
-    ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    ctrlJframe.setJMenuBar(getControlMenu());
+  private JButton setAxisButton;
+  private JSpinner spXStart,spXEnd,spYStart,spYEnd;
+  private JPanel axisPanel(){
+    ///////////////
+    JPanel jp=new JPanel();
 
     setAxisButton=new JButton("auto axis set");
     setAxisButton.addActionListener( this );
     setAxisButton.setFocusable(false);
-
-    //button
-    binalizeButton=new JButton("binalize");
-    binalizeButton.addActionListener( this );
-    binalizeButton.setFocusable(false);
-    colorCutButton=new JButton("color cut");
-    colorCutButton.addActionListener( this );
-    colorCutButton.setFocusable(false);
-    //thining
-    localMaxButton=new JButton("local max mask");
-    localMaxButton.addActionListener( this );
-    localMaxButton.setFocusable(false);
-    simpleMaskButton=new JButton("simple mask");
-    simpleMaskButton.addActionListener( this );
-    simpleMaskButton.setFocusable(false);
-
-
-    traceButton=new JButton("trace");
-    traceButton.addActionListener( this );
-    traceButton.setFocusable(false);
-
-    writeButton=new JButton("write file");
-    writeButton.addActionListener( this );
-    writeButton.setFocusable(false);
-
-    resetButton=new JButton("reset");
-    resetButton.addActionListener( this );
-    resetButton.setFocusable(false);
-
-
-    clickTypeCombo = new JComboBox(clickTypeString);
-    clickTypeCombo.setSelectedIndex(clickType);
-    clickTypeCombo.addActionListener(this);
-
-    labelXStart=new JLabel("x1");
-    labelXEnd  =new JLabel("x2");
-    labelYStart=new JLabel("y1");
-    labelYEnd  =new JLabel("y2");
-
-
+    //label
+    JLabel labelXStart=new JLabel("x1");
+    JLabel labelXEnd  =new JLabel("x2");
+    JLabel labelYStart=new JLabel("y1");
+    JLabel labelYEnd  =new JLabel("y2");
+    //spinner
     spXStart = new JSpinner(new SpinnerNumberModel(xRealStart, null, null, 1));
     spXStart.setFocusable(false);
     spXStart.setPreferredSize(new Dimension(55, 25));
@@ -369,43 +322,14 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     spYEnd.setPreferredSize(new Dimension(55, 25));
     spYEnd.addChangeListener(this);
 
-    //panel
-    JPanel jp=new JPanel();
-    //set layout
     SpringLayout layout = new SpringLayout();
-    jp.setLayout( layout );
+    jp.setLayout(layout);
 
-    try{
-      //loupe http://sawat.jf.land.to/loupe.html
-      loupe = new Loupe();
-      loupe.setPreferredSize(new Dimension(400,400));
-
-      //layout.putConstraint( SpringLayout.SOUTH, loupe, 0,SpringLayout.SOUTH, jp);
-      layout.putConstraint( SpringLayout.NORTH, loupe, 0,SpringLayout.NORTH, jp);
-      layout.putConstraint( SpringLayout.EAST, loupe, 10,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST, loupe, 10,SpringLayout.WEST, jp);
-      jp.add(loupe);
-    }catch(AWTException e){
-      e.printStackTrace();
-    }
-
-    JLabel clickTypeLabel=new JLabel("click type");
-    layout.putConstraint( SpringLayout.NORTH, clickTypeLabel, 10,SpringLayout.SOUTH, loupe);
-    layout.putConstraint( SpringLayout.WEST, clickTypeLabel, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.NORTH, clickTypeCombo, -5,SpringLayout.NORTH, clickTypeLabel);
-    layout.putConstraint( SpringLayout.WEST, clickTypeCombo, 5,SpringLayout.EAST,clickTypeLabel );
-
-    layout.putConstraint( SpringLayout.NORTH, setAxisButton, 5,SpringLayout.SOUTH, clickTypeCombo);
+    layout.putConstraint( SpringLayout.NORTH,setAxisButton, 0,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.WEST, jp);
 
-
-    //axis label
-    JLabel axisLabel=new JLabel("Axis Range");
-    layout.putConstraint( SpringLayout.NORTH, axisLabel, 10,SpringLayout.SOUTH, setAxisButton);
-    layout.putConstraint( SpringLayout.WEST, axisLabel, 5,SpringLayout.WEST, jp );
-    //x axis
-    layout.putConstraint( SpringLayout.NORTH, labelXStart, 0,SpringLayout.NORTH, axisLabel);
-    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.EAST, axisLabel);
+    layout.putConstraint( SpringLayout.NORTH, labelXStart, 0,SpringLayout.SOUTH, setAxisButton);
+    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, labelXStart);
     layout.putConstraint( SpringLayout.WEST, spXStart, 5,SpringLayout.EAST, labelXStart);
 
@@ -413,7 +337,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.WEST, labelXEnd, 10,SpringLayout.EAST, spXStart);
     layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, labelXEnd);
     layout.putConstraint( SpringLayout.WEST, spXEnd, 5,SpringLayout.EAST, labelXEnd);
-    //y axis
+
     layout.putConstraint( SpringLayout.NORTH, labelYStart, 10,SpringLayout.SOUTH, labelXStart);
     layout.putConstraint( SpringLayout.WEST, labelYStart, 0,SpringLayout.WEST, labelXStart);
     layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, labelYStart);
@@ -424,30 +348,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, labelYEnd);
     layout.putConstraint( SpringLayout.WEST, spYEnd, 5,SpringLayout.EAST, labelYEnd);
 
-
-    //lengthmap
-    layout.putConstraint( SpringLayout.NORTH, binalizeButton, 10,SpringLayout.SOUTH, labelYStart);
-    layout.putConstraint( SpringLayout.WEST, binalizeButton, 5,SpringLayout.WEST, jp );
-    layout.putConstraint( SpringLayout.SOUTH, colorCutButton, 0,SpringLayout.SOUTH, binalizeButton);
-    layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, binalizeButton);
-    layout.putConstraint( SpringLayout.NORTH, resetButton, 0,SpringLayout.NORTH, colorCutButton);
-    layout.putConstraint( SpringLayout.WEST, resetButton, 20,SpringLayout.EAST, colorCutButton);
-    //mask
-    layout.putConstraint( SpringLayout.NORTH, localMaxButton, 5,SpringLayout.SOUTH, colorCutButton);
-    layout.putConstraint( SpringLayout.WEST, localMaxButton, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, simpleMaskButton, 0,SpringLayout.SOUTH, localMaxButton);
-    layout.putConstraint( SpringLayout.WEST, simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
-    //trace
-    layout.putConstraint( SpringLayout.NORTH, traceButton, 5,SpringLayout.SOUTH, localMaxButton);
-    layout.putConstraint( SpringLayout.WEST, traceButton, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH, writeButton, 0,SpringLayout.NORTH, traceButton);
-    layout.putConstraint( SpringLayout.WEST, writeButton, 5,SpringLayout.EAST, traceButton);
-
-    //add to jpanel
     jp.add(setAxisButton);
-    jp.add(clickTypeLabel);
-    jp.add(axisLabel);
-    jp.add(clickTypeCombo);
     jp.add(labelXStart);
     jp.add(labelXEnd);
     jp.add(labelYStart);
@@ -457,16 +358,164 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.add(spYStart);
     jp.add(spYEnd);
 
+    LineBorder border = new LineBorder(Color.blue, 2, true);
+    jp.setBorder(border);
+    return jp;
+  }
+  private JButton colorCutButton;
+  private JButton colorResetButton;
+  private JTextField colorLabel;
+  private JPanel colorPanel(){
+    JPanel jp=new JPanel();
+
+    colorLabel = new JTextField();
+    colorLabel.setText("selected color: null");
+
+    colorCutButton=new JButton("color cut");
+    colorResetButton=new JButton("reset");
+    jp.add(colorLabel);
+    jp.add(colorCutButton);
+    jp.add(colorResetButton);
+
+    LineBorder border = new LineBorder(Color.blue, 2, true);
+    jp.setBorder(border);
+    return jp;
+  }
+
+  private JButton assitPointResetButton;
+  private JPanel assistPanel(){
+    JPanel jp=new JPanel();
+    assitPointResetButton=new JButton("reset");
+    jp.add(assitPointResetButton);
+
+    LineBorder border = new LineBorder(Color.blue, 2, true);
+    jp.setBorder(border);
+    return jp;
+  }
+  private JPanel settingPanel(){
+    //setting panel
+    JPanel jp=new JPanel();
+    jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
+
+    clickTypeCombo = new JComboBox(clickTypeString);
+    clickTypeCombo.setSelectedIndex(clickType);
+    clickTypeCombo.addActionListener(this);
+    JLabel clickTypeLabel=new JLabel("click type");
+    jp.add(clickTypeLabel);
+    jp.add(clickTypeCombo);
+
+    JLabel axisLabel=new JLabel("axis");
+    jp.add(axisLabel);
+    jp.add(axisPanel());
+    JLabel colorLabel=new JLabel("color");
+    jp.add(colorLabel);
+    jp.add(colorPanel());
+    JLabel assistLabel=new JLabel("Assist Points");
+    jp.add(assistLabel);
+    jp.add(assistPanel());
+
+    LineBorder border = new LineBorder(Color.red, 2, true);
+    jp.setBorder(border);
+    return jp;
+  }
+
+  private JButton openButton;
+  private JButton binalizeButton;
+  private JButton localMaxButton;
+  private JButton simpleMaskButton;
+  private JButton traceButton;
+  private JButton writeButton;
+  private JPanel opPanel(){
+    JPanel jp=new JPanel();
+
+    binalizeButton=new JButton("binalize");
+    binalizeButton.addActionListener( this );
+    binalizeButton.setFocusable(false);
+
+    colorCutButton=new JButton("color cut");
+    colorCutButton.addActionListener( this );
+    colorCutButton.setFocusable(false);
+    localMaxButton=new JButton("local max mask");
+    localMaxButton.addActionListener( this );
+    localMaxButton.setFocusable(false);
+    simpleMaskButton=new JButton("simple mask");
+    simpleMaskButton.addActionListener( this );
+    simpleMaskButton.setFocusable(false);
+
+    traceButton=new JButton("trace");
+    traceButton.addActionListener( this );
+    traceButton.setFocusable(false);
+    writeButton=new JButton("write file");
+    writeButton.addActionListener( this );
+    writeButton.setFocusable(false);
+
+
+    SpringLayout layout = new SpringLayout();
+    //jp.setLayout(layout);
+
+    layout.putConstraint( SpringLayout.NORTH,openButton, 0,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.WEST,openButton, 0,SpringLayout.WEST, jp);
+
+    layout.putConstraint( SpringLayout.NORTH,binalizeButton, 0,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.WEST,binalizeButton, 0,SpringLayout.WEST, openButton);
+    layout.putConstraint( SpringLayout.NORTH,localMaxButton, 0,SpringLayout.NORTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST, localMaxButton, 0,SpringLayout.EAST, binalizeButton);
+    layout.putConstraint( SpringLayout.NORTH,simpleMaskButton, 0,SpringLayout.NORTH, localMaxButton);
+    layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
+
+    layout.putConstraint( SpringLayout.NORTH,traceButton, 0,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST,traceButton, 0,SpringLayout.WEST, binalizeButton);
+    layout.putConstraint( SpringLayout.NORTH,writeButton, 0,SpringLayout.NORTH, traceButton);
+    layout.putConstraint( SpringLayout.WEST,writeButton, 0,SpringLayout.EAST, traceButton);
 
     jp.add(binalizeButton);
-    jp.add(colorCutButton);
     jp.add(localMaxButton);
     jp.add(simpleMaskButton);
-
     jp.add(traceButton);
     jp.add(writeButton);
-    jp.add(resetButton);
 
+    LineBorder border = new LineBorder(Color.red, 2, true);
+    jp.setBorder(border);
+    return jp;
+  }
+  private void makeControlFrame(){
+    ctrlJframe=new JFrame("Gtracer");
+    //window size
+    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+    ctrlJframe.setBounds( 0, 0,
+                          440,
+                          screenDim.height-100);
+    //how to action, when close
+    ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    ctrlJframe.setJMenuBar(getControlMenu());
+
+    ///////////////
+
+
+
+
+    //panel
+    JPanel jp=new JPanel();
+    //set layout
+    jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
+    try{
+      //loupe http://sawat.jf.land.to/loupe.html
+      loupe = new Loupe();
+      loupe.setPreferredSize(new Dimension(200,200));
+      //loupe.setBackground(Color.gray);
+      jp.add(loupe);
+    }catch(AWTException e){
+      e.printStackTrace();
+    }
+
+    JLabel settingLabel=new JLabel("setting");
+    jp.add(settingLabel);
+    jp.add(settingPanel());
+
+    JLabel opLabel=new JLabel("operations");
+    jp.add(opLabel);
+    jp.add(opPanel());
 
     ctrlJframe.add(jp);
     ctrlJframe.setVisible(true);

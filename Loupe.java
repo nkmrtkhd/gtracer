@@ -15,7 +15,6 @@ public class Loupe extends JPanel {
   private final Robot robot;
   private final JLabel captureLabel;
   private final JSlider slider;
-  private final JTextField colorLabel;
 
   public Loupe() throws AWTException {
     super();
@@ -26,8 +25,6 @@ public class Loupe extends JPanel {
     captureLabel.setBorder(BorderFactory.createEtchedBorder());
     captureLabel.setPreferredSize(new Dimension(400,400));
 
-    colorLabel = new JTextField();
-    colorLabel.setText("selected color: null");
 
     slider = new JSlider(SwingConstants.VERTICAL,
                          MIN_SCALE * SLIDER_ACCURACY,
@@ -37,24 +34,19 @@ public class Loupe extends JPanel {
     //addition
     SpringLayout layout = new SpringLayout();
     this.setLayout( layout );
-    layout.putConstraint( SpringLayout.SOUTH, colorLabel, -8,SpringLayout.SOUTH, this);
-    layout.putConstraint( SpringLayout.EAST, colorLabel, -10,SpringLayout.WEST, slider);
-    layout.putConstraint( SpringLayout.WEST, colorLabel, 5,SpringLayout.WEST, this);
 
-    layout.putConstraint( SpringLayout.SOUTH, captureLabel, -5,SpringLayout.NORTH, colorLabel);
+    layout.putConstraint( SpringLayout.EAST, slider, -20,SpringLayout.EAST, this);
+    layout.putConstraint( SpringLayout.SOUTH, slider, 0,SpringLayout.SOUTH, this);
+    layout.putConstraint( SpringLayout.NORTH, slider, 10,SpringLayout.NORTH, this);
+
+    layout.putConstraint( SpringLayout.SOUTH, captureLabel, -5,SpringLayout.SOUTH, this);
     layout.putConstraint( SpringLayout.NORTH, captureLabel, 10,SpringLayout.NORTH, this);
     layout.putConstraint( SpringLayout.EAST, captureLabel, -10,SpringLayout.WEST, slider);
     layout.putConstraint( SpringLayout.WEST, captureLabel, 10,SpringLayout.WEST, this);
 
-    layout.putConstraint( SpringLayout.EAST, slider, -20,SpringLayout.EAST, this);
-    layout.putConstraint( SpringLayout.SOUTH, slider, 10,SpringLayout.NORTH, colorLabel);
-    layout.putConstraint( SpringLayout.NORTH, slider, 10,SpringLayout.NORTH, this);
-
-
 
     this.add(captureLabel);
     this.add(slider);
-    this.add(colorLabel);
 
     initSliderLabels();
     initTimer();
@@ -94,11 +86,11 @@ public class Loupe extends JPanel {
   public void setBorder(int icolor){
     Color color = new Color(icolor);
     String hexColor = toHexString(color);
-    colorLabel.setText("selected color: "+hexColor);
+    //colorLabel.setText("selected color: "+hexColor);
     Border border = BorderFactory.
       createCompoundBorder(BorderFactory.createEtchedBorder(),
                            BorderFactory.createLineBorder(color, 3));
-    colorLabel.setBorder(border);
+    //colorLabel.setBorder(border);
 
   }
   private void appendHex(StringBuffer buffer, int i) {
