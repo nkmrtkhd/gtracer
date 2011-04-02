@@ -122,7 +122,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   public void actionPerformed(ActionEvent ae){
     String cmd = ae.getActionCommand();
     if(cmd.startsWith("open")){
-      reset();
+      resetAll();
       this.open(null);
       myCanv.repaint();
     }else if(cmd.startsWith("check update")){
@@ -159,24 +159,35 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
-        tracedPoints=tracer.trace(assistPoints);
-        //tracedPoints=tracer.traceByTamura(assistPoints);
+        //tracedPoints=tracer.trace(assistPoints);
+        tracedPoints=tracer.traceByTamura(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
-      //}else if(ae.getSource() == resetButton){
-      //reset();
+    }else if(ae.getSource() == axisResetButton){
+      xstart[0]=EMPTY;
+      xstart[1]=EMPTY;
+      xend[0]=EMPTY;
+      xend[1]=EMPTY;
+      ystart[0]=EMPTY;
+      ystart[1]=EMPTY;
+      yend[0]=EMPTY;
+      yend[1]=EMPTY;
+    }else if(ae.getSource() == assistPointResetButton){
+      assistPoints.clear();
+      tracedPoints.clear();
+    }else if(ae.getSource() == reloadButton){
+      resetAll();
     }
+
     myCanv.repaint();
   }
-
-  private void reset(){
+  private void resetAll(){
     assistPoints.clear();
     tracedPoints.clear();
     if(tracer!=null)tracer.setLengthMap(false);
     tracedImg=null;
   }
-
 
   /** 引数がnullだったらダイアログで選んで，open */
   private void open(String filename){
@@ -290,15 +301,24 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
   private JFrame ctrlJframe;
 
-  private JButton setAxisButton;
+  private JButton setAxisButton,axisResetButton;
   private JSpinner spXStart,spXEnd,spYStart,spYEnd;
   private JPanel axisPanel(){
     ///////////////
     JPanel jp=new JPanel();
+    jp.setPreferredSize(new Dimension(350, 90));
+
+    LineBorder lineborder = new LineBorder(Color.red, 2);
+    TitledBorder border = new TitledBorder(lineborder,"Axis", TitledBorder.LEFT, TitledBorder.TOP);
+    jp.setBorder(border);
 
     setAxisButton=new JButton("auto axis set");
     setAxisButton.addActionListener( this );
     setAxisButton.setFocusable(false);
+    axisResetButton=new JButton("reset");
+    axisResetButton.addActionListener( this );
+    axisResetButton.setFocusable(false);
+
     //label
     JLabel labelXStart=new JLabel("x1");
     JLabel labelXEnd  =new JLabel("x2");
@@ -324,10 +344,11 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
-    jp.setPreferredSize(new Dimension(200, 100));
 
     layout.putConstraint( SpringLayout.NORTH,setAxisButton, 0,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.NORTH,axisResetButton, 0,SpringLayout.NORTH, setAxisButton);
+    layout.putConstraint( SpringLayout.WEST, axisResetButton, 5,SpringLayout.EAST, setAxisButton);
 
     layout.putConstraint( SpringLayout.NORTH, labelXStart, 10,SpringLayout.SOUTH, setAxisButton);
     layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
@@ -339,8 +360,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, labelXEnd);
     layout.putConstraint( SpringLayout.WEST, spXEnd, 5,SpringLayout.EAST, labelXEnd);
 
-    layout.putConstraint( SpringLayout.NORTH, labelYStart, 10,SpringLayout.SOUTH, labelXStart);
-    layout.putConstraint( SpringLayout.WEST, labelYStart, 0,SpringLayout.WEST, labelXStart);
+    layout.putConstraint( SpringLayout.NORTH, labelYStart, 0,SpringLayout.NORTH, labelXStart);
+    layout.putConstraint( SpringLayout.WEST, labelYStart, 10,SpringLayout.EAST, spXEnd);
     layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, labelYStart);
     layout.putConstraint( SpringLayout.WEST, spYStart, 5,SpringLayout.EAST, labelYStart);
 
@@ -350,6 +371,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.WEST, spYEnd, 5,SpringLayout.EAST, labelYEnd);
 
     jp.add(setAxisButton);
+    jp.add(axisResetButton);
     jp.add(labelXStart);
     jp.add(labelXEnd);
     jp.add(labelYStart);
@@ -359,95 +381,88 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.add(spYStart);
     jp.add(spYEnd);
 
-    LineBorder border = new LineBorder(Color.blue, 2, true);
-    jp.setBorder(border);
     return jp;
   }
   private JButton colorCutButton;
-  private JButton colorResetButton;
   private JTextField colorText;
-  private JLabel colorLabel;
 
   private JPanel colorPanel(){
     JPanel jp=new JPanel();
+    jp.setPreferredSize(new Dimension(350, 70));
+
+    LineBorder lineborder = new LineBorder(Color.red, 2);
+    TitledBorder border = new TitledBorder(lineborder,"Color", TitledBorder.LEFT, TitledBorder.TOP);
+    jp.setBorder(border);
 
     colorText = new JTextField();
     colorText.setText("selected color: null");
-    colorLabel = new JLabel();
-    colorLabel.setPreferredSize(new Dimension(20, 20));
 
     colorCutButton=new JButton("color cut");
-    colorResetButton=new JButton("reset");
+    colorCutButton.addActionListener( this );
+    colorCutButton.setFocusable(false);
     jp.add(colorText);
-    jp.add(colorLabel);
     jp.add(colorCutButton);
-    jp.add(colorResetButton);
 
-    LineBorder border = new LineBorder(Color.blue, 2, true);
-    jp.setBorder(border);
     return jp;
   }
 
-  private JButton assitPointResetButton;
+  private JButton assistPointResetButton;
   private JPanel assistPanel(){
     JPanel jp=new JPanel();
-    assitPointResetButton=new JButton("reset");
-    jp.add(assitPointResetButton);
-
-    LineBorder border = new LineBorder(Color.blue, 2, true);
+    jp.setPreferredSize(new Dimension(350, 70));
+    LineBorder lineborder = new LineBorder(Color.red, 2);
+    TitledBorder border = new TitledBorder(lineborder,"Assist Point", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+
+    assistPointResetButton=new JButton("reset");
+    assistPointResetButton.addActionListener( this );
+    assistPointResetButton.setFocusable(false);
+
+
+    jp.add(assistPointResetButton);
+
     return jp;
   }
   private JPanel settingPanel(){
     //setting panel
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(200,300));
+    jp.setPreferredSize(new Dimension(250,300));
+    LineBorder lineborder = new LineBorder(Color.red, 2);
+    TitledBorder border = new TitledBorder(lineborder,"Setting", TitledBorder.LEFT, TitledBorder.TOP);
+    jp.setBorder(border);
 
     JLabel clickTypeLabel=new JLabel("click type");
     clickTypeCombo = new JComboBox(clickTypeString);
+    clickTypeCombo.setFocusable(false);
     clickTypeCombo.setSelectedIndex(clickType);
     clickTypeCombo.addActionListener(this);
-    JLabel axisLabel=new JLabel("axis");
     JPanel axisPanel=axisPanel();
-    JLabel colorLabel=new JLabel("color");
     JPanel colorPanel=colorPanel();
-    JLabel assistLabel=new JLabel("Assist Points");
     JPanel assistPanel=assistPanel();
 
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
 
-    layout.putConstraint( SpringLayout.NORTH,clickTypeLabel, 0,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.NORTH,clickTypeLabel, 5,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST,clickTypeLabel, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH,clickTypeCombo, 0,SpringLayout.NORTH, clickTypeLabel);
+    layout.putConstraint( SpringLayout.SOUTH,clickTypeCombo, 0,SpringLayout.SOUTH, clickTypeLabel);
     layout.putConstraint( SpringLayout.WEST,clickTypeCombo, 5,SpringLayout.EAST, clickTypeLabel);
 
-    layout.putConstraint( SpringLayout.NORTH,axisLabel, 0,SpringLayout.SOUTH, clickTypeLabel);
-    layout.putConstraint( SpringLayout.WEST,axisLabel, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH,axisPanel, 0,SpringLayout.SOUTH, axisLabel);
+    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, clickTypeLabel);
     layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,colorLabel, 0,SpringLayout.SOUTH, axisPanel);
-    layout.putConstraint( SpringLayout.WEST,colorLabel, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH,colorPanel, 0,SpringLayout.SOUTH, colorLabel);
+    layout.putConstraint( SpringLayout.NORTH,colorPanel, 5,SpringLayout.SOUTH, axisPanel);
     layout.putConstraint( SpringLayout.WEST,colorPanel, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,assistLabel, 0,SpringLayout.SOUTH, colorPanel);
-    layout.putConstraint( SpringLayout.WEST,assistLabel,5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH,assistPanel, 0,SpringLayout.SOUTH, assistLabel);
+    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, colorPanel);
     layout.putConstraint( SpringLayout.WEST,assistPanel, 5,SpringLayout.WEST, jp);
 
     jp.add(clickTypeLabel);
     jp.add(clickTypeCombo);
-    jp.add(axisLabel);
     jp.add(axisPanel);
-    jp.add(colorLabel);
     jp.add(colorPanel);
-    jp.add(assistLabel);
     jp.add(assistPanel);
 
-    LineBorder border = new LineBorder(Color.red, 2, true);
-    jp.setBorder(border);
     return jp;
   }
 
@@ -457,20 +472,27 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JButton simpleMaskButton;
   private JButton traceButton;
   private JButton writeButton;
+  private JButton reloadButton;
   private JPanel opPanel(){
     JPanel jp=new JPanel();
+    LineBorder lineborder = new LineBorder(Color.red, 2);
+    TitledBorder border = new TitledBorder(lineborder,"OPERATIONS", TitledBorder.LEFT, TitledBorder.TOP);
+    jp.setBorder(border);
 
     openButton=new JButton("open");
     openButton.addActionListener( this );
     openButton.setFocusable(false);
+    openButton.setActionCommand("open");
+
+
+    reloadButton=new JButton("reload");
+    reloadButton.addActionListener( this );
+    reloadButton.setFocusable(false);
 
     binalizeButton=new JButton("binalize");
     binalizeButton.addActionListener( this );
     binalizeButton.setFocusable(false);
 
-    colorCutButton=new JButton("color cut");
-    colorCutButton.addActionListener( this );
-    colorCutButton.setFocusable(false);
     localMaxButton=new JButton("local max mask");
     localMaxButton.addActionListener( this );
     localMaxButton.setFocusable(false);
@@ -488,10 +510,12 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
-    jp.setPreferredSize(new Dimension(100,100));
+    jp.setPreferredSize(new Dimension(100,120));
 
-    layout.putConstraint( SpringLayout.NORTH,openButton, 0,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.NORTH,openButton, 5,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST,openButton, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.NORTH,reloadButton, 0,SpringLayout.NORTH, openButton);
+    layout.putConstraint( SpringLayout.WEST,reloadButton, 5,SpringLayout.EAST, openButton);
 
     layout.putConstraint( SpringLayout.NORTH,binalizeButton, 0,SpringLayout.SOUTH, openButton);
     layout.putConstraint( SpringLayout.WEST,binalizeButton, 0,SpringLayout.WEST, openButton);
@@ -506,14 +530,13 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     layout.putConstraint( SpringLayout.WEST,writeButton, 0,SpringLayout.EAST, traceButton);
 
     jp.add(openButton);
+    jp.add(reloadButton);
     jp.add(binalizeButton);
     jp.add(localMaxButton);
     jp.add(simpleMaskButton);
     jp.add(traceButton);
     jp.add(writeButton);
 
-    LineBorder border = new LineBorder(Color.red, 2, true);
-    jp.setBorder(border);
     return jp;
   }
   private void makeControlFrame(){
@@ -535,9 +558,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
 
-    JLabel settingLabel=new JLabel("setting");
     JPanel spanel=settingPanel();
-    JLabel opLabel=new JLabel("operations");
     JPanel oppanel=opPanel();
 
     try{
@@ -547,29 +568,23 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       //loupe.setBackground(Color.gray);
 
       layout.putConstraint( SpringLayout.EAST,oppanel, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,oppanel, 5,SpringLayout.WEST, jp);
+      layout.putConstraint( SpringLayout.WEST,oppanel, 10,SpringLayout.WEST, jp);
       layout.putConstraint( SpringLayout.SOUTH,oppanel, -5,SpringLayout.SOUTH, jp);
-      layout.putConstraint( SpringLayout.WEST,opLabel, 5,SpringLayout.WEST, jp);
-      layout.putConstraint( SpringLayout.SOUTH,opLabel, 0,SpringLayout.NORTH, oppanel);
 
-      layout.putConstraint( SpringLayout.SOUTH,spanel, -5,SpringLayout.NORTH, opLabel);
+      layout.putConstraint( SpringLayout.SOUTH,spanel, -5,SpringLayout.NORTH, oppanel);
       layout.putConstraint( SpringLayout.EAST,spanel, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,spanel, 5,SpringLayout.WEST, jp);
-      layout.putConstraint( SpringLayout.WEST,settingLabel, 0,SpringLayout.WEST, jp);
-      layout.putConstraint( SpringLayout.SOUTH,settingLabel, 0,SpringLayout.NORTH, spanel);
+      layout.putConstraint( SpringLayout.WEST,spanel, 10,SpringLayout.WEST, jp);
 
       layout.putConstraint( SpringLayout.EAST,loupe, 0,SpringLayout.EAST, jp);
       layout.putConstraint( SpringLayout.WEST,loupe, 0,SpringLayout.WEST, jp);
-      layout.putConstraint( SpringLayout.SOUTH,loupe, 0,SpringLayout.NORTH, settingLabel);
+      layout.putConstraint( SpringLayout.SOUTH,loupe, 0,SpringLayout.NORTH, spanel);
       layout.putConstraint( SpringLayout.NORTH,loupe, 0,SpringLayout.NORTH, jp);
 
 
 
 
       jp.add(loupe);
-      jp.add(opLabel);
       jp.add(oppanel);
-      jp.add(settingLabel);
       jp.add(spanel);
     }catch(AWTException e){
       e.printStackTrace();
@@ -611,8 +626,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     Border border = BorderFactory.
       createCompoundBorder(BorderFactory.createEtchedBorder(),
                            BorderFactory.createLineBorder(color, 3));
-    colorLabel.setBorder(border);
-    colorLabel.setBackground(color);
+    colorText.setBorder(border);
+    colorText.setForeground(color);
 
   }
   private void appendHex(StringBuffer buffer, int i) {

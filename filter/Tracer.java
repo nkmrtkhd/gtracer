@@ -87,7 +87,7 @@ public class Tracer{
     }
   }
 
-  public BufferedImage makeImage(int filterType ){
+  public BufferedImage makeImage(int filterType){
     if(filterType==1){
       LengthMap.setChessBoard(lengthMap,width,height);
       //LengthMap.setCityBlock(lengthMap,width,height);
