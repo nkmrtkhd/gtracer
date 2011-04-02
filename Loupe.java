@@ -83,31 +83,6 @@ public class Loupe extends JPanel {
     captureLabel.setIcon(new ExpandImageIcon(image, scale));
   }
 
-  public void setBorder(int icolor){
-    Color color = new Color(icolor);
-    String hexColor = toHexString(color);
-    //colorLabel.setText("selected color: "+hexColor);
-    Border border = BorderFactory.
-      createCompoundBorder(BorderFactory.createEtchedBorder(),
-                           BorderFactory.createLineBorder(color, 3));
-    //colorLabel.setBorder(border);
-
-  }
-  private void appendHex(StringBuffer buffer, int i) {
-    if(i < 0x10)buffer.append('0');
-    buffer.append(Integer.toHexString(i));
-  }
-  private String toHexString(Color color) {
-    StringBuffer buffer = new StringBuffer(9);
-    buffer.append('#');
-    appendHex(buffer, color.getAlpha());
-    appendHex(buffer, color.getRed());
-    appendHex(buffer, color.getGreen());
-    appendHex(buffer, color.getBlue());
-
-    return buffer.toString();
-  }
-
   ///local class
   static class ExpandImageIcon extends ImageIcon {
     private static final Color guidLineColor = new Color(0, 0, 255, 128);
