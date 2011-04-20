@@ -30,6 +30,7 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
   //constructor
   public GTracer(String inputFile){
+    this.setLookAndFeel();
     if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
@@ -308,9 +309,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     JPanel jp=new JPanel();
     jp.setPreferredSize(new Dimension(350, 90));
 
-    LineBorder lineborder = new LineBorder(Color.red, 2);
+    LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Axis", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+    jp.setBackground(innerPanelColor);
 
     setAxisButton=new JButton("auto axis set");
     setAxisButton.addActionListener( this );
@@ -390,9 +392,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     JPanel jp=new JPanel();
     jp.setPreferredSize(new Dimension(350, 70));
 
-    LineBorder lineborder = new LineBorder(Color.red, 2);
-    TitledBorder border = new TitledBorder(lineborder,"Color", TitledBorder.LEFT, TitledBorder.TOP);
+    LineBorder lineborder = new LineBorder(innerBorderColor, 2);
+    TitledBorder border = new TitledBorder(lineborder,"Color Cut", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+    jp.setBackground(innerPanelColor);
 
     colorText = new JTextField();
     colorText.setText("selected color: null");
@@ -410,9 +413,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JPanel assistPanel(){
     JPanel jp=new JPanel();
     jp.setPreferredSize(new Dimension(350, 70));
-    LineBorder lineborder = new LineBorder(Color.red, 2);
+    LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Assist Point", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+    jp.setBackground(innerPanelColor);
 
     assistPointResetButton=new JButton("reset");
     assistPointResetButton.addActionListener( this );
@@ -427,9 +431,10 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     //setting panel
     JPanel jp=new JPanel();
     jp.setPreferredSize(new Dimension(250,300));
-    LineBorder lineborder = new LineBorder(Color.red, 2);
+    LineBorder lineborder = new LineBorder(borderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Setting", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+    jp.setBackground(panelColor);
 
     JLabel clickTypeLabel=new JLabel("click type");
     clickTypeCombo = new JComboBox(clickTypeString);
@@ -473,11 +478,18 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   private JButton traceButton;
   private JButton writeButton;
   private JButton reloadButton;
-  private JPanel opPanel(){
+
+  private Color borderColor=new Color(80,80,80);
+  private Color innerBorderColor=new Color(80,80,80);
+  private Color panelColor=new Color(200,200,200);
+  private Color innerPanelColor=new Color(200,200,200);
+
+  private JPanel operationPanel(){
     JPanel jp=new JPanel();
-    LineBorder lineborder = new LineBorder(Color.red, 2);
+    LineBorder lineborder = new LineBorder(borderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"OPERATIONS", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
+    jp.setBackground(panelColor);
 
     openButton=new JButton("open");
     openButton.addActionListener( this );
@@ -559,26 +571,31 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.setLayout(layout);
 
     JPanel spanel=settingPanel();
-    JPanel oppanel=opPanel();
+    JPanel oppanel=operationPanel();
+    jp.setBackground(panelColor);
 
     try{
       //loupe http://sawat.jf.land.to/loupe.html
       loupe = new Loupe();
       loupe.setPreferredSize(new Dimension(150,150));
-      //loupe.setBackground(Color.gray);
+      loupe.setBackground(panelColor);
+      LineBorder lineborder = new LineBorder(borderColor, 2);
+      TitledBorder border = new TitledBorder(lineborder,"Loupe", TitledBorder.LEFT, TitledBorder.TOP);
+      loupe.setBorder(border);
+      loupe.setBackground(panelColor);
 
-      layout.putConstraint( SpringLayout.EAST,oppanel, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,oppanel, 10,SpringLayout.WEST, jp);
       layout.putConstraint( SpringLayout.SOUTH,oppanel, -5,SpringLayout.SOUTH, jp);
+      layout.putConstraint( SpringLayout.EAST,oppanel, -5,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.WEST,oppanel, 5,SpringLayout.WEST, jp);
 
       layout.putConstraint( SpringLayout.SOUTH,spanel, -5,SpringLayout.NORTH, oppanel);
       layout.putConstraint( SpringLayout.EAST,spanel, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,spanel, 10,SpringLayout.WEST, jp);
+      layout.putConstraint( SpringLayout.WEST,spanel, 5,SpringLayout.WEST, jp);
 
-      layout.putConstraint( SpringLayout.EAST,loupe, 0,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,loupe, 0,SpringLayout.WEST, jp);
-      layout.putConstraint( SpringLayout.SOUTH,loupe, 0,SpringLayout.NORTH, spanel);
-      layout.putConstraint( SpringLayout.NORTH,loupe, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.WEST,loupe, 5,SpringLayout.WEST, jp);
+      layout.putConstraint( SpringLayout.EAST,loupe, -5,SpringLayout.EAST, jp);
+      layout.putConstraint( SpringLayout.SOUTH,loupe, -5,SpringLayout.NORTH, spanel);
+      layout.putConstraint( SpringLayout.NORTH,loupe, 5,SpringLayout.NORTH, jp);
 
 
 
@@ -695,19 +712,48 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       //traced point
       g.setColor(Color.red);
       for(int i=0;i<tracedPoints.size()/2;i++){
-        int x=tracedPoints.get(2*i  );
-        int y=tracedPoints.get(2*i+1);
+        int x=tracedPoints.get(2*i  )-1;
+        int y=tracedPoints.get(2*i+1)-1;
         g.fill3DRect(x,y,3,3,false);
       }
-      for(int i=0;i<tracedPoints.size()/2-1;i++){
-        int x1=tracedPoints.get(2*i  );
-        int y1=tracedPoints.get(2*i+1);
-        int x2=tracedPoints.get(2*i +2);
-        int y2=tracedPoints.get(2*i+1 +2);
-        g.drawLine(x1,y1,x2,y2);
-      }
+      /*
+       * for(int i=0;i<tracedPoints.size()/2-1;i++){
+       *   int x1=tracedPoints.get(2*i  );
+       *   int y1=tracedPoints.get(2*i+1);
+       *   int x2=tracedPoints.get(2*i +2);
+       *   int y2=tracedPoints.get(2*i+1 +2);
+       *   g.drawLine(x1,y1,x2,y2);
+       * }
+       */
 
     }
   }//end of mycanvas
+
+  //////////////////////////////////////////////////////////////////////
+  // LookAndFeel matters
+  //////////////////////////////////////////////////////////////////////
+  // Possible Look & Feels
+  private static final String mac     = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
+  private static final String metal   = "javax.swing.plaf.metal.MetalLookAndFeel";//new linux
+  private static final String motif   = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";//old linux
+  private static final String windows = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+  private static final String gtk     = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+  private static final String nimbus  = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+
+  private void setLookAndFeel(){
+    /*
+     * //show LF index
+     * UIManager.LookAndFeelInfo[] installedLafs = UIManager.getInstalledLookAndFeels();
+     * for(int i=0; i<installedLafs.length; i++){
+     *   UIManager.LookAndFeelInfo info=installedLafs[i];
+     *   System.out.println(info.getName());
+     * }
+     */
+    try{
+      UIManager.setLookAndFeel( nimbus );
+    }catch( Exception ex ){
+      //System.out.println(" Nimbus not available!!");
+    }
+  }
 
 }
