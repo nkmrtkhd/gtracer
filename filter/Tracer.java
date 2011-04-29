@@ -91,7 +91,7 @@ public class Tracer{
     if(filterType==1){
       LengthMap.setChessBoard(lengthMap,width,height);
       //LengthMap.setCityBlock(lengthMap,width,height);
-      Skeltonization.localMax(lengthMap,width,height);
+      //Skeltonization.localMax(lengthMap,width,height);
     }
     if(filterType==2){
       LengthMap.setChessBoard(lengthMap,width,height);

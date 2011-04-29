@@ -45,7 +45,6 @@ public class GTracer implements ActionListener,MouseListener{
 
   private JButton openButton;
   private JButton binalizeButton;
-  private JButton localMaxButton;
   private JButton simpleMaskButton;
   private JButton traceButton;
   private JButton writeButton;
@@ -189,9 +188,6 @@ public class GTracer implements ActionListener,MouseListener{
       tracer.setLengthMap(true);
       tracedImg=null;
       tracedImg=tracer.makeImage(0);
-    }else if(ae.getSource() == localMaxButton){
-      tracedImg=null;
-      tracedImg=tracer.makeImage(1);
     }else if(ae.getSource() == simpleMaskButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(2);
@@ -482,7 +478,7 @@ public class GTracer implements ActionListener,MouseListener{
   private JPanel operationPanel(){
     JPanel jp=new JPanel();
     LineBorder lineborder = new LineBorder(borderColor, 2);
-    TitledBorder border = new TitledBorder(lineborder,"OPERATIONS", TitledBorder.LEFT, TitledBorder.TOP);
+    TitledBorder border = new TitledBorder(lineborder,"Operations", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
     jp.setBackground(panelColor);
 
@@ -500,10 +496,7 @@ public class GTracer implements ActionListener,MouseListener{
     binalizeButton.addActionListener( this );
     binalizeButton.setFocusable(false);
 
-    localMaxButton=new JButton("local max mask");
-    localMaxButton.addActionListener( this );
-    localMaxButton.setFocusable(false);
-    simpleMaskButton=new JButton("simple mask");
+    simpleMaskButton=new JButton("thining");
     simpleMaskButton.addActionListener( this );
     simpleMaskButton.setFocusable(false);
 
@@ -526,10 +519,8 @@ public class GTracer implements ActionListener,MouseListener{
 
     layout.putConstraint( SpringLayout.NORTH,binalizeButton, 0,SpringLayout.SOUTH, openButton);
     layout.putConstraint( SpringLayout.WEST,binalizeButton, 0,SpringLayout.WEST, openButton);
-    layout.putConstraint( SpringLayout.NORTH,localMaxButton, 0,SpringLayout.NORTH, binalizeButton);
-    layout.putConstraint( SpringLayout.WEST, localMaxButton, 0,SpringLayout.EAST, binalizeButton);
-    layout.putConstraint( SpringLayout.NORTH,simpleMaskButton, 0,SpringLayout.NORTH, localMaxButton);
-    layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, localMaxButton);
+    layout.putConstraint( SpringLayout.NORTH,simpleMaskButton, 0,SpringLayout.NORTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, binalizeButton);
 
     layout.putConstraint( SpringLayout.NORTH,traceButton, 0,SpringLayout.SOUTH, binalizeButton);
     layout.putConstraint( SpringLayout.WEST,traceButton, 0,SpringLayout.WEST, binalizeButton);
@@ -539,7 +530,6 @@ public class GTracer implements ActionListener,MouseListener{
     jp.add(openButton);
     jp.add(reloadButton);
     jp.add(binalizeButton);
-    jp.add(localMaxButton);
     jp.add(simpleMaskButton);
     jp.add(traceButton);
     jp.add(writeButton);
