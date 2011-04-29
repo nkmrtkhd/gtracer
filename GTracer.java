@@ -12,7 +12,51 @@ import javax.swing.border.*;
 import filter.*;
 
 
-public class GTracer implements ActionListener,MouseListener,ChangeListener{
+public class GTracer implements ActionListener,MouseListener{
+
+  //global variable
+  private LinkedList<Integer> assistPoints= new LinkedList<Integer>();
+  private ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
+  private int[] mousePos=new int[2];
+  private MyCanvas myCanv;
+
+  private static final int EMPTY=-137928;
+  private int[] xstart={EMPTY,EMPTY};
+  private double xRealStart=0.0;
+  private int[] xend={EMPTY,EMPTY};
+  private double xRealEnd=10.0;
+  private int[] ystart={EMPTY,EMPTY};
+  private double yRealStart=0.0;
+  private int[] yend={EMPTY,EMPTY};
+  private double yRealEnd=10.0;
+
+
+  //for GUI
+  private final String[] clickTypeString = {"set origin","set assist-points","select color",
+                                            "set x1","set x2","set y1","set y2"};
+  private int clickType=0;
+  private JComboBox clickTypeCombo;
+  private JFrame ctrlJframe;
+  private JButton setAxisButton,axisResetButton;
+  private JTextField tfXStart,tfXEnd,tfYStart,tfYEnd;
+
+  private JButton colorCutButton;
+  private JTextField colorText;
+
+  private JButton openButton;
+  private JButton binalizeButton;
+  private JButton localMaxButton;
+  private JButton simpleMaskButton;
+  private JButton traceButton;
+  private JButton writeButton;
+  private JButton reloadButton;
+
+  private Color borderColor=new Color(80,80,80);
+  private Color innerBorderColor=new Color(80,80,80);
+  private Color panelColor=new Color(200,200,200);
+  private Color innerPanelColor=new Color(200,200,200);
+
+
 
   //main function
   public static void main(String[] args){
@@ -47,10 +91,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   }
   public void mouseExited(MouseEvent e){
   }
-
-  private LinkedList<Integer> assistPoints= new LinkedList<Integer>();
-  private ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
-  private int[] mousePos=new int[2];
 
   public void mousePressed(MouseEvent e){
     int x=e.getX();
@@ -112,15 +152,12 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     }
   }
 
-  public void stateChanged(ChangeEvent ce){
-    xRealStart=((Double)spXStart.getValue()).doubleValue();
-    xRealEnd=((Double)spXEnd.getValue()).doubleValue();
-    yRealStart=((Double)spYStart.getValue()).doubleValue();
-    yRealEnd=((Double)spYEnd.getValue()).doubleValue();
-    myCanv.repaint();
-  }
 
   public void actionPerformed(ActionEvent ae){
+    xRealStart=Double.parseDouble(tfXStart.getText());
+    xRealEnd=Double.parseDouble(tfXEnd.getText());
+    yRealStart=Double.parseDouble(tfYStart.getText());
+    yRealEnd=Double.parseDouble(tfYEnd.getText());
     String cmd = ae.getActionCommand();
     if(cmd.startsWith("open")){
       resetAll();
@@ -160,8 +197,8 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       tracedImg=tracer.makeImage(2);
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
-        //tracedPoints=tracer.trace(assistPoints);
-        tracedPoints=tracer.traceByTamura(assistPoints);
+        tracedPoints=tracer.trace(assistPoints);
+        //tracedPoints=tracer.traceByTamura(assistPoints);
       }
     }else if(ae.getSource() == writeButton){
       this.writeTracedPoint();
@@ -256,7 +293,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
   }
 
   //create canvas frame
-  private MyCanvas myCanv;
   private void makeCanvasFrame(){
     JFrame canvasJframe=new JFrame("Gtracer");
     //window size
@@ -282,28 +318,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     canvasJframe.setVisible(true);
   }
 
-
-  private static final int EMPTY=-137928;
-  private int[] xstart={EMPTY,EMPTY};
-  private double xRealStart=0.0;
-  private int[] xend={EMPTY,EMPTY};
-  private double xRealEnd=10.0;
-  private int[] ystart={EMPTY,EMPTY};
-  private double yRealStart=0.0;
-  private int[] yend={EMPTY,EMPTY};
-  private double yRealEnd=10.0;
-
-  private final String[] clickTypeString = {"set origin","set assist-points","select color",
-                                            "set x1","set x2","set y1","set y2"};
-  private int clickType=0;
-
-  private JComboBox clickTypeCombo;
-
-
-  private JFrame ctrlJframe;
-
-  private JButton setAxisButton,axisResetButton;
-  private JSpinner spXStart,spXEnd,spYStart,spYEnd;
   private JPanel axisPanel(){
     ///////////////
     JPanel jp=new JPanel();
@@ -327,22 +341,18 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     JLabel labelYStart=new JLabel("y1");
     JLabel labelYEnd  =new JLabel("y2");
     //spinner
-    spXStart = new JSpinner(new SpinnerNumberModel(xRealStart, null, null, 1));
-    spXStart.setFocusable(false);
-    spXStart.setPreferredSize(new Dimension(55, 25));
-    spXStart.addChangeListener(this);
-    spXEnd = new JSpinner(new SpinnerNumberModel(xRealEnd, null, null, 1));
-    spXEnd.setFocusable(false);
-    spXEnd.setPreferredSize(new Dimension(55, 25));
-    spXEnd.addChangeListener(this);
-    spYStart = new JSpinner(new SpinnerNumberModel(yRealStart, null, null, 1));
-    spYStart.setFocusable(false);
-    spYStart.setPreferredSize(new Dimension(55, 25));
-    spYStart.addChangeListener(this);
-    spYEnd = new JSpinner(new SpinnerNumberModel(yRealEnd, null, null, 1));
-    spYEnd.setFocusable(false);
-    spYEnd.setPreferredSize(new Dimension(55, 25));
-    spYEnd.addChangeListener(this);
+    tfXStart = new JTextField("0");
+    tfXStart.setInputVerifier(new MyInputVerifier());
+    tfXStart.setPreferredSize(new Dimension(55, 25));
+    tfXEnd = new JTextField("1.0");
+    tfXEnd.setInputVerifier(new MyInputVerifier());
+    tfXEnd.setPreferredSize(new Dimension(55, 25));
+    tfYStart = new JTextField("0");
+    tfYStart.setInputVerifier(new MyInputVerifier());
+    tfYStart.setPreferredSize(new Dimension(55, 25));
+    tfYEnd = new JTextField("1.0");
+    tfYEnd.setInputVerifier(new MyInputVerifier());
+    tfYEnd.setPreferredSize(new Dimension(55, 25));
 
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
@@ -354,23 +364,23 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     layout.putConstraint( SpringLayout.NORTH, labelXStart, 10,SpringLayout.SOUTH, setAxisButton);
     layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH, spXStart, 0,SpringLayout.SOUTH, labelXStart);
-    layout.putConstraint( SpringLayout.WEST, spXStart, 5,SpringLayout.EAST, labelXStart);
+    layout.putConstraint( SpringLayout.SOUTH, tfXStart, 0,SpringLayout.SOUTH, labelXStart);
+    layout.putConstraint( SpringLayout.WEST, tfXStart, 5,SpringLayout.EAST, labelXStart);
 
-    layout.putConstraint( SpringLayout.SOUTH, labelXEnd, 0,SpringLayout.SOUTH, spXStart);
-    layout.putConstraint( SpringLayout.WEST, labelXEnd, 10,SpringLayout.EAST, spXStart);
-    layout.putConstraint( SpringLayout.SOUTH, spXEnd, 0,SpringLayout.SOUTH, labelXEnd);
-    layout.putConstraint( SpringLayout.WEST, spXEnd, 5,SpringLayout.EAST, labelXEnd);
+    layout.putConstraint( SpringLayout.SOUTH, labelXEnd, 0,SpringLayout.SOUTH, tfXStart);
+    layout.putConstraint( SpringLayout.WEST, labelXEnd, 10,SpringLayout.EAST, tfXStart);
+    layout.putConstraint( SpringLayout.SOUTH, tfXEnd, 0,SpringLayout.SOUTH, labelXEnd);
+    layout.putConstraint( SpringLayout.WEST, tfXEnd, 5,SpringLayout.EAST, labelXEnd);
 
     layout.putConstraint( SpringLayout.NORTH, labelYStart, 0,SpringLayout.NORTH, labelXStart);
-    layout.putConstraint( SpringLayout.WEST, labelYStart, 10,SpringLayout.EAST, spXEnd);
-    layout.putConstraint( SpringLayout.SOUTH, spYStart, 0,SpringLayout.SOUTH, labelYStart);
-    layout.putConstraint( SpringLayout.WEST, spYStart, 5,SpringLayout.EAST, labelYStart);
+    layout.putConstraint( SpringLayout.WEST, labelYStart, 10,SpringLayout.EAST, tfXEnd);
+    layout.putConstraint( SpringLayout.SOUTH, tfYStart, 0,SpringLayout.SOUTH, labelYStart);
+    layout.putConstraint( SpringLayout.WEST, tfYStart, 5,SpringLayout.EAST, labelYStart);
 
-    layout.putConstraint( SpringLayout.SOUTH, labelYEnd, 0,SpringLayout.SOUTH, spYStart);
-    layout.putConstraint( SpringLayout.WEST, labelYEnd, 10,SpringLayout.EAST, spYStart);
-    layout.putConstraint( SpringLayout.SOUTH, spYEnd, 0,SpringLayout.SOUTH, labelYEnd);
-    layout.putConstraint( SpringLayout.WEST, spYEnd, 5,SpringLayout.EAST, labelYEnd);
+    layout.putConstraint( SpringLayout.SOUTH, labelYEnd, 0,SpringLayout.SOUTH, tfYStart);
+    layout.putConstraint( SpringLayout.WEST, labelYEnd, 10,SpringLayout.EAST, tfYStart);
+    layout.putConstraint( SpringLayout.SOUTH, tfYEnd, 0,SpringLayout.SOUTH, labelYEnd);
+    layout.putConstraint( SpringLayout.WEST, tfYEnd, 5,SpringLayout.EAST, labelYEnd);
 
     jp.add(setAxisButton);
     jp.add(axisResetButton);
@@ -378,15 +388,13 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     jp.add(labelXEnd);
     jp.add(labelYStart);
     jp.add(labelYEnd);
-    jp.add(spXStart);
-    jp.add(spXEnd);
-    jp.add(spYStart);
-    jp.add(spYEnd);
+    jp.add(tfXStart);
+    jp.add(tfXEnd);
+    jp.add(tfYStart);
+    jp.add(tfYEnd);
 
     return jp;
   }
-  private JButton colorCutButton;
-  private JTextField colorText;
 
   private JPanel colorPanel(){
     JPanel jp=new JPanel();
@@ -470,19 +478,6 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
 
     return jp;
   }
-
-  private JButton openButton;
-  private JButton binalizeButton;
-  private JButton localMaxButton;
-  private JButton simpleMaskButton;
-  private JButton traceButton;
-  private JButton writeButton;
-  private JButton reloadButton;
-
-  private Color borderColor=new Color(80,80,80);
-  private Color innerBorderColor=new Color(80,80,80);
-  private Color panelColor=new Color(200,200,200);
-  private Color innerPanelColor=new Color(200,200,200);
 
   private JPanel operationPanel(){
     JPanel jp=new JPanel();
@@ -675,48 +670,51 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
       }
 
       //draw axis
-      g2.setStroke(new BasicStroke(2f)); //線の種類を設定
+      g2.setStroke(new BasicStroke(1f)); //線の種類を設定
       //x-axis
       g.setColor(Color.red);
       if(xstart[0]!=EMPTY && xend[0]!=EMPTY){
         g.drawLine(xstart[0],xstart[1],xend[0],xend[1]);
       }
       //y-axis
-      g.setColor(Color.green);
+      g.setColor(Color.red);
       if(ystart[0]!=EMPTY && yend[0]!=EMPTY){
         g.drawLine(ystart[0],ystart[1],yend[0],yend[1]);
       }
-      int ra=5;
-      int rashift=2;
-      if(xstart[0]!=EMPTY)g.fill3DRect(xstart[0]-rashift,xstart[1]-rashift,ra,ra,false);
-      if(xend[0]!=EMPTY)g.fill3DRect(xend[0]-rashift,xend[1]-rashift,ra,ra,false);
-      if(ystart[0]!=EMPTY)g.fill3DRect(ystart[0]-rashift,ystart[1]-rashift,ra,ra,false);
-      if(yend[0]!=EMPTY)g.fill3DRect(yend[0]-rashift,yend[1]-rashift,ra,ra,false);
+      //axis-end points
+      g.setColor(Color.green);
+      int r=1;
+      if(xstart[0]!=EMPTY)g.fill3DRect(xstart[0],xstart[1],r,r,false);
+      if(xend[0]!=EMPTY)g.fill3DRect(xend[0],xend[1],r,r,false);
+      if(ystart[0]!=EMPTY)g.fill3DRect(ystart[0],ystart[1],r,r,false);
+      if(yend[0]!=EMPTY)g.fill3DRect(yend[0],yend[1],r,r,false);
 
       //draw points
       g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
       g.setColor(Color.blue);
-      //selected point
+      //assist point
       for(int i=0;i<assistPoints.size()/2;i++){
-        int r=13;
-        //circle
+        r=13;
+        //big circle
         int x=assistPoints.get(2*i  )-r/2;
         int y=assistPoints.get(2*i+1)-r/2;
         g.drawOval(x,y,r,r);
-        //point
+        //center point
         r=1;
         x=assistPoints.get(2*i  );
         y=assistPoints.get(2*i+1);
         g.fillOval(x,y,r,r);
       }
       //traced point
-      g.setColor(Color.red);
+      r=1;
       for(int i=0;i<tracedPoints.size()/2;i++){
-        int x=tracedPoints.get(2*i  )-1;
-        int y=tracedPoints.get(2*i+1)-1;
-        g.fill3DRect(x,y,3,3,false);
+        int x=tracedPoints.get(2*i  );
+        int y=tracedPoints.get(2*i+1);
+        g.setColor(Color.green);
+        g.fill3DRect(x,y,r,r,false);
       }
       /*
+       * //linear segment
        * for(int i=0;i<tracedPoints.size()/2-1;i++){
        *   int x1=tracedPoints.get(2*i  );
        *   int y1=tracedPoints.get(2*i+1);
@@ -729,18 +727,37 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     }
   }//end of mycanvas
 
+
+  //////////////////////////////////////////////////////////////////////
+  // input verifier
+  //////////////////////////////////////////////////////////////////////
+  class MyInputVerifier extends InputVerifier{
+    @Override
+      public boolean verify(JComponent c) {
+      boolean verified = false;
+      JTextField textField = (JTextField)c;
+      try{
+        Double.parseDouble(textField.getText());
+        verified = true;
+      }catch(NumberFormatException e) {
+        UIManager.getLookAndFeel().provideErrorFeedback(c);
+        Toolkit.getDefaultToolkit().beep();
+      }
+      return verified;
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////
   // LookAndFeel matters
   //////////////////////////////////////////////////////////////////////
-  // Possible Look & Feels
-  private static final String mac     = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
-  private static final String metal   = "javax.swing.plaf.metal.MetalLookAndFeel";//new linux
-  private static final String motif   = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";//old linux
-  private static final String windows = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-  private static final String gtk     = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-  private static final String nimbus  = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-
   private void setLookAndFeel(){
+    // Possible Look & Feels
+    String mac     = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
+    String metal   = "javax.swing.plaf.metal.MetalLookAndFeel";
+    String motif   = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+    String windows = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+    String gtk     = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+    String nimbus  = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
     /*
      * //show LF index
      * UIManager.LookAndFeelInfo[] installedLafs = UIManager.getInstalledLookAndFeels();
@@ -756,4 +773,4 @@ public class GTracer implements ActionListener,MouseListener,ChangeListener{
     }
   }
 
-}
+}//end of this class

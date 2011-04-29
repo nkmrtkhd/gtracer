@@ -169,7 +169,7 @@ public class Tracer{
         //search ymax
         int ymax=startY;
         boolean existYMax=false;
-        for(int dy=1;dy<BAND_Y;dy++){
+        for(int dy=0;dy<BAND_Y;dy++){
           if(traceY+dy<height && lengthMap[traceX][traceY+dy]<=0){
             ymax=traceY+dy-1;
             existYMax=true;
@@ -179,7 +179,7 @@ public class Tracer{
         //search ymin
         int ymin=startY;
         boolean existYMin=false;
-        for(int dy=1;dy<BAND_Y;dy++){
+        for(int dy=0;dy<BAND_Y;dy++){
           if(traceY-dy>0 && lengthMap[traceX][traceY-dy]<=0){
             ymin=traceY-dy+1;
             existYMin=true;
@@ -212,13 +212,13 @@ public class Tracer{
     return tracedPoints;
   }
   private int nextYup(int xin, int ymin, int band){
-    for(int dy=1;dy<band;dy++){
+    for(int dy=0;dy<band;dy++){
       if(ymin-dy>0 && lengthMap[xin][ymin-dy]>0) return ymin-dy;
     }
     return EMPTY;
   }
   private int nextYdown(int xin, int yin,int band){
-    for(int dy=1;dy<band;dy++){
+    for(int dy=0;dy<band;dy++){
       if(yin+dy<height && lengthMap[xin][yin+dy]>0)return yin+dy;
     }
     return EMPTY;
