@@ -34,7 +34,7 @@ public class GTracer implements ActionListener,MouseListener{
   //for GUI
   private JRadioButton rbSetOrg,rbSetAP,rbSetcolor,rbSetX1,rbSetX2,rbSetY1,rbSetY2;
   private JFrame ctrlJframe;
-  private JButton setAxisButton,axisResetButton;
+  private JButton setAxisButton,axisResetButton,axisAssistButton;
   private JTextField tfXStart,tfXEnd,tfYStart,tfYEnd;
 
   private JButton colorCutButton;
@@ -159,6 +159,15 @@ public class GTracer implements ActionListener,MouseListener{
 
     if(ae.getSource() == setAxisButton){
       int[] a=tracer.setAxis(xstart);
+      if(a!=null){
+        xend[0]=a[0];
+        xend[1]=a[1];
+        yend[0]=a[2];
+        yend[1]=a[3];
+        myCanv.repaint();
+      }
+    }else if(ae.getSource() == axisAssistButton){
+      int[] a=tracer.assistAxis(xstart);
       if(a!=null){
         xend[0]=a[0];
         xend[1]=a[1];
@@ -314,14 +323,17 @@ public class GTracer implements ActionListener,MouseListener{
     setAxisButton.addActionListener( this );
     setAxisButton.setFocusable(false);
     setAxisButton.setBackground(innerPanelColor);
+    axisAssistButton=new JButton("assist");
+    axisAssistButton.addActionListener( this );
+    axisAssistButton.setFocusable(false);
+    axisAssistButton.setBackground(innerPanelColor);
     axisResetButton=new JButton("reset");
     axisResetButton.addActionListener( this );
     axisResetButton.setFocusable(false);
     axisResetButton.setBackground(innerPanelColor);
 
     //label
-    JLabel labelManu=new JLabel("Manual axis set");
-    JLabel labelManu2=new JLabel("(only auto-set failed)");
+    JLabel labelManu=new JLabel("Manual set");
     JLabel labelRange=new JLabel("Range");
 
     JLabel labelXStart=new JLabel("x start");
@@ -331,16 +343,16 @@ public class GTracer implements ActionListener,MouseListener{
     //spinner
     tfXStart = new JTextField("0");
     tfXStart.setInputVerifier(new MyInputVerifier());
-    tfXStart.setPreferredSize(new Dimension(55, 25));
+    tfXStart.setPreferredSize(new Dimension(50, 25));
     tfXEnd = new JTextField("1.0");
     tfXEnd.setInputVerifier(new MyInputVerifier());
-    tfXEnd.setPreferredSize(new Dimension(55, 25));
+    tfXEnd.setPreferredSize(new Dimension(50, 25));
     tfYStart = new JTextField("0");
     tfYStart.setInputVerifier(new MyInputVerifier());
-    tfYStart.setPreferredSize(new Dimension(55, 25));
+    tfYStart.setPreferredSize(new Dimension(50, 25));
     tfYEnd = new JTextField("1.0");
     tfYEnd.setInputVerifier(new MyInputVerifier());
-    tfYEnd.setPreferredSize(new Dimension(55, 25));
+    tfYEnd.setPreferredSize(new Dimension(50, 25));
 
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
@@ -388,14 +400,16 @@ public class GTracer implements ActionListener,MouseListener{
     layout.putConstraint( SpringLayout.SOUTH,rbSetX1, 0,SpringLayout.NORTH, rbSetY1);
     layout.putConstraint( SpringLayout.WEST, rbSetX1, 0,SpringLayout.WEST, rbSetY1);
 
-    layout.putConstraint( SpringLayout.SOUTH,labelManu2, 0,SpringLayout.NORTH, rbSetX2);
-    layout.putConstraint( SpringLayout.EAST, labelManu2, 0,SpringLayout.EAST, rbSetX2);
-    layout.putConstraint( SpringLayout.SOUTH,labelManu, 0,SpringLayout.NORTH, labelManu2);
-    layout.putConstraint( SpringLayout.WEST, labelManu, -2,SpringLayout.WEST, labelManu2);
 
 
+    layout.putConstraint( SpringLayout.SOUTH,axisAssistButton, 0,SpringLayout.NORTH, rbSetX2);
+    layout.putConstraint( SpringLayout.EAST, axisAssistButton, 0,SpringLayout.EAST, rbSetX2);
+
+    layout.putConstraint( SpringLayout.SOUTH,labelManu, -3,SpringLayout.SOUTH, axisAssistButton);
+    layout.putConstraint( SpringLayout.EAST, labelManu, -5,SpringLayout.WEST, axisAssistButton);
+
+    jp.add(axisAssistButton);
     jp.add(labelManu);
-    jp.add(labelManu2);
     jp.add(labelRange);
     jp.add(rbSetOrg);
     jp.add(rbSetX1);
@@ -486,7 +500,7 @@ public class GTracer implements ActionListener,MouseListener{
   private JPanel settingPanel(){
     //setting panel
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(250,450));
+    jp.setPreferredSize(new Dimension(250,440));
     LineBorder lineborder = new LineBorder(borderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Operations", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);

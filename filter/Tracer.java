@@ -387,7 +387,18 @@ public class Tracer{
         break;
       }
     }
-
     return a;
   }
+  public int[] assistAxis(int[] org){
+    int[] a={org[0],org[1],
+             org[0],org[1]};
+    //x end
+    a[0]=width-2;
+    a[1]=org[1];
+    //y end
+    a[2]=org[0];
+    a[3]=2;
+    return a;
+  }
+
 }
