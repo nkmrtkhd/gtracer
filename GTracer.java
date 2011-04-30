@@ -32,10 +32,7 @@ public class GTracer implements ActionListener,MouseListener{
 
 
   //for GUI
-  private final String[] clickTypeString = {"set origin","set assist-points","select color",
-                                            "set x1","set x2","set y1","set y2"};
-  private int clickType=0;
-  private JComboBox clickTypeCombo;
+  private JRadioButton rbSetOrg,rbSetAP,rbSetcolor,rbSetX1,rbSetX2,rbSetY1,rbSetY2;
   private JFrame ctrlJframe;
   private JButton setAxisButton,axisResetButton;
   private JTextField tfXStart,tfXEnd,tfYStart,tfYEnd;
@@ -97,36 +94,27 @@ public class GTracer implements ActionListener,MouseListener{
     mousePos=tracer.getPoint(x,y);
     //left click
     if((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0){
-      switch(clickType){
-      case 0:
+      if(rbSetOrg.isSelected()){
         xstart[0]=mousePos[0];
         xstart[1]=mousePos[1];
         ystart[0]=mousePos[0];
         ystart[1]=mousePos[1];
-        break;
-      case 1:
+      }else if(rbSetAP.isSelected()){
         addAssistPoints(mousePos);
-        break;
-      case 2:
+      }else if(rbSetcolor.isSelected()){
         setBorder(tracer.getRGBRef());
-        break;
-      case 3:
+      }else if(rbSetX1.isSelected()){
         xstart[0]=mousePos[0];
         xstart[1]=mousePos[1];
-        break;
-      case 4:
+      }else if(rbSetX2.isSelected()){
         xend[0]=mousePos[0];
         xend[1]=mousePos[1];
-        break;
-      case 5:
+      }else if(rbSetY1.isSelected()){
         ystart[0]=mousePos[0];
         ystart[1]=mousePos[1];
-      case 6:
+      }else if(rbSetY2.isSelected()){
         yend[0]=mousePos[0];
         yend[1]=mousePos[1];
-        break;
-      default:
-        break;
       }
     }
     myCanv.repaint();
@@ -169,9 +157,7 @@ public class GTracer implements ActionListener,MouseListener{
       System.exit(0);
     }
 
-    if(ae.getSource() == clickTypeCombo){
-      clickType=clickTypeCombo.getSelectedIndex();
-    }else if(ae.getSource() == setAxisButton){
+    if(ae.getSource() == setAxisButton){
       int[] a=tracer.setAxis(xstart);
       if(a!=null){
         xend[0]=a[0];
@@ -317,25 +303,31 @@ public class GTracer implements ActionListener,MouseListener{
   private JPanel axisPanel(){
     ///////////////
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(350, 90));
+    jp.setPreferredSize(new Dimension(400, 145));
 
     LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Axis", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
     jp.setBackground(innerPanelColor);
 
-    setAxisButton=new JButton("auto axis set");
+    setAxisButton=new JButton("auto set");
     setAxisButton.addActionListener( this );
     setAxisButton.setFocusable(false);
+    setAxisButton.setBackground(innerPanelColor);
     axisResetButton=new JButton("reset");
     axisResetButton.addActionListener( this );
     axisResetButton.setFocusable(false);
+    axisResetButton.setBackground(innerPanelColor);
 
     //label
-    JLabel labelXStart=new JLabel("x1");
-    JLabel labelXEnd  =new JLabel("x2");
-    JLabel labelYStart=new JLabel("y1");
-    JLabel labelYEnd  =new JLabel("y2");
+    JLabel labelManu=new JLabel("Manual axis set");
+    JLabel labelManu2=new JLabel("(only auto-set failed)");
+    JLabel labelRange=new JLabel("Range");
+
+    JLabel labelXStart=new JLabel("x start");
+    JLabel labelXEnd  =new JLabel("x end");
+    JLabel labelYStart=new JLabel("y start");
+    JLabel labelYEnd  =new JLabel("y end");
     //spinner
     tfXStart = new JTextField("0");
     tfXStart.setInputVerifier(new MyInputVerifier());
@@ -353,13 +345,20 @@ public class GTracer implements ActionListener,MouseListener{
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
 
-    layout.putConstraint( SpringLayout.NORTH,setAxisButton, 0,SpringLayout.NORTH, jp);
-    layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.NORTH,axisResetButton, 0,SpringLayout.NORTH, setAxisButton);
-    layout.putConstraint( SpringLayout.WEST, axisResetButton, 5,SpringLayout.EAST, setAxisButton);
+    //auto
+    layout.putConstraint( SpringLayout.NORTH,rbSetOrg, 2,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.WEST, rbSetOrg, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,setAxisButton, 4,SpringLayout.SOUTH, rbSetOrg);
+    layout.putConstraint( SpringLayout.WEST, setAxisButton, 5,SpringLayout.EAST, rbSetOrg);
+    layout.putConstraint( SpringLayout.SOUTH,axisResetButton, 0,SpringLayout.SOUTH, setAxisButton);
+    layout.putConstraint( SpringLayout.EAST, axisResetButton, -5,SpringLayout.EAST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH, labelXStart, 10,SpringLayout.SOUTH, setAxisButton);
-    layout.putConstraint( SpringLayout.WEST, labelXStart, 5,SpringLayout.WEST, jp);
+    //range
+    layout.putConstraint( SpringLayout.NORTH,labelRange, 10,SpringLayout.SOUTH, rbSetOrg);
+    layout.putConstraint( SpringLayout.WEST, labelRange, 5,SpringLayout.WEST, jp);
+
+    layout.putConstraint( SpringLayout.NORTH, labelXStart, 10,SpringLayout.SOUTH, labelRange);
+    layout.putConstraint( SpringLayout.WEST, labelXStart, 10,SpringLayout.WEST, labelRange);
     layout.putConstraint( SpringLayout.SOUTH, tfXStart, 0,SpringLayout.SOUTH, labelXStart);
     layout.putConstraint( SpringLayout.WEST, tfXStart, 5,SpringLayout.EAST, labelXStart);
 
@@ -368,16 +367,41 @@ public class GTracer implements ActionListener,MouseListener{
     layout.putConstraint( SpringLayout.SOUTH, tfXEnd, 0,SpringLayout.SOUTH, labelXEnd);
     layout.putConstraint( SpringLayout.WEST, tfXEnd, 5,SpringLayout.EAST, labelXEnd);
 
-    layout.putConstraint( SpringLayout.NORTH, labelYStart, 0,SpringLayout.NORTH, labelXStart);
-    layout.putConstraint( SpringLayout.WEST, labelYStart, 10,SpringLayout.EAST, tfXEnd);
+    layout.putConstraint( SpringLayout.NORTH, labelYStart, 10,SpringLayout.SOUTH, labelXStart);
+    layout.putConstraint( SpringLayout.WEST, labelYStart, 0,SpringLayout.WEST, labelXStart);
     layout.putConstraint( SpringLayout.SOUTH, tfYStart, 0,SpringLayout.SOUTH, labelYStart);
-    layout.putConstraint( SpringLayout.WEST, tfYStart, 5,SpringLayout.EAST, labelYStart);
+    layout.putConstraint( SpringLayout.WEST, tfYStart, 0,SpringLayout.WEST, tfXStart);
 
     layout.putConstraint( SpringLayout.SOUTH, labelYEnd, 0,SpringLayout.SOUTH, tfYStart);
-    layout.putConstraint( SpringLayout.WEST, labelYEnd, 10,SpringLayout.EAST, tfYStart);
+    layout.putConstraint( SpringLayout.WEST, labelYEnd, 0,SpringLayout.WEST, labelXEnd);
     layout.putConstraint( SpringLayout.SOUTH, tfYEnd, 0,SpringLayout.SOUTH, labelYEnd);
-    layout.putConstraint( SpringLayout.WEST, tfYEnd, 5,SpringLayout.EAST, labelYEnd);
+    layout.putConstraint( SpringLayout.WEST, tfYEnd, 0,SpringLayout.WEST, tfXEnd);
 
+    //manual
+    layout.putConstraint( SpringLayout.SOUTH,rbSetY2, -5,SpringLayout.SOUTH, jp);
+    layout.putConstraint( SpringLayout.EAST, rbSetY2, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,rbSetY1, 0,SpringLayout.SOUTH, rbSetY2);
+    layout.putConstraint( SpringLayout.EAST, rbSetY1, -5,SpringLayout.WEST, rbSetY2);
+
+    layout.putConstraint( SpringLayout.SOUTH,rbSetX2, 0,SpringLayout.NORTH, rbSetY2);
+    layout.putConstraint( SpringLayout.WEST, rbSetX2, 0,SpringLayout.WEST, rbSetY2);
+    layout.putConstraint( SpringLayout.SOUTH,rbSetX1, 0,SpringLayout.NORTH, rbSetY1);
+    layout.putConstraint( SpringLayout.WEST, rbSetX1, 0,SpringLayout.WEST, rbSetY1);
+
+    layout.putConstraint( SpringLayout.SOUTH,labelManu2, 0,SpringLayout.NORTH, rbSetX2);
+    layout.putConstraint( SpringLayout.EAST, labelManu2, 0,SpringLayout.EAST, rbSetX2);
+    layout.putConstraint( SpringLayout.SOUTH,labelManu, 0,SpringLayout.NORTH, labelManu2);
+    layout.putConstraint( SpringLayout.WEST, labelManu, -2,SpringLayout.WEST, labelManu2);
+
+
+    jp.add(labelManu);
+    jp.add(labelManu2);
+    jp.add(labelRange);
+    jp.add(rbSetOrg);
+    jp.add(rbSetX1);
+    jp.add(rbSetX2);
+    jp.add(rbSetY1);
+    jp.add(rbSetY2);
     jp.add(setAxisButton);
     jp.add(axisResetButton);
     jp.add(labelXStart);
@@ -392,21 +416,39 @@ public class GTracer implements ActionListener,MouseListener{
     return jp;
   }
 
-  private JPanel colorPanel(){
+  private JPanel filterPanel(){
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(350, 70));
+    jp.setPreferredSize(new Dimension(200,100));
 
     LineBorder lineborder = new LineBorder(innerBorderColor, 2);
-    TitledBorder border = new TitledBorder(lineborder,"Color Cut", TitledBorder.LEFT, TitledBorder.TOP);
+    TitledBorder border = new TitledBorder(lineborder,"Filters", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
     jp.setBackground(innerPanelColor);
+    SpringLayout layout = new SpringLayout();
+    jp.setLayout(layout);
 
     colorText = new JTextField();
     colorText.setText("selected color: null");
-
     colorCutButton=new JButton("color cut");
     colorCutButton.addActionListener( this );
     colorCutButton.setFocusable(false);
+    colorCutButton.setBackground(innerPanelColor);
+
+    layout.putConstraint( SpringLayout.NORTH,binalizeButton, 1,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.WEST,binalizeButton, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,simpleMaskButton, 0,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, binalizeButton);
+
+    layout.putConstraint( SpringLayout.NORTH,rbSetcolor, 6,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST, rbSetcolor, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,colorText, 0,SpringLayout.SOUTH, rbSetcolor);
+    layout.putConstraint( SpringLayout.WEST, colorText, 5,SpringLayout.EAST, rbSetcolor);
+    layout.putConstraint( SpringLayout.SOUTH,colorCutButton, 3,SpringLayout.SOUTH, colorText);
+    layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, colorText);
+
+    jp.add(binalizeButton);
+    jp.add(simpleMaskButton);
+    jp.add(rbSetcolor);
     jp.add(colorText);
     jp.add(colorCutButton);
 
@@ -416,126 +458,135 @@ public class GTracer implements ActionListener,MouseListener{
   private JButton assistPointResetButton;
   private JPanel assistPanel(){
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(350, 70));
+    jp.setPreferredSize(new Dimension(200,70));
     LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Assist Point", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
     jp.setBackground(innerPanelColor);
+    SpringLayout layout = new SpringLayout();
+    jp.setLayout(layout);
 
     assistPointResetButton=new JButton("reset");
     assistPointResetButton.addActionListener( this );
     assistPointResetButton.setFocusable(false);
+    assistPointResetButton.setBackground(innerPanelColor);
 
+    layout.putConstraint( SpringLayout.NORTH,rbSetAP, 5,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.WEST, rbSetAP, 5,SpringLayout.WEST, jp);
 
+    layout.putConstraint( SpringLayout.SOUTH,assistPointResetButton, 3,SpringLayout.SOUTH, rbSetAP);
+    layout.putConstraint( SpringLayout.EAST, assistPointResetButton, 0,SpringLayout.EAST, jp);
+
+    jp.add(rbSetAP);
     jp.add(assistPointResetButton);
 
     return jp;
   }
+
   private JPanel settingPanel(){
     //setting panel
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(250,300));
-    LineBorder lineborder = new LineBorder(borderColor, 2);
-    TitledBorder border = new TitledBorder(lineborder,"Setting", TitledBorder.LEFT, TitledBorder.TOP);
-    jp.setBorder(border);
-    jp.setBackground(panelColor);
-
-    JLabel clickTypeLabel=new JLabel("click type");
-    clickTypeCombo = new JComboBox(clickTypeString);
-    clickTypeCombo.setFocusable(false);
-    clickTypeCombo.setSelectedIndex(clickType);
-    clickTypeCombo.addActionListener(this);
-    JPanel axisPanel=axisPanel();
-    JPanel colorPanel=colorPanel();
-    JPanel assistPanel=assistPanel();
-
-    SpringLayout layout = new SpringLayout();
-    jp.setLayout(layout);
-
-    layout.putConstraint( SpringLayout.NORTH,clickTypeLabel, 5,SpringLayout.NORTH, jp);
-    layout.putConstraint( SpringLayout.WEST,clickTypeLabel, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH,clickTypeCombo, 0,SpringLayout.SOUTH, clickTypeLabel);
-    layout.putConstraint( SpringLayout.WEST,clickTypeCombo, 5,SpringLayout.EAST, clickTypeLabel);
-
-    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, clickTypeLabel);
-    layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
-
-    layout.putConstraint( SpringLayout.NORTH,colorPanel, 5,SpringLayout.SOUTH, axisPanel);
-    layout.putConstraint( SpringLayout.WEST,colorPanel, 5,SpringLayout.WEST, jp);
-
-    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, colorPanel);
-    layout.putConstraint( SpringLayout.WEST,assistPanel, 5,SpringLayout.WEST, jp);
-
-    jp.add(clickTypeLabel);
-    jp.add(clickTypeCombo);
-    jp.add(axisPanel);
-    jp.add(colorPanel);
-    jp.add(assistPanel);
-
-    return jp;
-  }
-
-  private JPanel operationPanel(){
-    JPanel jp=new JPanel();
+    jp.setPreferredSize(new Dimension(250,450));
     LineBorder lineborder = new LineBorder(borderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Operations", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
     jp.setBackground(panelColor);
 
+
+    rbSetOrg=new JRadioButton("set Origin",true);
+    rbSetAP=new JRadioButton("set AssistPoint");
+    rbSetcolor=new JRadioButton("set color");
+    rbSetX1=new JRadioButton("x start");
+    rbSetX2=new JRadioButton("x end");
+    rbSetY1=new JRadioButton("y start");
+    rbSetY2=new JRadioButton("y end");
+    rbSetOrg.setBackground(innerPanelColor);
+    rbSetAP.setBackground(innerPanelColor);
+    rbSetcolor.setBackground(innerPanelColor);
+    rbSetX1.setBackground(innerPanelColor);
+    rbSetX2.setBackground(innerPanelColor);
+    rbSetY1.setBackground(innerPanelColor);
+    rbSetY2.setBackground(innerPanelColor);
+
+    ButtonGroup group = new ButtonGroup();
+    group.add(rbSetOrg);
+    group.add(rbSetAP);
+    group.add(rbSetcolor);
+    group.add(rbSetX1);
+    group.add(rbSetX2);
+    group.add(rbSetY1);
+    group.add(rbSetY2);
+
+
     openButton=new JButton("open");
     openButton.addActionListener( this );
     openButton.setFocusable(false);
     openButton.setActionCommand("open");
-
-
+    openButton.setBackground(innerPanelColor);
     reloadButton=new JButton("reload");
     reloadButton.addActionListener( this );
     reloadButton.setFocusable(false);
+    reloadButton.setBackground(innerPanelColor);
 
     binalizeButton=new JButton("binalize");
     binalizeButton.addActionListener( this );
     binalizeButton.setFocusable(false);
-
+    binalizeButton.setBackground(innerPanelColor);
     simpleMaskButton=new JButton("thining");
     simpleMaskButton.addActionListener( this );
     simpleMaskButton.setFocusable(false);
+    simpleMaskButton.setBackground(innerPanelColor);
 
     traceButton=new JButton("trace");
     traceButton.addActionListener( this );
     traceButton.setFocusable(false);
-    writeButton=new JButton("write file");
+    traceButton.setBackground(innerPanelColor);
+    writeButton=new JButton("export");
     writeButton.addActionListener( this );
     writeButton.setFocusable(false);
+    writeButton.setBackground(innerPanelColor);
 
+    JPanel axisPanel=axisPanel();
+    JPanel filterPanel=filterPanel();
+    JPanel assistPanel=assistPanel();
 
+    //setting panel
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
-    jp.setPreferredSize(new Dimension(100,120));
 
     layout.putConstraint( SpringLayout.NORTH,openButton, 5,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST,openButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.NORTH,reloadButton, 0,SpringLayout.NORTH, openButton);
-    layout.putConstraint( SpringLayout.WEST,reloadButton, 5,SpringLayout.EAST, openButton);
+    layout.putConstraint( SpringLayout.EAST,reloadButton, -5,SpringLayout.EAST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,binalizeButton, 0,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.WEST,binalizeButton, 0,SpringLayout.WEST, openButton);
-    layout.putConstraint( SpringLayout.NORTH,simpleMaskButton, 0,SpringLayout.NORTH, binalizeButton);
-    layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, binalizeButton);
+    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, openButton);
+    layout.putConstraint( SpringLayout.EAST,axisPanel, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,traceButton, 0,SpringLayout.SOUTH, binalizeButton);
-    layout.putConstraint( SpringLayout.WEST,traceButton, 0,SpringLayout.WEST, binalizeButton);
+    layout.putConstraint( SpringLayout.NORTH,filterPanel, 5,SpringLayout.SOUTH, axisPanel);
+    layout.putConstraint( SpringLayout.EAST,filterPanel, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.WEST,filterPanel, 5,SpringLayout.WEST, jp);
+
+    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, filterPanel);
+    layout.putConstraint( SpringLayout.EAST,assistPanel, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.WEST,assistPanel, 5,SpringLayout.WEST, jp);
+
+    layout.putConstraint( SpringLayout.NORTH,traceButton, 5,SpringLayout.SOUTH, assistPanel);
+    layout.putConstraint( SpringLayout.WEST,traceButton, 5,SpringLayout.WEST, binalizeButton);
     layout.putConstraint( SpringLayout.NORTH,writeButton, 0,SpringLayout.NORTH, traceButton);
-    layout.putConstraint( SpringLayout.WEST,writeButton, 0,SpringLayout.EAST, traceButton);
+    layout.putConstraint( SpringLayout.WEST,writeButton, 5,SpringLayout.EAST, traceButton);
 
     jp.add(openButton);
     jp.add(reloadButton);
-    jp.add(binalizeButton);
-    jp.add(simpleMaskButton);
+    jp.add(axisPanel);
+    jp.add(filterPanel);
+    jp.add(assistPanel);
     jp.add(traceButton);
     jp.add(writeButton);
 
     return jp;
   }
+
   private void makeControlFrame(){
     ctrlJframe=new JFrame("Gtracer");
     //window size
@@ -551,43 +602,38 @@ public class GTracer implements ActionListener,MouseListener{
 
     //panel
     JPanel jp=new JPanel();
+    jp.setBackground(panelColor);
     //set layout
     SpringLayout layout = new SpringLayout();
     jp.setLayout(layout);
 
     JPanel spanel=settingPanel();
-    JPanel oppanel=operationPanel();
     jp.setBackground(panelColor);
 
     try{
       //loupe http://sawat.jf.land.to/loupe.html
       loupe = new Loupe();
-      loupe.setPreferredSize(new Dimension(150,150));
+      loupe.setPreferredSize(new Dimension(200,150));
       loupe.setBackground(panelColor);
       LineBorder lineborder = new LineBorder(borderColor, 2);
       TitledBorder border = new TitledBorder(lineborder,"Loupe", TitledBorder.LEFT, TitledBorder.TOP);
       loupe.setBorder(border);
       loupe.setBackground(panelColor);
 
-      layout.putConstraint( SpringLayout.SOUTH,oppanel, -5,SpringLayout.SOUTH, jp);
-      layout.putConstraint( SpringLayout.EAST,oppanel, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.WEST,oppanel, 5,SpringLayout.WEST, jp);
 
-      layout.putConstraint( SpringLayout.SOUTH,spanel, -5,SpringLayout.NORTH, oppanel);
+      layout.putConstraint( SpringLayout.SOUTH,spanel, -10,SpringLayout.SOUTH, jp);
       layout.putConstraint( SpringLayout.EAST,spanel, -5,SpringLayout.EAST, jp);
       layout.putConstraint( SpringLayout.WEST,spanel, 5,SpringLayout.WEST, jp);
 
-      layout.putConstraint( SpringLayout.WEST,loupe, 5,SpringLayout.WEST, jp);
       layout.putConstraint( SpringLayout.EAST,loupe, -5,SpringLayout.EAST, jp);
-      layout.putConstraint( SpringLayout.SOUTH,loupe, -5,SpringLayout.NORTH, spanel);
-      layout.putConstraint( SpringLayout.NORTH,loupe, 5,SpringLayout.NORTH, jp);
-
-
+      layout.putConstraint( SpringLayout.WEST,loupe, 5,SpringLayout.WEST, jp);
+      layout.putConstraint( SpringLayout.SOUTH,loupe, -10,SpringLayout.NORTH, spanel);
+      layout.putConstraint( SpringLayout.NORTH,loupe, 10,SpringLayout.NORTH, jp);
 
 
       jp.add(loupe);
-      jp.add(oppanel);
       jp.add(spanel);
+
     }catch(AWTException e){
       e.printStackTrace();
       System.exit(1);
