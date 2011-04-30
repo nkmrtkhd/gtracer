@@ -11,7 +11,7 @@ public class LengthMap{
 
   /** set length map according to chess board distance*/
   static void setChessBoard(short[][] lengthMap, int width, int height){
-    System.out.println("chess board length filter");
+    //System.out.println("chess board length filter");
     //ignore 1pixcel on border
     int xstart=1;
     int xend=width-2;
@@ -54,7 +54,7 @@ public class LengthMap{
 
   /** set length map according to city block distance*/
   static void setCityBlock(short[][] lengthMap, int width, int height){
-    System.out.println("city block length filter");
+    //System.out.println("city block length filter");
     //ignore 1pixcel on border
     int xstart=1;
     int xend=width-2;

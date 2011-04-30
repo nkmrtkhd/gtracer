@@ -22,6 +22,9 @@ public class Tracer{
   public int getRGBRef(){
     return rgbRef;
   }
+  public Dimension getSize(){
+    return new Dimension(width,height);
+  }
 
   //constructor
   public Tracer(BufferedImage originalImg){
@@ -146,7 +149,6 @@ public class Tracer{
 
   public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
     // by Nakamura
-    System.out.println("trace starts");
 
 
     ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
@@ -208,7 +210,6 @@ public class Tracer{
 
     }//i
 
-    System.out.println("trace done");
     return tracedPoints;
   }
   private int nextYup(int xin, int ymin, int band){
@@ -226,7 +227,6 @@ public class Tracer{
 
   public ArrayList<Integer> traceByTamura(LinkedList<Integer> pQueue){
     //by Tamura
-    System.out.println("trace starts");
     //traced pos
     ArrayList<Integer> pos= new ArrayList<Integer>();
 
@@ -236,8 +236,8 @@ public class Tracer{
       int startY=pQueue.get(2*i+1);
 
       // T.Tamura Note that Max and Min are opposite
-      System.out.println("startX  " + startX);
-      System.out.println("startY  " + startY);
+      //System.out.println("startX  " + startX);
+      //System.out.println("startY  " + startY);
       int ymax = startY;
       int ymin = startY;
       for ( int j=startY; j>startY-200; j-- ) {
@@ -252,11 +252,11 @@ public class Tracer{
           break;
         }
       }
-      System.out.println("ymax  " + ymax);
-      System.out.println("ymin  " + ymin);
-      for ( int j=startY-10; j<startY+10; j++ ) {
-        System.out.println(j + "  " + lengthMap[startX][j]);
-      }
+      //System.out.println("ymax  " + ymax);
+      //System.out.println("ymin  " + ymin);
+      //for ( int j=startY-10; j<startY+10; j++ ) {
+      //System.out.println(j + "  " + lengthMap[startX][j]);
+      //}
 
       //end pos
       int nextX=pQueue.get(2*(i+1));
@@ -346,7 +346,7 @@ public class Tracer{
             }
           }
         } // if(isum)
-        System.out.println(traceX + "  " + ymax + "  " + ymin);
+        //System.out.println(traceX + "  " + ymax + "  " + ymin);
         // pos should be real, not integer
         imod= (ymax+ymin)%2 ;
         if (imod == 0) {
@@ -362,7 +362,7 @@ public class Tracer{
       }//while
     }//i
 
-    System.out.println("trace done");
+    //System.out.println("trace done");
     return pos;
   }
 
@@ -383,7 +383,6 @@ public class Tracer{
       if(lengthMap[org[0]][y]<=0){
         a[2]=org[0];
         a[3]=y+1;
-        System.out.println(String.format("%d",y+1));
         break;
       }
     }

@@ -32,7 +32,9 @@ public class GTracer implements ActionListener,MouseListener{
 
 
   //for GUI
-  private JRadioButton rbSetOrg,rbSetAP,rbSetcolor,rbSetX1,rbSetX2,rbSetY1,rbSetY2;
+  private JLabel labelAP;
+  private JRadioButton rbSetOrg,rbSetAP,rbDelAP,rbSetColor,rbSetX1,rbSetX2,rbSetY1,rbSetY2;
+  private JButton assistPointResetButton;
   private JFrame ctrlJframe;
   private JButton setAxisButton,axisResetButton,axisAssistButton;
   private JTextField tfXStart,tfXEnd,tfYStart,tfYEnd;
@@ -46,6 +48,7 @@ public class GTracer implements ActionListener,MouseListener{
   private JButton traceButton;
   private JButton writeButton;
   private JButton reloadButton;
+  private JButton resetFilterButton;
 
   private Color borderColor=new Color(80,80,80);
   private Color innerBorderColor=new Color(80,80,80);
@@ -71,9 +74,9 @@ public class GTracer implements ActionListener,MouseListener{
   //constructor
   public GTracer(String inputFile){
     this.setLookAndFeel();
-    if(inputFile!=null)this.open(inputFile);
     makeControlFrame();
     makeCanvasFrame();
+    if(inputFile!=null)this.open(inputFile);
   }
 
   //mouse
@@ -101,7 +104,9 @@ public class GTracer implements ActionListener,MouseListener{
         ystart[1]=mousePos[1];
       }else if(rbSetAP.isSelected()){
         addAssistPoints(mousePos);
-      }else if(rbSetcolor.isSelected()){
+      }else if(rbDelAP.isSelected()){
+        deleteAssistPoints(mousePos);
+      }else if(rbSetColor.isSelected()){
         setBorder(tracer.getRGBRef());
       }else if(rbSetX1.isSelected()){
         xstart[0]=mousePos[0];
@@ -117,6 +122,7 @@ public class GTracer implements ActionListener,MouseListener{
         yend[1]=mousePos[1];
       }
     }
+    labelAP.setText(String.format("# of Assist Points= %d",assistPoints.size()/2));
     myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
@@ -139,6 +145,24 @@ public class GTracer implements ActionListener,MouseListener{
     }
   }
 
+  private void deleteAssistPoints(int[] pos){
+    int rmin=1000;
+    int it=-1;
+    for(int i=0;i<assistPoints.size()/2;i++){
+      int dx=pos[0]-assistPoints.get(2*i);
+      int dy=pos[1]-assistPoints.get(2*i+1);
+      int r=dx*dx+dy*dy;
+      if(r<rmin){
+        rmin=r;
+        it=i;
+      }
+    }
+    if(it>=0){
+      assistPoints.remove(2*it+1);
+      assistPoints.remove(2*it);
+    }
+  }
+
 
   public void actionPerformed(ActionEvent ae){
     xRealStart=Double.parseDouble(tfXStart.getText());
@@ -149,7 +173,6 @@ public class GTracer implements ActionListener,MouseListener{
     if(cmd.startsWith("open")){
       resetAll();
       this.open(null);
-      myCanv.repaint();
     }else if(cmd.startsWith("check update")){
       UpdateManager up=new UpdateManager();
       up.showDialog();
@@ -164,7 +187,6 @@ public class GTracer implements ActionListener,MouseListener{
         xend[1]=a[1];
         yend[0]=a[2];
         yend[1]=a[3];
-        myCanv.repaint();
       }
     }else if(ae.getSource() == axisAssistButton){
       int[] a=tracer.assistAxis(xstart);
@@ -173,7 +195,6 @@ public class GTracer implements ActionListener,MouseListener{
         xend[1]=a[1];
         yend[0]=a[2];
         yend[1]=a[3];
-        myCanv.repaint();
       }
     }else if(ae.getSource() == binalizeButton){
       tracer.setLengthMap(false);
@@ -186,6 +207,9 @@ public class GTracer implements ActionListener,MouseListener{
     }else if(ae.getSource() == simpleMaskButton){
       tracedImg=null;
       tracedImg=tracer.makeImage(2);
+    }else if(ae.getSource() == resetFilterButton){
+      if(tracer!=null)tracer.setLengthMap(false);
+      tracedImg=null;
     }else if(ae.getSource() == traceButton){
       if(assistPoints.size()>=4){
         tracedPoints=tracer.trace(assistPoints);
@@ -244,6 +268,8 @@ public class GTracer implements ActionListener,MouseListener{
     //tracer
     tracer=null;
     tracer=new Tracer(originalImg);
+    myCanv.setPreferredSize(tracer.getSize());
+    myCanv.repaint();
   }
 
 
@@ -296,7 +322,7 @@ public class GTracer implements ActionListener,MouseListener{
 
     //canvas
     myCanv=new MyCanvas();
-    myCanv.setPreferredSize(new Dimension(500, 500));//what do i do ?
+    myCanv.setPreferredSize(new Dimension(1000, 1000));//what do i do ?
     myCanv.setBackground(new Color(200,200,200));
     myCanv.addMouseListener(this);
 
@@ -448,31 +474,40 @@ public class GTracer implements ActionListener,MouseListener{
     colorCutButton.setFocusable(false);
     colorCutButton.setBackground(innerPanelColor);
 
+
+    resetFilterButton=new JButton("reset");
+    resetFilterButton.addActionListener( this );
+    resetFilterButton.setFocusable(false);
+    resetFilterButton.setBackground(innerPanelColor);
+
     layout.putConstraint( SpringLayout.NORTH,binalizeButton, 1,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST,binalizeButton, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH,simpleMaskButton, 0,SpringLayout.SOUTH, binalizeButton);
     layout.putConstraint( SpringLayout.WEST,simpleMaskButton, 0,SpringLayout.EAST, binalizeButton);
 
-    layout.putConstraint( SpringLayout.NORTH,rbSetcolor, 6,SpringLayout.SOUTH, binalizeButton);
-    layout.putConstraint( SpringLayout.WEST, rbSetcolor, 5,SpringLayout.WEST, jp);
-    layout.putConstraint( SpringLayout.SOUTH,colorText, 0,SpringLayout.SOUTH, rbSetcolor);
-    layout.putConstraint( SpringLayout.WEST, colorText, 5,SpringLayout.EAST, rbSetcolor);
+    layout.putConstraint( SpringLayout.NORTH,resetFilterButton, 1,SpringLayout.NORTH, jp);
+    layout.putConstraint( SpringLayout.EAST, resetFilterButton, -5,SpringLayout.EAST, jp);
+
+    layout.putConstraint( SpringLayout.NORTH,rbSetColor, 6,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST, rbSetColor, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,colorText, 0,SpringLayout.SOUTH, rbSetColor);
+    layout.putConstraint( SpringLayout.WEST, colorText, 5,SpringLayout.EAST, rbSetColor);
     layout.putConstraint( SpringLayout.SOUTH,colorCutButton, 3,SpringLayout.SOUTH, colorText);
     layout.putConstraint( SpringLayout.WEST, colorCutButton, 0,SpringLayout.EAST, colorText);
 
+    jp.add(resetFilterButton);
     jp.add(binalizeButton);
     jp.add(simpleMaskButton);
-    jp.add(rbSetcolor);
+    jp.add(rbSetColor);
     jp.add(colorText);
     jp.add(colorCutButton);
 
     return jp;
   }
 
-  private JButton assistPointResetButton;
   private JPanel assistPanel(){
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(200,70));
+    jp.setPreferredSize(new Dimension(200,80));
     LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Assist Point", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
@@ -485,13 +520,24 @@ public class GTracer implements ActionListener,MouseListener{
     assistPointResetButton.setFocusable(false);
     assistPointResetButton.setBackground(innerPanelColor);
 
+
     layout.putConstraint( SpringLayout.NORTH,rbSetAP, 5,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.WEST, rbSetAP, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.NORTH,rbDelAP, 2,SpringLayout.SOUTH, rbSetAP);
+    layout.putConstraint( SpringLayout.WEST, rbDelAP, 0,SpringLayout.WEST, rbSetAP);
+
+    labelAP=new JLabel();
+    labelAP.setText(String.format("# of Assist Points= %d",assistPoints.size()/2));
+    layout.putConstraint( SpringLayout.SOUTH, labelAP, 0,SpringLayout.NORTH, rbDelAP);
+    layout.putConstraint( SpringLayout.WEST, labelAP, 5,SpringLayout.EAST, rbDelAP);
+
 
     layout.putConstraint( SpringLayout.SOUTH,assistPointResetButton, 3,SpringLayout.SOUTH, rbSetAP);
     layout.putConstraint( SpringLayout.EAST, assistPointResetButton, 0,SpringLayout.EAST, jp);
 
     jp.add(rbSetAP);
+    jp.add(rbDelAP);
+    jp.add(labelAP);
     jp.add(assistPointResetButton);
 
     return jp;
@@ -509,14 +555,16 @@ public class GTracer implements ActionListener,MouseListener{
 
     rbSetOrg=new JRadioButton("set Origin",true);
     rbSetAP=new JRadioButton("set AssistPoint");
-    rbSetcolor=new JRadioButton("set color");
+    rbDelAP=new JRadioButton("delete AssistPoint");
+    rbSetColor=new JRadioButton("set color");
     rbSetX1=new JRadioButton("x start");
     rbSetX2=new JRadioButton("x end");
     rbSetY1=new JRadioButton("y start");
     rbSetY2=new JRadioButton("y end");
     rbSetOrg.setBackground(innerPanelColor);
     rbSetAP.setBackground(innerPanelColor);
-    rbSetcolor.setBackground(innerPanelColor);
+    rbDelAP.setBackground(innerPanelColor);
+    rbSetColor.setBackground(innerPanelColor);
     rbSetX1.setBackground(innerPanelColor);
     rbSetX2.setBackground(innerPanelColor);
     rbSetY1.setBackground(innerPanelColor);
@@ -525,7 +573,8 @@ public class GTracer implements ActionListener,MouseListener{
     ButtonGroup group = new ButtonGroup();
     group.add(rbSetOrg);
     group.add(rbSetAP);
-    group.add(rbSetcolor);
+    group.add(rbDelAP);
+    group.add(rbSetColor);
     group.add(rbSetX1);
     group.add(rbSetX2);
     group.add(rbSetY1);

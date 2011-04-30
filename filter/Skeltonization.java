@@ -3,7 +3,7 @@ package filter;
 public class Skeltonization{
   /** 周辺８ブロックのうち，極大値の場合だけ残す */
   static void localMax(short[][] lengthMap, int width, int height){
-    System.out.println("local max ");
+    //System.out.println("local max ");
     //ignore 1pixcel on border
     int xstart=1;
     int xend=width-2;
