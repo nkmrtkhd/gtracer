@@ -18,6 +18,7 @@ public class Tracer{
   private BufferedImage originalImg;
   private BufferedImage tracedImg;
   private int rgbRef=-123456789;
+  static final int EMPTY=-1123;
 
   public int getRGBRef(){
     return rgbRef;
@@ -141,18 +142,20 @@ public class Tracer{
     return point;
   }
 
-  static final int EMPTY=-1123;
-  //increment
-  int INC_X=1;
-  //search max
-  int BAND_Y=100;
 
+  /**
+   * Tracer
+   * by Nakamura
+   */
   public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
-    // by Nakamura
-
-
+    //increment
+    int INC_X=1;
+    //線分の幅．100px以上の線幅の線は稀だろう
+    int BAND_Y=100;
+    //traced points
     ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
 
+    //start!
     for(int i=0;i<pQueue.size()/2-1;i++){
       //start point
       int startX=pQueue.get(2*i);
@@ -188,33 +191,46 @@ public class Tracer{
             break;
           }
         }
-        //addition
+        //add to tracedPoints
         if(existYMax && existYMin){
           int y=(ymax+ymin)/2;
           tracedPoints.add(traceX);
           tracedPoints.add(y);
         }
 
-        //search next y
-        int searchBand=0;
-        do{
-          traceX+=INC_X;
-          searchBand+=ymax-ymin;
-          if(startY>endY)
-            traceY=nextYup(traceX,ymax,searchBand);
-          else
-            traceY=nextYdown(traceX,ymin,searchBand);
-        }while(traceY==EMPTY && traceX<endX);
 
+        //search next position
+        //線分が重なっている可能性を考慮
+        boolean hasNext=false;
+        traceX+=INC_X;
+        for(int y=ymin;y<ymax;y++){
+          if(lengthMap[traceX][y]>0){
+            traceY=y;
+            hasNext=true;
+          }
+        }
+        //線分が重なっていなかった時
+        if(!hasNext){
+          int searchBand=0;
+          traceX-=INC_X;
+          do{
+            traceX+=INC_X;
+            searchBand+=ymax-ymin;
+            if(startY>endY)
+              traceY=nextYup(traceX,ymax,searchBand);
+            else
+              traceY=nextYdown(traceX,ymin,searchBand);
+          }while(traceY==EMPTY && traceX<endX);
+        }
       }//while
 
     }//i
 
     return tracedPoints;
   }
-  private int nextYup(int xin, int ymin, int band){
+  private int nextYup(int xin, int yin, int band){
     for(int dy=0;dy<band;dy++){
-      if(ymin-dy>0 && lengthMap[xin][ymin-dy]>0) return ymin-dy;
+      if(yin-dy>0 && lengthMap[xin][yin-dy]>0) return yin-dy;
     }
     return EMPTY;
   }
