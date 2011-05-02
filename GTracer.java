@@ -233,6 +233,7 @@ public class GTracer implements ActionListener,MouseListener{
       resetAll();
     }
 
+    labelAP.setText(String.format("# of Assist Points= %d",assistPoints.size()/2));
     myCanv.repaint();
   }
   private void resetAll(){

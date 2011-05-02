@@ -145,7 +145,7 @@ public class Tracer{
   //increment
   int INC_X=1;
   //search max
-  int BAND_Y=10;
+  int BAND_Y=100;
 
   public ArrayList<Integer> trace(LinkedList<Integer> pQueue){
     // by Nakamura
@@ -199,7 +199,7 @@ public class Tracer{
         int searchBand=0;
         do{
           traceX+=INC_X;
-          searchBand+=BAND_Y;
+          searchBand+=ymax-ymin;
           if(startY>endY)
             traceY=nextYup(traceX,ymax,searchBand);
           else
