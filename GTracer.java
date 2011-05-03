@@ -12,10 +12,11 @@ import javax.swing.border.*;
 import filter.*;
 
 
-public class GTracer implements ActionListener,MouseListener{
+public class GTracer implements ActionListener,MouseListener,MouseMotionListener{
 
   //global variable
   private LinkedList<Integer> assistPoints= new LinkedList<Integer>();
+  private ArrayList<Integer> erasePoints= new ArrayList<Integer>();
   private ArrayList<Integer> tracedPoints= new ArrayList<Integer>();
   private int[] mousePos=new int[2];
   private MyCanvas myCanv;
@@ -33,12 +34,13 @@ public class GTracer implements ActionListener,MouseListener{
 
   //for GUI
   private JLabel labelAP;
-  private JRadioButton rbSetOrg,rbSetAP,rbDelAP,rbSetColor,rbSetX1,rbSetX2,rbSetY1,rbSetY2;
+  private JRadioButton rbSetOrg,rbSetAP,rbDelAP,rbSetColor,rbSetX1,rbSetX2,rbSetY1,rbSetY2,rbEraser;
   private JButton assistPointResetButton;
   private JFrame ctrlJframe;
   private JButton setAxisButton,axisResetButton,axisAssistButton;
   private JTextField tfXStart,tfXEnd,tfYStart,tfYEnd;
 
+  private JButton eraseButton;
   private JButton colorCutButton;
   private JTextField colorText;
 
@@ -83,7 +85,15 @@ public class GTracer implements ActionListener,MouseListener{
   public void mouseMoved(MouseEvent e) {
   }
   public void mouseDragged(MouseEvent e) {
+    if(rbEraser.isSelected()){
+      int x=e.getX();
+      int y=e.getY();
+      mousePos=tracer.getPoint(x,y);
+      erase(mousePos);
+      myCanv.repaint();
+    }
   }
+
   public void mouseClicked(MouseEvent e){
   }
   public void mouseEntered(MouseEvent e){
@@ -108,6 +118,8 @@ public class GTracer implements ActionListener,MouseListener{
         deleteAssistPoints(mousePos);
       }else if(rbSetColor.isSelected()){
         setBorder(tracer.getRGBRef());
+      }else if(rbEraser.isSelected()){
+        erase(mousePos);
       }else if(rbSetX1.isSelected()){
         xstart[0]=mousePos[0];
         xstart[1]=mousePos[1];
@@ -126,6 +138,11 @@ public class GTracer implements ActionListener,MouseListener{
     myCanv.repaint();
   }
   public void mouseReleased(MouseEvent e){
+
+  }
+  private void erase(int[] pos){
+    erasePoints.add(pos[0]);
+    erasePoints.add(pos[1]);
   }
   private void addAssistPoints(int[] pos){
     //search that pos[0] should be, and insert it
@@ -200,6 +217,11 @@ public class GTracer implements ActionListener,MouseListener{
       tracer.setLengthMap(false);
       tracedImg=null;
       tracedImg=tracer.makeImage(0);
+    }else if(ae.getSource() == eraseButton){
+      tracer.erase(erasePoints);
+      tracedImg=null;
+      tracedImg=tracer.makeImage(0);
+      erasePoints.clear();
     }else if(ae.getSource() == colorCutButton){
       tracer.setLengthMap(true);
       tracedImg=null;
@@ -323,10 +345,10 @@ public class GTracer implements ActionListener,MouseListener{
 
     //canvas
     myCanv=new MyCanvas();
-    myCanv.setPreferredSize(new Dimension(1000, 1000));//what do i do ?
+    myCanv.setPreferredSize(new Dimension(100, 100));//what do i do ?
     myCanv.setBackground(new Color(200,200,200));
     myCanv.addMouseListener(this);
-
+    myCanv.addMouseMotionListener(this);
     JScrollPane sp = new JScrollPane(myCanv,
                                      ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                                      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -459,7 +481,7 @@ public class GTracer implements ActionListener,MouseListener{
 
   private JPanel filterPanel(){
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(200,100));
+    jp.setPreferredSize(new Dimension(200,120));
 
     LineBorder lineborder = new LineBorder(innerBorderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Filters", TitledBorder.LEFT, TitledBorder.TOP);
@@ -474,6 +496,10 @@ public class GTracer implements ActionListener,MouseListener{
     colorCutButton.addActionListener( this );
     colorCutButton.setFocusable(false);
     colorCutButton.setBackground(innerPanelColor);
+    eraseButton=new JButton("erase");
+    eraseButton.addActionListener( this );
+    eraseButton.setFocusable(false);
+    eraseButton.setBackground(innerPanelColor);
 
 
     resetFilterButton=new JButton("reset");
@@ -489,7 +515,13 @@ public class GTracer implements ActionListener,MouseListener{
     layout.putConstraint( SpringLayout.NORTH,resetFilterButton, 1,SpringLayout.NORTH, jp);
     layout.putConstraint( SpringLayout.EAST, resetFilterButton, -5,SpringLayout.EAST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,rbSetColor, 6,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.NORTH,rbEraser, 6,SpringLayout.SOUTH, binalizeButton);
+    layout.putConstraint( SpringLayout.WEST, rbEraser, 5,SpringLayout.WEST, jp);
+    layout.putConstraint( SpringLayout.SOUTH,eraseButton, 2,SpringLayout.SOUTH, rbEraser);
+    layout.putConstraint( SpringLayout.WEST, eraseButton, 5,SpringLayout.EAST, rbEraser);
+
+
+    layout.putConstraint( SpringLayout.NORTH,rbSetColor, 6,SpringLayout.SOUTH, rbEraser);
     layout.putConstraint( SpringLayout.WEST, rbSetColor, 5,SpringLayout.WEST, jp);
     layout.putConstraint( SpringLayout.SOUTH,colorText, 0,SpringLayout.SOUTH, rbSetColor);
     layout.putConstraint( SpringLayout.WEST, colorText, 5,SpringLayout.EAST, rbSetColor);
@@ -498,7 +530,9 @@ public class GTracer implements ActionListener,MouseListener{
 
     jp.add(resetFilterButton);
     jp.add(binalizeButton);
-    jp.add(simpleMaskButton);
+    jp.add(rbEraser);
+    jp.add(eraseButton);
+    //jp.add(simpleMaskButton);
     jp.add(rbSetColor);
     jp.add(colorText);
     jp.add(colorCutButton);
@@ -547,7 +581,7 @@ public class GTracer implements ActionListener,MouseListener{
   private JPanel settingPanel(){
     //setting panel
     JPanel jp=new JPanel();
-    jp.setPreferredSize(new Dimension(250,440));
+    jp.setPreferredSize(new Dimension(250,460));
     LineBorder lineborder = new LineBorder(borderColor, 2);
     TitledBorder border = new TitledBorder(lineborder,"Operations", TitledBorder.LEFT, TitledBorder.TOP);
     jp.setBorder(border);
@@ -562,6 +596,7 @@ public class GTracer implements ActionListener,MouseListener{
     rbSetX2=new JRadioButton("x end");
     rbSetY1=new JRadioButton("y start");
     rbSetY2=new JRadioButton("y end");
+    rbEraser=new JRadioButton("eraser");
     rbSetOrg.setBackground(innerPanelColor);
     rbSetAP.setBackground(innerPanelColor);
     rbDelAP.setBackground(innerPanelColor);
@@ -570,6 +605,7 @@ public class GTracer implements ActionListener,MouseListener{
     rbSetX2.setBackground(innerPanelColor);
     rbSetY1.setBackground(innerPanelColor);
     rbSetY2.setBackground(innerPanelColor);
+    rbEraser.setBackground(innerPanelColor);
 
     ButtonGroup group = new ButtonGroup();
     group.add(rbSetOrg);
@@ -580,7 +616,7 @@ public class GTracer implements ActionListener,MouseListener{
     group.add(rbSetX2);
     group.add(rbSetY1);
     group.add(rbSetY2);
-
+    group.add(rbEraser);
 
     openButton=new JButton("open");
     openButton.addActionListener( this );
@@ -623,15 +659,16 @@ public class GTracer implements ActionListener,MouseListener{
     layout.putConstraint( SpringLayout.NORTH,reloadButton, 0,SpringLayout.NORTH, openButton);
     layout.putConstraint( SpringLayout.EAST,reloadButton, -5,SpringLayout.EAST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.EAST,axisPanel, -5,SpringLayout.EAST, jp);
-    layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
-
-    layout.putConstraint( SpringLayout.NORTH,filterPanel, 5,SpringLayout.SOUTH, axisPanel);
+    layout.putConstraint( SpringLayout.NORTH,filterPanel, 5,SpringLayout.SOUTH, openButton);
     layout.putConstraint( SpringLayout.EAST,filterPanel, -5,SpringLayout.EAST, jp);
     layout.putConstraint( SpringLayout.WEST,filterPanel, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, filterPanel);
+    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, filterPanel);
+    layout.putConstraint( SpringLayout.EAST,axisPanel, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
+
+
+    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, axisPanel);
     layout.putConstraint( SpringLayout.EAST,assistPanel, -5,SpringLayout.EAST, jp);
     layout.putConstraint( SpringLayout.WEST,assistPanel, 5,SpringLayout.WEST, jp);
 
@@ -656,7 +693,7 @@ public class GTracer implements ActionListener,MouseListener{
     //window size
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
     ctrlJframe.setBounds( 0, 0,
-                          440,screenDim.height-100);
+                          460,screenDim.height-100);
     //how to action, when close
     ctrlJframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -788,6 +825,16 @@ public class GTracer implements ActionListener,MouseListener{
       if(xend[0]!=EMPTY)g.fill3DRect(xend[0],xend[1],r,r,false);
       if(ystart[0]!=EMPTY)g.fill3DRect(ystart[0],ystart[1],r,r,false);
       if(yend[0]!=EMPTY)g.fill3DRect(yend[0],yend[1],r,r,false);
+
+      //assist point
+      g.setColor(Color.pink);
+      for(int i=0;i<erasePoints.size()/2;i++){
+        //center point
+        r=1;
+        int x=erasePoints.get(2*i  );
+        int y=erasePoints.get(2*i+1);
+        g.fillRect(x,y,r,r);
+      }
 
       //draw points
       g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定

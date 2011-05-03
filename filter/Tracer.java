@@ -142,7 +142,13 @@ public class Tracer{
     return point;
   }
 
-
+  public void erase(ArrayList<Integer> queue){
+    for(int i=0;i<queue.size()/2;i++){
+      int x=queue.get(2*i);
+      int y=queue.get(2*i+1);
+      lengthMap[x][y]=0;
+    }
+  }
   /**
    * Tracer
    * by Nakamura
