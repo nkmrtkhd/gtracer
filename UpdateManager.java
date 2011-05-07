@@ -19,7 +19,7 @@ import com.centerkey.utils.BareBonesBrowserLaunch;
 
 
 public class UpdateManager{
-  private double thisVersion=1.002;
+  private double thisVersion=1.003;
   private double wwwVersion=thisVersion;
   private String downloadURL="http://code.google.com/p/gtracer/downloads/list";
 
