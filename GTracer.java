@@ -588,8 +588,8 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
     jp.setBackground(panelColor);
 
 
-    rbSetOrg=new JRadioButton("set Origin",true);
-    rbSetAP=new JRadioButton("set AssistPoint");
+    rbSetOrg=new JRadioButton("set Origin");
+    rbSetAP=new JRadioButton("set AssistPoint",true);
     rbDelAP=new JRadioButton("delete AssistPoint");
     rbSetColor=new JRadioButton("set color");
     rbSetX1=new JRadioButton("x start");
@@ -826,7 +826,7 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
       if(ystart[0]!=EMPTY)g.fill3DRect(ystart[0],ystart[1],r,r,false);
       if(yend[0]!=EMPTY)g.fill3DRect(yend[0],yend[1],r,r,false);
 
-      //assist point
+      //erase point
       g.setColor(Color.pink);
       for(int i=0;i<erasePoints.size()/2;i++){
         //center point
@@ -836,29 +836,29 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
         g.fillRect(x,y,r,r);
       }
 
-      //draw points
-      g2.setStroke(new BasicStroke(1.0f)); //線の種類を設定
-      g.setColor(Color.blue);
       //assist point
+      g.setColor(Color.blue);
+      r=13;
       for(int i=0;i<assistPoints.size()/2;i++){
-        r=13;
         //big circle
-        int x=assistPoints.get(2*i  )-r/2;
-        int y=assistPoints.get(2*i+1)-r/2;
-        g.drawOval(x,y,r,r);
-        //center point
-        r=1;
-        x=assistPoints.get(2*i  );
-        y=assistPoints.get(2*i+1);
-        g.fillOval(x,y,r,r);
+        int x=assistPoints.get(2*i  );
+        int y=assistPoints.get(2*i+1);
+        g.drawOval(x-r/2,y-r/2,r,r);
       }
       //traced point
-      r=1;
+      r=5;
       for(int i=0;i<tracedPoints.size()/2;i++){
         int x=tracedPoints.get(2*i  );
         int y=tracedPoints.get(2*i+1);
         g.setColor(Color.green);
-        g.fill3DRect(x,y,r,r,false);
+        g.fillRect(x-r/2,y-r/2,r,r);
+      }
+      int r2=1;
+      for(int i=0;i<tracedPoints.size()/2;i++){
+        int x=tracedPoints.get(2*i  );
+        int y=tracedPoints.get(2*i+1);
+        g.setColor(Color.magenta);
+        g.drawOval(x-r2,y-r2,r2,r2);
       }
       /*
        * //linear segment

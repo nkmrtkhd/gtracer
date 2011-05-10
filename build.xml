@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Last Modified <2011-05-02 17:05:09 by NAKAMURA Takahide> -->
+<!-- Last Modified <2011-05-10 12:15:49 by NAKAMURA Takahide> -->
 
   <project name="GTracer" default="run" basedir=".">
 
@@ -34,7 +34,7 @@
     <target name="run" depends="make" description="run">
       <java classname="GTracer" classpath="." fork="yes" maxmemory="1024m"  >
         <classpath refid="libpath_ref" />
-        <arg line="sample.bmp" />
+        <arg line="sample_Rutile_O_K.png" />
       </java>
     </target>
 

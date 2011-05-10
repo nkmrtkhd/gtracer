@@ -12,11 +12,12 @@ ver=`grep -e "thisVersion=" UpdateManager.java |grep -o "[0-9].*" |sed s/\;//`
 
 ant clean
 ant jar
-mkdir GTracer
-cp GTracer.jar GTracer/
-cp ReadMe.txt GTracer/
-zip -r GTracer-$ver.zip GTracer/
-rm -rfv GTracer/
+mkdir GTracer-$ver
+cp GTracer.jar GTracer-$ver/
+cp ReadMe.txt GTracer-$ver/
+cp sample_Rutile_O_K.png GTracer-$ver/
+zip -r GTracer-$ver.zip GTracer-$ver/
+rm -rfv GTracer-$ver/
 
 
 # find . -name '*.java' -exec sed -i -e 's/jogamp/sun/' {} \;
