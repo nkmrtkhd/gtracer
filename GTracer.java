@@ -345,7 +345,7 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
 
     //canvas
     myCanv=new MyCanvas();
-    myCanv.setPreferredSize(new Dimension(100, 100));//what do i do ?
+    myCanv.setPreferredSize(new Dimension(10, 10));//what do i do ?
     myCanv.setBackground(new Color(200,200,200));
     myCanv.addMouseListener(this);
     myCanv.addMouseMotionListener(this);
@@ -588,8 +588,8 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
     jp.setBackground(panelColor);
 
 
-    rbSetOrg=new JRadioButton("set Origin");
-    rbSetAP=new JRadioButton("set AssistPoint",true);
+    rbSetOrg=new JRadioButton("set Origin",true);
+    rbSetAP=new JRadioButton("set AssistPoint");
     rbDelAP=new JRadioButton("delete AssistPoint");
     rbSetColor=new JRadioButton("set color");
     rbSetX1=new JRadioButton("x start");
@@ -659,16 +659,17 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
     layout.putConstraint( SpringLayout.NORTH,reloadButton, 0,SpringLayout.NORTH, openButton);
     layout.putConstraint( SpringLayout.EAST,reloadButton, -5,SpringLayout.EAST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,filterPanel, 5,SpringLayout.SOUTH, openButton);
-    layout.putConstraint( SpringLayout.EAST,filterPanel, -5,SpringLayout.EAST, jp);
-    layout.putConstraint( SpringLayout.WEST,filterPanel, 5,SpringLayout.WEST, jp);
-
-    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, filterPanel);
+    layout.putConstraint( SpringLayout.NORTH,axisPanel, 5,SpringLayout.SOUTH, openButton);
     layout.putConstraint( SpringLayout.EAST,axisPanel, -5,SpringLayout.EAST, jp);
     layout.putConstraint( SpringLayout.WEST,axisPanel, 5,SpringLayout.WEST, jp);
 
+    layout.putConstraint( SpringLayout.NORTH,filterPanel, 5,SpringLayout.SOUTH, axisPanel);
+    layout.putConstraint( SpringLayout.EAST,filterPanel, -5,SpringLayout.EAST, jp);
+    layout.putConstraint( SpringLayout.WEST,filterPanel, 5,SpringLayout.WEST, jp);
 
-    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, axisPanel);
+
+
+    layout.putConstraint( SpringLayout.NORTH,assistPanel, 5,SpringLayout.SOUTH, filterPanel);
     layout.putConstraint( SpringLayout.EAST,assistPanel, -5,SpringLayout.EAST, jp);
     layout.putConstraint( SpringLayout.WEST,assistPanel, 5,SpringLayout.WEST, jp);
 
