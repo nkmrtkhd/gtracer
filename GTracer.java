@@ -732,7 +732,11 @@ public class GTracer implements ActionListener,MouseListener,MouseMotionListener
       layout.putConstraint( SpringLayout.SOUTH,loupe, -10,SpringLayout.NORTH, spanel);
       layout.putConstraint( SpringLayout.NORTH,loupe, 10,SpringLayout.NORTH, jp);
 
+      JLabel nkmr=new JLabel("Made by nkmrtkhd");
+      layout.putConstraint( SpringLayout.NORTH,nkmr, 0,SpringLayout.NORTH, jp);
+      layout.putConstraint( SpringLayout.EAST,nkmr, -5,SpringLayout.EAST, jp);
 
+      jp.add(nkmr);
       jp.add(loupe);
       jp.add(spanel);
 
