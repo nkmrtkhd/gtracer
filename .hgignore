@@ -1,0 +1,5 @@
+syntax: glob
+*.class
+*.jar
+*.DS_Store*
+Icon*
